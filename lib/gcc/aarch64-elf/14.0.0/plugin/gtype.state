@@ -4,7 +4,7 @@
 ;;; Don't parse this file wihout knowing GCC gengtype internals.
 ;;; This file should be parsed by the same gengtype which wrote it.
 
-(!version  "14.0.0 20230621 (Dexter)")
+(!version  "14.0.0 20230622 (Dexter)")
 (!srcdir  "../../gcc/gcc")
 (!languages 12 ada c cp d fortran go jit lto m2 objc objcp rust)
 (!fileslist 242 0
@@ -23726,7 +23726,7 @@
     (!srcfileloc  "function.cc" 580)
     nil )
    (!pair  "in_use"
-    (!type already_seen 8)
+    (!type already_seen 2)
     (!srcfileloc  "function.cc" 582)
     nil )
    (!pair  "level"
@@ -26166,11 +26166,11 @@
   nil 0 nil nil )
  
  (!type user_struct 1759 nil  gc_unused "vec<cgraph_node*>"
-  (!srcfileloc  "trans-mem.cc" 4196)
+  (!srcfileloc  "trans-mem.cc" 4199)
   (!fields 1 
    (!pair  "cgraph_node"
     (!type already_seen 820)
-    (!srcfileloc  "trans-mem.cc" 4196)
+    (!srcfileloc  "trans-mem.cc" 4199)
     nil )
   )
  )
@@ -30793,7 +30793,7 @@
   nil 0 nil nil )
  
  (!type struct 2312 nil  gc_used "module_hasher"
-  (!srcfileloc  "fortran/trans-decl.cc" 5116)
+  (!srcfileloc  "fortran/trans-decl.cc" 5149)
   (!fields 0 )
   nil 16 nil nil )
  
@@ -30802,11 +30802,11 @@
    (!type already_seen 2313)
   )
   gc_pointed_to "hash_table<module_hasher>"
-  (!srcfileloc  "fortran/trans-decl.cc" 5116)
+  (!srcfileloc  "fortran/trans-decl.cc" 5149)
   (!fields 1 
    (!pair  "module_hasher"
     (!type already_seen 2312)
-    (!srcfileloc  "fortran/trans-decl.cc" 5116)
+    (!srcfileloc  "fortran/trans-decl.cc" 5149)
     nil )
   )
  )
@@ -31759,11 +31759,11 @@
   nil )
  (!pair  "module_hasher"
   (!type already_seen 2312)
-  (!srcfileloc  "fortran/trans-decl.cc" 5116)
+  (!srcfileloc  "fortran/trans-decl.cc" 5149)
   nil )
  (!pair  "hash_table<module_hasher>"
   (!type already_seen 2313)
-  (!srcfileloc  "fortran/trans-decl.cc" 5116)
+  (!srcfileloc  "fortran/trans-decl.cc" 5149)
   nil )
  (!pair  "tree_frame_info"
   (!type already_seen 662)
@@ -32901,11 +32901,11 @@
   nil )
  (!pair  "cgraph_node_queue"
   (!type already_seen 1759)
-  (!srcfileloc  "trans-mem.cc" 4196)
+  (!srcfileloc  "trans-mem.cc" 4199)
   nil )
  (!pair  "vec<cgraph_node*>"
   (!type already_seen 1759)
-  (!srcfileloc  "trans-mem.cc" 4196)
+  (!srcfileloc  "trans-mem.cc" 4199)
   nil )
  (!pair  "tm_wrapper_hasher"
   (!type already_seen 1739)
@@ -36616,7 +36616,7 @@
   (!type array 2411 nil  gc_used "2" 
    (!type already_seen 23)
   )
-  (!srcfileloc  "fortran/trans-stmt.cc" 3288)
+  (!srcfileloc  "fortran/trans-stmt.cc" 3292)
   nil )
  (!pair  "dt_parm"
   (!type already_seen 23)
@@ -36648,7 +36648,7 @@
   nil )
  (!pair  "module_htab"
   (!type already_seen 2314)
-  (!srcfileloc  "fortran/trans-decl.cc" 5116)
+  (!srcfileloc  "fortran/trans-decl.cc" 5149)
   nil )
  (!pair  "saved_local_decls"
   (!type already_seen 23)
@@ -38038,7 +38038,7 @@
  )
  (!pair  "addr_list"
   (!type already_seen 223)
-  (!srcfileloc  "tree-ssa-loop-ivopts.cc" 2594)
+  (!srcfileloc  "tree-ssa-loop-ivopts.cc" 2597)
   nil )
  (!pair  "mem_addr_template_list"
   (!type already_seen 1602)
@@ -38319,7 +38319,7 @@
   nil )
  (!pair  "next_block_index"
   (!type already_seen 2)
-  (!srcfileloc  "function.cc" 4614)
+  (!srcfileloc  "function.cc" 4612)
   nil )
  (!pair  "temp_slot_address_table"
   (!type already_seen 1462)
