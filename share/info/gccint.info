@@ -26735,14 +26735,14 @@ pattern to accomplish a certain task.
      loaded from memory and clear if element I of the result should be
      set to zero.
 
-‘len_mask_gather_loadMN’
-     Like ‘gather_loadMN’, but takes an extra length operand (operand
-     5), a bias operand (operand 6) as well as a mask operand (operand
-     7).  Similar to len_maskload, the instruction loads at most
-     (operand 5 + operand 6) elements from memory.  Bit I of the mask is
-     set if element I of the result should be loaded from memory and
-     clear if element I of the result should be undefined.  Mask
-     elements I with I > (operand 5 + operand 6) are ignored.
+‘mask_len_gather_loadMN’
+     Like ‘gather_loadMN’, but takes an extra mask operand (operand 5),
+     a len operand (operand 6) as well as a bias operand (operand 7).
+     Similar to mask_len_load, the instruction loads at most (operand 6
+     + operand 7) elements from memory.  Bit I of the mask is set if
+     element I of the result should be loaded from memory and clear if
+     element I of the result should be undefined.  Mask elements I with
+     I > (operand 6 + operand 7) are ignored.
 
 ‘scatter_storeMN’
      Store a vector of mode M into several distinct memory locations.
@@ -26766,13 +26766,13 @@ pattern to accomplish a certain task.
      5.  Bit I of the mask is set if element I of the result should be
      stored to memory.
 
-‘len_mask_scatter_storeMN’
-     Like ‘scatter_storeMN’, but takes an extra length operand (operand
-     5), a bias operand (operand 6) as well as a mask operand (operand
-     7).  The instruction stores at most (operand 5 + operand 6)
+‘mask_len_scatter_storeMN’
+     Like ‘scatter_storeMN’, but takes an extra mask operand (operand
+     5), a len operand (operand 6) as well as a bias operand (operand
+     7).  The instruction stores at most (operand 6 + operand 7)
      elements of (operand 4) to memory.  Bit I of the mask is set if
      element I of (operand 4) should be stored.  Mask elements I with I
-     > (operand 5 + operand 6) are ignored.
+     > (operand 6 + operand 7) are ignored.
 
 ‘vec_setM’
      Set given field in the vector value.  Operand 0 is the vector to
@@ -26982,17 +26982,17 @@ pattern to accomplish a certain task.
 
      This pattern is not allowed to ‘FAIL’.
 
-‘len_maskloadMN’
+‘mask_len_loadMN’
      Perform a masked load from the memory location pointed to by
-     operand 1 into register operand 0.  (operand 2 + operand 3)
+     operand 1 into register operand 0.  (operand 3 + operand 4)
      elements are loaded from memory and other elements in operand 0 are
      set to undefined values.  This is a combination of len_load and
      maskload.  Operands 0 and 1 have mode M, which must be a vector
-     mode.  Operand 2 has whichever integer mode the target prefers.  A
-     mask is specified in operand 4 which must be of type N.  The mask
+     mode.  Operand 3 has whichever integer mode the target prefers.  A
+     mask is specified in operand 2 which must be of type N.  The mask
      has lower precedence than the length and is itself subject to
-     length masking, i.e.  only mask indices < (operand 2 + operand 3)
-     are used.  Operand 3 conceptually has mode ‘QI’.
+     length masking, i.e.  only mask indices < (operand 3 + operand 4)
+     are used.  Operand 4 conceptually has mode ‘QI’.
 
      Operand 2 can be a variable or a constant amount.  Operand 4
      specifies a constant bias: it is either a constant 0 or a constant
@@ -27009,16 +27009,16 @@ pattern to accomplish a certain task.
 
      This pattern is not allowed to ‘FAIL’.
 
-‘len_maskstoreMN’
+‘mask_len_storeMN’
      Perform a masked store from vector register operand 1 into memory
-     operand 0.  (operand 2 + operand 3) elements are stored to memory
+     operand 0.  (operand 3 + operand 4) elements are stored to memory
      and leave the other elements of operand 0 unchanged.  This is a
      combination of len_store and maskstore.  Operands 0 and 1 have mode
-     M, which must be a vector mode.  Operand 2 has whichever integer
-     mode the target prefers.  A mask is specified in operand 4 which
+     M, which must be a vector mode.  Operand 3 has whichever integer
+     mode the target prefers.  A mask is specified in operand 2 which
      must be of type N.  The mask has lower precedence than the length
      and is itself subject to length masking, i.e.  only mask indices <
-     (operand 2 + operand 3) are used.  Operand 3 conceptually has mode
+     (operand 3 + operand 4) are used.  Operand 4 conceptually has mode
      ‘QI’.
 
      Operand 2 can be a variable or a constant amount.  Operand 3
@@ -56379,12 +56379,6 @@ Concept Index
 * LEGITIMIZE_RELOAD_ADDRESS:             Addressing Modes.   (line  150)
 * length:                                GTY Options.        (line   47)
 * len_load_M instruction pattern:        Standard Names.     (line  458)
-* len_maskloadMN instruction pattern:    Standard Names.     (line  502)
-* len_maskstoreMN instruction pattern:   Standard Names.     (line  529)
-* len_mask_gather_loadMN instruction pattern: Standard Names.
-                                                             (line  255)
-* len_mask_scatter_storeMN instruction pattern: Standard Names.
-                                                             (line  286)
 * len_store_M instruction pattern:       Standard Names.     (line  480)
 * less than:                             Comparisons.        (line   58)
 * less than or equal:                    Comparisons.        (line   66)
@@ -56500,6 +56494,12 @@ Concept Index
 * mask_gather_loadMN instruction pattern: Standard Names.    (line  249)
 * mask_len_fold_left_plus_M instruction pattern: Standard Names.
                                                              (line  735)
+* mask_len_gather_loadMN instruction pattern: Standard Names.
+                                                             (line  255)
+* mask_len_loadMN instruction pattern:   Standard Names.     (line  502)
+* mask_len_scatter_storeMN instruction pattern: Standard Names.
+                                                             (line  286)
+* mask_len_storeMN instruction pattern:  Standard Names.     (line  529)
 * MASK_RETURN_ADDR:                      Exception Region Output.
                                                              (line   35)
 * mask_scatter_storeMN instruction pattern: Standard Names.  (line  281)
@@ -59073,172 +59073,172 @@ Node: Disable Insn Alternatives1119151
 Node: Define Constraints1122715
 Node: C Constraint Interface1131574
 Node: Standard Names1134785
-Ref: shift patterns1184313
-Ref: prologue instruction pattern1250824
-Ref: window_save instruction pattern1251329
-Ref: epilogue instruction pattern1251610
-Node: Pattern Ordering1275401
-Node: Dependent Patterns1276637
-Node: Jump Patterns1278273
-Node: Looping Patterns1279958
-Node: Insn Canonicalizations1285705
-Node: Expander Definitions1291485
-Node: Insn Splitting1299924
-Node: Including Patterns1315315
-Node: Peephole Definitions1317120
-Node: define_peephole1318393
-Node: define_peephole21324825
-Node: Insn Attributes1329561
-Node: Defining Attributes1330668
-Ref: define_enum_attr1334272
-Node: Expressions1335324
-Node: Tagging Insns1342370
-Node: Attr Example1346849
-Node: Insn Lengths1349234
-Node: Constant Attributes1352710
-Node: Mnemonic Attribute1353906
-Node: Delay Slots1355445
-Node: Processor pipeline description1358700
-Ref: Processor pipeline description-Footnote-11377847
-Node: Conditional Execution1378173
-Node: Define Subst1381732
-Node: Define Subst Example1383825
-Node: Define Subst Pattern Matching1386880
-Node: Define Subst Output Template1388194
-Node: Constant Definitions1390617
-Ref: define_enum1394544
-Node: Iterators1395044
-Node: Mode Iterators1395689
-Node: Defining Mode Iterators1396711
-Node: Substitutions1398293
-Node: Examples1400613
-Node: Code Iterators1402081
-Node: Int Iterators1405257
-Node: Subst Iterators1407860
-Node: Parameterized Names1409612
-Node: Target Macros1413730
-Node: Target Structure1416865
-Node: Driver1419501
-Node: Run-time Target1439056
-Node: Per-Function Data1449953
-Node: Storage Layout1452776
-Node: Type Layout1481733
-Node: Registers1495612
-Node: Register Basics1496586
-Node: Allocation Order1504360
-Node: Values in Registers1506862
-Node: Leaf Functions1514430
-Node: Stack Registers1517328
-Node: Register Classes1518609
-Node: Stack and Calling1553954
-Node: Frame Layout1554560
-Node: Exception Handling1566877
-Node: Stack Checking1573211
-Node: Frame Registers1578881
-Node: Elimination1587601
-Node: Stack Arguments1591523
-Node: Register Arguments1599074
-Node: Scalar Return1624686
-Node: Aggregate Return1631267
-Node: Caller Saves1636111
-Node: Function Entry1636857
-Node: Profiling1648587
-Node: Tail Calls1650735
-Node: Shrink-wrapping separate components1652661
-Node: Stack Smashing Protection1655752
-Node: Miscellaneous Register Hooks1658275
-Node: Varargs1659140
-Node: Trampolines1667447
-Node: Library Calls1677231
-Node: Addressing Modes1683491
-Node: Anchored Addresses1715380
-Node: Condition Code1718111
-Node: MODE_CC Condition Codes1719968
-Node: Costs1726825
-Node: Scheduling1749533
-Node: Sections1773598
-Node: PIC1790326
-Node: Assembler Format1792427
-Node: File Framework1793566
-Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1801285
-Node: Data Output1802986
-Node: Uninitialized Data1811412
-Node: Label Output1816507
-Node: Initialization1841640
-Node: Macros for Initialization1847836
-Node: Instruction Output1855159
-Node: Dispatch Tables1866038
-Node: Exception Region Output1871853
-Node: Alignment Output1879095
-Node: Debugging Info1882884
-Node: All Debuggers1883434
-Node: DWARF1886419
-Node: VMS Debug1892272
-Node: CTF Debug1892889
-Node: BTF Debug1893254
-Node: Floating Point1893601
-Node: Mode Switching1896382
-Node: Target Attributes1900899
-Node: Emulated TLS1912508
-Node: MIPS Coprocessors1915936
-Node: PCH Target1917103
-Node: C++ ABI1918987
-Node: D Language and ABI1923851
-Node: Named Address Spaces1927159
-Node: Misc1933170
-Ref: TARGET_SHIFT_TRUNCATION_MASK1941177
-Node: Host Config2003372
-Node: Host Common2004469
-Node: Filesystem2006863
-Node: Host Misc2011084
-Node: Fragments2013659
-Node: Target Fragment2014906
-Node: Host Fragment2026140
-Node: Collect22026384
-Node: Header Dirs2029231
-Node: Type Information2030702
-Node: GTY Options2034313
-Node: Inheritance and GTY2047577
-Ref: Inheritance and GTY-Footnote-12049172
-Node: User GC2049442
-Node: GGC Roots2053301
-Node: Files2054045
-Node: Invoking the garbage collector2056772
-Node: Troubleshooting2058448
-Node: Plugins2059551
-Node: Plugins loading2060680
-Node: Plugin API2061831
-Node: Plugins pass2069848
-Node: Plugins GC2071831
-Node: Plugins description2073616
-Node: Plugins attr2074166
-Node: Plugins recording2076494
-Node: Plugins gate2077372
-Node: Plugins tracking2077971
-Node: Plugins building2078567
-Node: LTO2082178
-Node: LTO Overview2083054
-Node: LTO object file layout2088946
-Node: IPA2093633
-Node: WHOPR2102843
-Node: Internal flags2107467
-Node: Match and Simplify2108902
-Node: GIMPLE API2109872
-Node: The Language2112698
-Node: Static Analyzer2125661
-Node: Analyzer Internals2125926
-Node: Debugging the Analyzer2142002
-Node: User Experience Guidelines2149615
-Node: Guidelines for Diagnostics2150552
-Ref: input_location_example2158904
-Node: Guidelines for Options2168799
-Node: Funding2168976
-Node: GNU Project2171502
-Node: Copying2172167
-Node: GNU Free Documentation License2209903
-Node: Contributors2235232
-Node: Option Index2277754
-Node: Concept Index2278649
+Ref: shift patterns1184309
+Ref: prologue instruction pattern1250820
+Ref: window_save instruction pattern1251325
+Ref: epilogue instruction pattern1251606
+Node: Pattern Ordering1275397
+Node: Dependent Patterns1276633
+Node: Jump Patterns1278269
+Node: Looping Patterns1279954
+Node: Insn Canonicalizations1285701
+Node: Expander Definitions1291481
+Node: Insn Splitting1299920
+Node: Including Patterns1315311
+Node: Peephole Definitions1317116
+Node: define_peephole1318389
+Node: define_peephole21324821
+Node: Insn Attributes1329557
+Node: Defining Attributes1330664
+Ref: define_enum_attr1334268
+Node: Expressions1335320
+Node: Tagging Insns1342366
+Node: Attr Example1346845
+Node: Insn Lengths1349230
+Node: Constant Attributes1352706
+Node: Mnemonic Attribute1353902
+Node: Delay Slots1355441
+Node: Processor pipeline description1358696
+Ref: Processor pipeline description-Footnote-11377843
+Node: Conditional Execution1378169
+Node: Define Subst1381728
+Node: Define Subst Example1383821
+Node: Define Subst Pattern Matching1386876
+Node: Define Subst Output Template1388190
+Node: Constant Definitions1390613
+Ref: define_enum1394540
+Node: Iterators1395040
+Node: Mode Iterators1395685
+Node: Defining Mode Iterators1396707
+Node: Substitutions1398289
+Node: Examples1400609
+Node: Code Iterators1402077
+Node: Int Iterators1405253
+Node: Subst Iterators1407856
+Node: Parameterized Names1409608
+Node: Target Macros1413726
+Node: Target Structure1416861
+Node: Driver1419497
+Node: Run-time Target1439052
+Node: Per-Function Data1449949
+Node: Storage Layout1452772
+Node: Type Layout1481729
+Node: Registers1495608
+Node: Register Basics1496582
+Node: Allocation Order1504356
+Node: Values in Registers1506858
+Node: Leaf Functions1514426
+Node: Stack Registers1517324
+Node: Register Classes1518605
+Node: Stack and Calling1553950
+Node: Frame Layout1554556
+Node: Exception Handling1566873
+Node: Stack Checking1573207
+Node: Frame Registers1578877
+Node: Elimination1587597
+Node: Stack Arguments1591519
+Node: Register Arguments1599070
+Node: Scalar Return1624682
+Node: Aggregate Return1631263
+Node: Caller Saves1636107
+Node: Function Entry1636853
+Node: Profiling1648583
+Node: Tail Calls1650731
+Node: Shrink-wrapping separate components1652657
+Node: Stack Smashing Protection1655748
+Node: Miscellaneous Register Hooks1658271
+Node: Varargs1659136
+Node: Trampolines1667443
+Node: Library Calls1677227
+Node: Addressing Modes1683487
+Node: Anchored Addresses1715376
+Node: Condition Code1718107
+Node: MODE_CC Condition Codes1719964
+Node: Costs1726821
+Node: Scheduling1749529
+Node: Sections1773594
+Node: PIC1790322
+Node: Assembler Format1792423
+Node: File Framework1793562
+Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1801281
+Node: Data Output1802982
+Node: Uninitialized Data1811408
+Node: Label Output1816503
+Node: Initialization1841636
+Node: Macros for Initialization1847832
+Node: Instruction Output1855155
+Node: Dispatch Tables1866034
+Node: Exception Region Output1871849
+Node: Alignment Output1879091
+Node: Debugging Info1882880
+Node: All Debuggers1883430
+Node: DWARF1886415
+Node: VMS Debug1892268
+Node: CTF Debug1892885
+Node: BTF Debug1893250
+Node: Floating Point1893597
+Node: Mode Switching1896378
+Node: Target Attributes1900895
+Node: Emulated TLS1912504
+Node: MIPS Coprocessors1915932
+Node: PCH Target1917099
+Node: C++ ABI1918983
+Node: D Language and ABI1923847
+Node: Named Address Spaces1927155
+Node: Misc1933166
+Ref: TARGET_SHIFT_TRUNCATION_MASK1941173
+Node: Host Config2003368
+Node: Host Common2004465
+Node: Filesystem2006859
+Node: Host Misc2011080
+Node: Fragments2013655
+Node: Target Fragment2014902
+Node: Host Fragment2026136
+Node: Collect22026380
+Node: Header Dirs2029227
+Node: Type Information2030698
+Node: GTY Options2034309
+Node: Inheritance and GTY2047573
+Ref: Inheritance and GTY-Footnote-12049168
+Node: User GC2049438
+Node: GGC Roots2053297
+Node: Files2054041
+Node: Invoking the garbage collector2056768
+Node: Troubleshooting2058444
+Node: Plugins2059547
+Node: Plugins loading2060676
+Node: Plugin API2061827
+Node: Plugins pass2069844
+Node: Plugins GC2071827
+Node: Plugins description2073612
+Node: Plugins attr2074162
+Node: Plugins recording2076490
+Node: Plugins gate2077368
+Node: Plugins tracking2077967
+Node: Plugins building2078563
+Node: LTO2082174
+Node: LTO Overview2083050
+Node: LTO object file layout2088942
+Node: IPA2093629
+Node: WHOPR2102839
+Node: Internal flags2107463
+Node: Match and Simplify2108898
+Node: GIMPLE API2109868
+Node: The Language2112694
+Node: Static Analyzer2125657
+Node: Analyzer Internals2125922
+Node: Debugging the Analyzer2141998
+Node: User Experience Guidelines2149611
+Node: Guidelines for Diagnostics2150548
+Ref: input_location_example2158900
+Node: Guidelines for Options2168795
+Node: Funding2168972
+Node: GNU Project2171498
+Node: Copying2172163
+Node: GNU Free Documentation License2209899
+Node: Contributors2235228
+Node: Option Index2277750
+Node: Concept Index2278645
 
 End Tag Table
 
