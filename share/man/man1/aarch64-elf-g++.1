@@ -55,7 +55,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 2023-08-24 gcc-14.0.0 GNU
+.TH GCC 1 2023-08-27 gcc-14.0.0 GNU
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1369,7 +1369,6 @@ See RS/6000 and PowerPC Options.
 \&\-mamx\-tile  \-mamx\-int8  \-mamx\-bf16 \-muintr \-mhreset \-mavxvnni
 \&\-mavx512fp16 \-mavxifma \-mavxvnniint8 \-mavxneconvert \-mcmpccxadd \-mamx\-fp16
 \&\-mprefetchi \-mraoint \-mamx\-complex \-mavxvnniint16 \-msm3 \-msha512 \-msm4
-\&\-mavx10.1 \-mavx10.1\-256 \-mavx10.1\-512
 \&\-mcldemote  \-mms\-bitfields  \-mno\-align\-stringops  \-minline\-all\-stringops
 \&\-minline\-stringops\-dynamically  \-mstringop\-strategy=\fR\fIalg\fR
 \&\fB\-mkl \-mwidekl
@@ -10341,6 +10340,9 @@ and of the following functions:
 .ie n .IP "*<""sigsetjmp"">" 4
 .el .IP *<\f(CWsigsetjmp\fR> 4
 .IX Item "*<sigsetjmp>"
+.ie n .IP "*<""strcat"">" 4
+.el .IP *<\f(CWstrcat\fR> 4
+.IX Item "*<strcat>"
 .ie n .IP "*<""strchr"">" 4
 .el .IP *<\f(CWstrchr\fR> 4
 .IX Item "*<strchr>"
@@ -32565,12 +32567,6 @@ preferred alignment to \fB\-mpreferred\-stack\-boundary=2\fR.
 .IX Item "-msha512"
 .IP \fB\-msm4\fR 4
 .IX Item "-msm4"
-.IP \fB\-mavx10.1\fR 4
-.IX Item "-mavx10.1"
-.IP \fB\-mavx10.1\-256\fR 4
-.IX Item "-mavx10.1-256"
-.IP \fB\-mavx10.1\-512\fR 4
-.IX Item "-mavx10.1-512"
 .PD
 These switches enable the use of instructions in the MMX, SSE,
 AVX512ER, AVX512CD, AVX512VL, AVX512BW, AVX512DQ, AVX512IFMA, AVX512VBMI, SHA,
@@ -32582,9 +32578,9 @@ GFNI, VAES, WAITPKG, VPCLMULQDQ, AVX512BITALG, MOVDIRI, MOVDIR64B, AVX512BF16,
 ENQCMD, AVX512VPOPCNTDQ, AVX5124FMAPS, AVX512VNNI, AVX5124VNNIW, SERIALIZE,
 UINTR, HRESET, AMXTILE, AMXINT8, AMXBF16, KL, WIDEKL, AVXVNNI, AVX512\-FP16,
 AVXIFMA, AVXVNNIINT8, AVXNECONVERT, CMPCCXADD, AMX\-FP16, PREFETCHI, RAOINT,
-AMX-COMPLEX, AVXVNNIINT16, SM3, SHA512, SM4, AVX10.1 or CLDEMOTE extended
-instruction sets. Each has a corresponding \fB\-mno\-\fR option to disable
-use of these instructions.
+AMX-COMPLEX, AVXVNNIINT16, SM3, SHA512, SM4 or CLDEMOTE extended instruction
+sets. Each has a corresponding \fB\-mno\-\fR option to disable use of these
+instructions.
 .Sp
 These extensions are also available as built-in functions: see
 \&\fBx86 Built-in Functions\fR, for details of the functions enabled and
