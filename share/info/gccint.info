@@ -436,6 +436,53 @@ call the libc function ‘abort’ upon signed arithmetic overflow.
  -- Runtime Function: int64_t __bswapdi2 (int64_t A)
      These functions return the A byteswapped.
 
+4.1.5 Bit-precise integer arithmetic functions
+----------------------------------------------
+
+‘_BitInt(N)’ library functions operate on arrays of limbs, where each
+limb has ‘__LIBGCC_BITINT_LIMB_WIDTH__’ bits and the limbs are ordered
+according to ‘__LIBGCC_BITINT_ORDER__’ ordering.  The most significant
+limb if N is not divisible by ‘__LIBGCC_BITINT_LIMB_WIDTH__’ contains
+padding bits which should be ignored on read (sign or zero extended),
+but extended on write.  For the library functions, all bit-precise
+integers regardless of N are represented like that, even when the target
+ABI says that for some small N they should be represented differently in
+memory.  A pointer to the array of limbs argument is always accompanied
+with a bit size argument.  If that argument is positive, it is number of
+bits and the number is assumed to be zero-extended to infinite
+precision, if that argument is negative, it is negated number of bits
+above which all bits are assumed to be sign-extended to infinite
+precision.  These number of bits arguments don’t need to match actual N
+for the operation used in the source, they could be lowered because of
+sign or zero extensions on the input or because value-range optimization
+figures value will need certain lower number of bits.  For big-endian
+ordering of limbs, when lowering the bit size argument the pointer
+argument needs to be adjusted as well.  Negative bit size argument
+should be always smaller or equal to ‘-2’, because ‘signed _BitInt(1)’
+is not valid.  For output arguments, either the corresponding bit size
+argument should be always positive (for multiplication and division), or
+is negative when the output of conversion from floating-point value is
+signed and positive when unsigned.  The arrays of limbs output arguments
+point to should not overlap any inputs, while input arrays of limbs can
+overlap.  ‘UBILtype’ below stands for unsigned integer type with
+‘__LIBGCC_BITINT_LIMB_WIDTH__’ bit precision.
+
+ -- Runtime Function: void __mulbitint3 (UBILtype *RET, int32_t RETPREC,
+          const UBILtype *u, int32_t UPREC, const UBILtype *v, int32_t
+          VPREC)
+     This function multiplies bit-precise integer operands U and V and
+     stores result into RETPREC precision bit-precise integer result
+     RET.
+
+ -- Runtime Function: void __divmodbitint4 (UBILtype *Q, int32_t QPREC,
+          UBILtype *R, int32_t RPREC, const UBILtype *u, int32_t UPREC,
+          const UBILtype *v, int32_t VPREC)
+     This function divides bit-precise integer operands U and V and
+     stores quotient into QPREC precision bit-precise integer result Q
+     (unless Q is ‘NULL’ and QPREC is 0, in that case quotient is not
+     stored anywhere) and remainder into RPREC precision bit-precise
+     integer result R (similarly, unless R is ‘NULL’ and RPREC is 0).
+
 
 File: gccint.info,  Node: Soft float library routines,  Next: Decimal float library routines,  Prev: Integer library routines,  Up: Libgcc
 
@@ -592,6 +639,34 @@ Library Calls::).  In this section, the default names are used.
  -- Runtime Function: long double __floatuntixf (unsigned long long I)
      These functions convert I, an unsigned long long, to floating
      point.
+
+ -- Runtime Function: void __fixsfbitint (UBILtype *R, int32_t RPREC,
+          float A)
+ -- Runtime Function: void __fixdfbitint (UBILtype *R, int32_t RPREC,
+          double A)
+ -- Runtime Function: void __fixxfbitint (UBILtype *R, int32_t RPREC,
+          __float80 A)
+ -- Runtime Function: void __fixtfbitint (UBILtype *R, int32_t RPREC,
+          _Float128 A)
+     These functions convert A to bit-precise integer R, rounding toward
+     zero.  If RPREC is positive, it converts to unsigned bit-precise
+     integer and negative values all become zero, if RPREC is negative,
+     it converts to signed bit-precise integer.
+
+ -- Runtime Function: float __floatbitintsf (UBILtype *I, int32_t IPREC)
+ -- Runtime Function: double __floatbitintdf (UBILtype *I, int32_t
+          IPREC)
+ -- Runtime Function: __float80 __floatbitintxf (UBILtype *I, int32_t
+          IPREC)
+ -- Runtime Function: _Float128 __floatbitinttf (UBILtype *I, int32_t
+          IPREC)
+ -- Runtime Function: _Float16 __floatbitinthf (UBILtype *I, int32_t
+          IPREC)
+ -- Runtime Function: __bf16 __floatbitintbf (UBILtype *I, int32_t
+          IPREC)
+     These functions convert bit-precise integer I to floating point.
+     If IPREC is positive, it is conversion from unsigned bit-precise
+     integer, otherwise from signed bit-precise integer.
 
 4.2.3 Comparison functions
 --------------------------
@@ -922,6 +997,29 @@ selected at configure time.
  -- Runtime Function: _Decimal128 __bid_floatunsditd (unsigned long I)
      These functions convert I, an unsigned long, to decimal floating
      point.
+
+ -- Runtime Function: void __bid_fixsdbitint (UBILtype *R, int32_t
+          RPREC, _Decimal32 A)
+ -- Runtime Function: void __bid_fixddbitint (UBILtype *R, int32_t
+          RPREC, _Decimal64 A)
+ -- Runtime Function: void __bid_fixtdbitint (UBILtype *R, int32_t
+          RPREC, _Decimal128 A)
+     These functions convert A to bit-precise integer R, rounding toward
+     zero.  If RPREC is positive, it converts to unsigned bit-precise
+     integer and negative values all become zero, if RPREC is negative,
+     it converts to signed bit-precise integer.  So far implemented for
+     BID format only.
+
+ -- Runtime Function: _Decimal32 __bid_floatbitintsd (UBILtype *I,
+          int32_t IPREC)
+ -- Runtime Function: _Decimal64 __bid_floatbitintdd (UBILtype *I,
+          int32_t IPREC)
+ -- Runtime Function: _Decimal128 __bid_floatbitinttd (UBILtype *I,
+          int32_t IPREC)
+     These functions convert bit-precise integer I to decimal floating
+     point.  If IPREC is positive, it is conversion from unsigned
+     bit-precise integer, otherwise from signed bit-precise integer.  So
+     far implemented for BID format only.
 
 4.3.3 Comparison functions
 --------------------------
@@ -10478,6 +10576,14 @@ will encounter while examining the intermediate representation.
      that may be represented by this type.  Similarly, the
      ‘TYPE_MAX_VALUE’ is an ‘INTEGER_CST’ for the largest integer that
      may be represented by this type.
+
+‘BITINT_TYPE’
+     Used to represent the bit-precise integer types, ‘_BitInt(N)’.
+     These types are similar to ‘INTEGER_TYPE’, but can have arbitrary
+     user selected precisions and do or can have different alignment,
+     function argument and return value passing conventions.  Larger
+     BITINT_TYPEs can have ‘BLKmode’ ‘TYPE_MODE’ and need to be lowered
+     by a special BITINT_TYPE lowering pass.
 
 ‘REAL_TYPE’
      Used to represent the ‘float’, ‘double’, and ‘long double’ types.
@@ -24759,6 +24865,17 @@ _LoongArch—‘config/loongarch/constraints.md’_
           A signed 12-bit constant (for arithmetic instructions).
      ‘K’
           An unsigned 12-bit constant (for logic instructions).
+     ‘M’
+          A constant that cannot be loaded using ‘lui’, ‘addiu’ or
+          ‘ori’.
+     ‘N’
+          A constant in the range -65535 to -1 (inclusive).
+     ‘O’
+          A signed 15-bit constant.
+     ‘P’
+          A constant in the range 1 to 65535 (inclusive).
+     ‘R’
+          An address that can be used in a non-macro load or store.
      ‘ZB’
           An address that is held in a general-purpose register.  The
           offset is zero.
@@ -33848,6 +33965,20 @@ expressions that refer to static variables, such as the ‘target_flags’.
  Return a value, with the same meaning as the C99 macro
 ‘FLT_EVAL_METHOD’ that describes which excess precision should be
 applied.
+
+ -- Target Hook: bool TARGET_C_BITINT_TYPE_INFO (int N, struct
+          bitint_info *INFO)
+     This target hook returns true if ‘_BitInt(N)’ is supported and
+     provides details on it.  ‘_BitInt(N)’ is to be represented as
+     series of ‘info->limb_mode’ ‘CEIL (N, GET_MODE_PRECISION
+     (info->limb_mode))’ limbs, ordered from least significant to most
+     significant if ‘!info->big_endian’, otherwise from most significant
+     to least significant.  If ‘info->extended’ is false, the bits above
+     or equal to N are undefined when stored in a register or memory,
+     otherwise they are zero or sign extended depending on if it is
+     ‘unsigned _BitInt(N)’ or one of ‘_BitInt(N)’ or ‘signed
+     _BitInt(N)’.  Alignment of the type is ‘GET_MODE_ALIGNMENT
+     (info->limb_mode)’.
 
  -- Target Hook: machine_mode TARGET_PROMOTE_FUNCTION_MODE (const_tree
           TYPE, machine_mode MODE, int *PUNSIGNEDP, const_tree FUNTYPE,
@@ -51343,11 +51474,11 @@ Concept Index
 * __bid_divtd3:                          Decimal float library routines.
                                                              (line   70)
 * __bid_eqdd2:                           Decimal float library routines.
-                                                             (line  258)
+                                                             (line  281)
 * __bid_eqsd2:                           Decimal float library routines.
-                                                             (line  256)
+                                                             (line  279)
 * __bid_eqtd2:                           Decimal float library routines.
-                                                             (line  260)
+                                                             (line  283)
 * __bid_extendddtd2:                     Decimal float library routines.
                                                              (line   91)
 * __bid_extendddtf:                      Decimal float library routines.
@@ -51378,14 +51509,20 @@ Concept Index
                                                              (line  148)
 * __bid_extendxftd:                      Decimal float library routines.
                                                              (line  108)
+* __bid_fixddbitint:                     Decimal float library routines.
+                                                             (line  230)
 * __bid_fixdddi:                         Decimal float library routines.
                                                              (line  169)
 * __bid_fixddsi:                         Decimal float library routines.
                                                              (line  161)
+* __bid_fixsdbitint:                     Decimal float library routines.
+                                                             (line  228)
 * __bid_fixsddi:                         Decimal float library routines.
                                                              (line  167)
 * __bid_fixsdsi:                         Decimal float library routines.
                                                              (line  159)
+* __bid_fixtdbitint:                     Decimal float library routines.
+                                                             (line  232)
 * __bid_fixtddi:                         Decimal float library routines.
                                                              (line  171)
 * __bid_fixtdsi:                         Decimal float library routines.
@@ -51402,6 +51539,12 @@ Concept Index
                                                              (line  188)
 * __bid_fixunstdsi:                      Decimal float library routines.
                                                              (line  179)
+* __bid_floatbitintdd:                   Decimal float library routines.
+                                                             (line  242)
+* __bid_floatbitintsd:                   Decimal float library routines.
+                                                             (line  240)
+* __bid_floatbitinttd:                   Decimal float library routines.
+                                                             (line  244)
 * __bid_floatdidd:                       Decimal float library routines.
                                                              (line  204)
 * __bid_floatdisd:                       Decimal float library routines.
@@ -51427,29 +51570,29 @@ Concept Index
 * __bid_floatunssitd:                    Decimal float library routines.
                                                              (line  215)
 * __bid_gedd2:                           Decimal float library routines.
-                                                             (line  276)
+                                                             (line  299)
 * __bid_gesd2:                           Decimal float library routines.
-                                                             (line  274)
+                                                             (line  297)
 * __bid_getd2:                           Decimal float library routines.
-                                                             (line  278)
-* __bid_gtdd2:                           Decimal float library routines.
-                                                             (line  303)
-* __bid_gtsd2:                           Decimal float library routines.
                                                              (line  301)
+* __bid_gtdd2:                           Decimal float library routines.
+                                                             (line  326)
+* __bid_gtsd2:                           Decimal float library routines.
+                                                             (line  324)
 * __bid_gttd2:                           Decimal float library routines.
-                                                             (line  305)
+                                                             (line  328)
 * __bid_ledd2:                           Decimal float library routines.
-                                                             (line  294)
+                                                             (line  317)
 * __bid_lesd2:                           Decimal float library routines.
-                                                             (line  292)
+                                                             (line  315)
 * __bid_letd2:                           Decimal float library routines.
-                                                             (line  296)
+                                                             (line  319)
 * __bid_ltdd2:                           Decimal float library routines.
-                                                             (line  285)
+                                                             (line  308)
 * __bid_ltsd2:                           Decimal float library routines.
-                                                             (line  283)
+                                                             (line  306)
 * __bid_lttd2:                           Decimal float library routines.
-                                                             (line  287)
+                                                             (line  310)
 * __bid_muldd3:                          Decimal float library routines.
                                                              (line   52)
 * __bid_mulsd3:                          Decimal float library routines.
@@ -51457,7 +51600,7 @@ Concept Index
 * __bid_multd3:                          Decimal float library routines.
                                                              (line   56)
 * __bid_nedd2:                           Decimal float library routines.
-                                                             (line  267)
+                                                             (line  290)
 * __bid_negdd2:                          Decimal float library routines.
                                                              (line   77)
 * __bid_negsd2:                          Decimal float library routines.
@@ -51465,9 +51608,9 @@ Concept Index
 * __bid_negtd2:                          Decimal float library routines.
                                                              (line   79)
 * __bid_nesd2:                           Decimal float library routines.
-                                                             (line  265)
+                                                             (line  288)
 * __bid_netd2:                           Decimal float library routines.
-                                                             (line  269)
+                                                             (line  292)
 * __bid_subdd3:                          Decimal float library routines.
                                                              (line   37)
 * __bid_subsd3:                          Decimal float library routines.
@@ -51505,11 +51648,11 @@ Concept Index
 * __bid_truncxfsd:                       Decimal float library routines.
                                                              (line  112)
 * __bid_unorddd2:                        Decimal float library routines.
-                                                             (line  234)
+                                                             (line  257)
 * __bid_unordsd2:                        Decimal float library routines.
-                                                             (line  232)
+                                                             (line  255)
 * __bid_unordtd2:                        Decimal float library routines.
-                                                             (line  236)
+                                                             (line  259)
 * __bswapdi2:                            Integer library routines.
                                                              (line  161)
 * __bswapsi2:                            Integer library routines.
@@ -51528,7 +51671,7 @@ Concept Index
 * __cmpda2:                              Fixed-point fractional library routines.
                                                              (line  450)
 * __cmpdf2:                              Soft float library routines.
-                                                             (line  163)
+                                                             (line  191)
 * __cmpdi2:                              Integer library routines.
                                                              (line   86)
 * __cmpdq2:                              Fixed-point fractional library routines.
@@ -51542,13 +51685,13 @@ Concept Index
 * __cmpsa2:                              Fixed-point fractional library routines.
                                                              (line  449)
 * __cmpsf2:                              Soft float library routines.
-                                                             (line  162)
+                                                             (line  190)
 * __cmpsq2:                              Fixed-point fractional library routines.
                                                              (line  438)
 * __cmpta2:                              Fixed-point fractional library routines.
                                                              (line  451)
 * __cmptf2:                              Soft float library routines.
-                                                             (line  164)
+                                                             (line  192)
 * __cmpti2:                              Integer library routines.
                                                              (line   87)
 * __cmpuda2:                             Fixed-point fractional library routines.
@@ -51577,7 +51720,7 @@ Concept Index
 * __divda3:                              Fixed-point fractional library routines.
                                                              (line  226)
 * __divdc3:                              Soft float library routines.
-                                                             (line  250)
+                                                             (line  278)
 * __divdf3:                              Soft float library routines.
                                                              (line   47)
 * __divdi3:                              Integer library routines.
@@ -51588,12 +51731,14 @@ Concept Index
                                                              (line  223)
 * __divhq3:                              Fixed-point fractional library routines.
                                                              (line  219)
+* __divmodbitint4:                       Integer library routines.
+                                                             (line  202)
 * __divqq3:                              Fixed-point fractional library routines.
                                                              (line  217)
 * __divsa3:                              Fixed-point fractional library routines.
                                                              (line  225)
 * __divsc3:                              Soft float library routines.
-                                                             (line  248)
+                                                             (line  276)
 * __divsf3:                              Soft float library routines.
                                                              (line   46)
 * __divsi3:                              Integer library routines.
@@ -51603,13 +51748,13 @@ Concept Index
 * __divta3:                              Fixed-point fractional library routines.
                                                              (line  227)
 * __divtc3:                              Soft float library routines.
-                                                             (line  252)
+                                                             (line  280)
 * __divtf3:                              Soft float library routines.
                                                              (line   48)
 * __divti3:                              Integer library routines.
                                                              (line   25)
 * __divxc3:                              Soft float library routines.
-                                                             (line  254)
+                                                             (line  282)
 * __divxf3:                              Soft float library routines.
                                                              (line   50)
 * __dpd_adddd3:                          Decimal float library routines.
@@ -51625,11 +51770,11 @@ Concept Index
 * __dpd_divtd3:                          Decimal float library routines.
                                                              (line   68)
 * __dpd_eqdd2:                           Decimal float library routines.
-                                                             (line  257)
+                                                             (line  280)
 * __dpd_eqsd2:                           Decimal float library routines.
-                                                             (line  255)
+                                                             (line  278)
 * __dpd_eqtd2:                           Decimal float library routines.
-                                                             (line  259)
+                                                             (line  282)
 * __dpd_extendddtd2:                     Decimal float library routines.
                                                              (line   90)
 * __dpd_extendddtf:                      Decimal float library routines.
@@ -51709,29 +51854,29 @@ Concept Index
 * __dpd_floatunssitd:                    Decimal float library routines.
                                                              (line  214)
 * __dpd_gedd2:                           Decimal float library routines.
-                                                             (line  275)
+                                                             (line  298)
 * __dpd_gesd2:                           Decimal float library routines.
-                                                             (line  273)
+                                                             (line  296)
 * __dpd_getd2:                           Decimal float library routines.
-                                                             (line  277)
-* __dpd_gtdd2:                           Decimal float library routines.
-                                                             (line  302)
-* __dpd_gtsd2:                           Decimal float library routines.
                                                              (line  300)
+* __dpd_gtdd2:                           Decimal float library routines.
+                                                             (line  325)
+* __dpd_gtsd2:                           Decimal float library routines.
+                                                             (line  323)
 * __dpd_gttd2:                           Decimal float library routines.
-                                                             (line  304)
+                                                             (line  327)
 * __dpd_ledd2:                           Decimal float library routines.
-                                                             (line  293)
+                                                             (line  316)
 * __dpd_lesd2:                           Decimal float library routines.
-                                                             (line  291)
+                                                             (line  314)
 * __dpd_letd2:                           Decimal float library routines.
-                                                             (line  295)
+                                                             (line  318)
 * __dpd_ltdd2:                           Decimal float library routines.
-                                                             (line  284)
+                                                             (line  307)
 * __dpd_ltsd2:                           Decimal float library routines.
-                                                             (line  282)
+                                                             (line  305)
 * __dpd_lttd2:                           Decimal float library routines.
-                                                             (line  286)
+                                                             (line  309)
 * __dpd_muldd3:                          Decimal float library routines.
                                                              (line   50)
 * __dpd_mulsd3:                          Decimal float library routines.
@@ -51739,7 +51884,7 @@ Concept Index
 * __dpd_multd3:                          Decimal float library routines.
                                                              (line   54)
 * __dpd_nedd2:                           Decimal float library routines.
-                                                             (line  266)
+                                                             (line  289)
 * __dpd_negdd2:                          Decimal float library routines.
                                                              (line   76)
 * __dpd_negsd2:                          Decimal float library routines.
@@ -51747,9 +51892,9 @@ Concept Index
 * __dpd_negtd2:                          Decimal float library routines.
                                                              (line   78)
 * __dpd_nesd2:                           Decimal float library routines.
-                                                             (line  264)
+                                                             (line  287)
 * __dpd_netd2:                           Decimal float library routines.
-                                                             (line  268)
+                                                             (line  291)
 * __dpd_subdd3:                          Decimal float library routines.
                                                              (line   35)
 * __dpd_subsd3:                          Decimal float library routines.
@@ -51787,18 +51932,18 @@ Concept Index
 * __dpd_truncxfsd:                       Decimal float library routines.
                                                              (line  111)
 * __dpd_unorddd2:                        Decimal float library routines.
-                                                             (line  233)
+                                                             (line  256)
 * __dpd_unordsd2:                        Decimal float library routines.
-                                                             (line  231)
+                                                             (line  254)
 * __dpd_unordtd2:                        Decimal float library routines.
-                                                             (line  235)
+                                                             (line  258)
 * __DTOR_LIST__:                         Initialization.     (line   24)
 * __eqdf2:                               Soft float library routines.
-                                                             (line  193)
+                                                             (line  221)
 * __eqsf2:                               Soft float library routines.
-                                                             (line  192)
+                                                             (line  220)
 * __eqtf2:                               Soft float library routines.
-                                                             (line  194)
+                                                             (line  222)
 * __extenddftf2:                         Soft float library routines.
                                                              (line   67)
 * __extenddfxf2:                         Soft float library routines.
@@ -51813,18 +51958,24 @@ Concept Index
                                                              (line  143)
 * __ffsti2:                              Integer library routines.
                                                              (line  144)
+* __fixdfbitint:                         Soft float library routines.
+                                                             (line  159)
 * __fixdfdi:                             Soft float library routines.
                                                              (line   87)
 * __fixdfsi:                             Soft float library routines.
                                                              (line   80)
 * __fixdfti:                             Soft float library routines.
                                                              (line   93)
+* __fixsfbitint:                         Soft float library routines.
+                                                             (line  157)
 * __fixsfdi:                             Soft float library routines.
                                                              (line   86)
 * __fixsfsi:                             Soft float library routines.
                                                              (line   79)
 * __fixsfti:                             Soft float library routines.
                                                              (line   92)
+* __fixtfbitint:                         Soft float library routines.
+                                                             (line  163)
 * __fixtfdi:                             Soft float library routines.
                                                              (line   88)
 * __fixtfsi:                             Soft float library routines.
@@ -51855,12 +52006,26 @@ Concept Index
                                                              (line  102)
 * __fixunsxfti:                          Soft float library routines.
                                                              (line  116)
+* __fixxfbitint:                         Soft float library routines.
+                                                             (line  161)
 * __fixxfdi:                             Soft float library routines.
                                                              (line   89)
 * __fixxfsi:                             Soft float library routines.
                                                              (line   82)
 * __fixxfti:                             Soft float library routines.
                                                              (line   95)
+* __floatbitintbf:                       Soft float library routines.
+                                                             (line  179)
+* __floatbitintdf:                       Soft float library routines.
+                                                             (line  171)
+* __floatbitinthf:                       Soft float library routines.
+                                                             (line  177)
+* __floatbitintsf:                       Soft float library routines.
+                                                             (line  170)
+* __floatbitinttf:                       Soft float library routines.
+                                                             (line  175)
+* __floatbitintxf:                       Soft float library routines.
+                                                             (line  173)
 * __floatdidf:                           Soft float library routines.
                                                              (line  127)
 * __floatdisf:                           Soft float library routines.
@@ -53158,23 +53323,23 @@ Concept Index
 * __fractutausq:                         Fixed-point fractional library routines.
                                                              (line  899)
 * __gedf2:                               Soft float library routines.
-                                                             (line  205)
+                                                             (line  233)
 * __gesf2:                               Soft float library routines.
-                                                             (line  204)
+                                                             (line  232)
 * __getf2:                               Soft float library routines.
-                                                             (line  206)
+                                                             (line  234)
 * __gtdf2:                               Soft float library routines.
-                                                             (line  223)
+                                                             (line  251)
 * __gtsf2:                               Soft float library routines.
-                                                             (line  222)
+                                                             (line  250)
 * __gttf2:                               Soft float library routines.
-                                                             (line  224)
+                                                             (line  252)
 * __ledf2:                               Soft float library routines.
-                                                             (line  217)
+                                                             (line  245)
 * __lesf2:                               Soft float library routines.
-                                                             (line  216)
+                                                             (line  244)
 * __letf2:                               Soft float library routines.
-                                                             (line  218)
+                                                             (line  246)
 * __lshrdi3:                             Integer library routines.
                                                              (line   30)
 * __lshrsi3:                             Integer library routines.
@@ -53198,11 +53363,11 @@ Concept Index
 * __lshruta3:                            Fixed-point fractional library routines.
                                                              (line  390)
 * __ltdf2:                               Soft float library routines.
-                                                             (line  211)
+                                                             (line  239)
 * __ltsf2:                               Soft float library routines.
-                                                             (line  210)
+                                                             (line  238)
 * __lttf2:                               Soft float library routines.
-                                                             (line  212)
+                                                             (line  240)
 * __main:                                Collect2.           (line   15)
 * __moddi3:                              Integer library routines.
                                                              (line   36)
@@ -53216,10 +53381,12 @@ Concept Index
                                                              (line   46)
 * __morestack_segments:                  Miscellaneous routines.
                                                              (line   44)
+* __mulbitint3:                          Integer library routines.
+                                                             (line  195)
 * __mulda3:                              Fixed-point fractional library routines.
                                                              (line  170)
 * __muldc3:                              Soft float library routines.
-                                                             (line  239)
+                                                             (line  267)
 * __muldf3:                              Soft float library routines.
                                                              (line   39)
 * __muldi3:                              Integer library routines.
@@ -53235,7 +53402,7 @@ Concept Index
 * __mulsa3:                              Fixed-point fractional library routines.
                                                              (line  169)
 * __mulsc3:                              Soft float library routines.
-                                                             (line  237)
+                                                             (line  265)
 * __mulsf3:                              Soft float library routines.
                                                              (line   38)
 * __mulsi3:                              Integer library routines.
@@ -53245,7 +53412,7 @@ Concept Index
 * __multa3:                              Fixed-point fractional library routines.
                                                              (line  171)
 * __multc3:                              Soft float library routines.
-                                                             (line  241)
+                                                             (line  269)
 * __multf3:                              Soft float library routines.
                                                              (line   40)
 * __multi3:                              Integer library routines.
@@ -53271,11 +53438,11 @@ Concept Index
 * __mulvsi3:                             Integer library routines.
                                                              (line  113)
 * __mulxc3:                              Soft float library routines.
-                                                             (line  243)
+                                                             (line  271)
 * __mulxf3:                              Soft float library routines.
                                                              (line   42)
 * __nedf2:                               Soft float library routines.
-                                                             (line  199)
+                                                             (line  227)
 * __negda2:                              Fixed-point fractional library routines.
                                                              (line  298)
 * __negdf2:                              Soft float library routines.
@@ -53325,9 +53492,9 @@ Concept Index
 * __negxf2:                              Soft float library routines.
                                                              (line   57)
 * __nesf2:                               Soft float library routines.
-                                                             (line  198)
+                                                             (line  226)
 * __netf2:                               Soft float library routines.
-                                                             (line  200)
+                                                             (line  228)
 * __paritydi2:                           Integer library routines.
                                                              (line  150)
 * __paritysi2:                           Integer library routines.
@@ -53341,13 +53508,13 @@ Concept Index
 * __popcountti2:                         Integer library routines.
                                                              (line  157)
 * __powidf2:                             Soft float library routines.
-                                                             (line  232)
+                                                             (line  260)
 * __powisf2:                             Soft float library routines.
-                                                             (line  231)
+                                                             (line  259)
 * __powitf2:                             Soft float library routines.
-                                                             (line  233)
+                                                             (line  261)
 * __powixf2:                             Soft float library routines.
-                                                             (line  234)
+                                                             (line  262)
 * __satfractdadq:                        Fixed-point fractional library routines.
                                                              (line 1152)
 * __satfractdaha2:                       Fixed-point fractional library routines.
@@ -54399,11 +54566,11 @@ Concept Index
 * __umodti3:                             Integer library routines.
                                                              (line   71)
 * __unorddf2:                            Soft float library routines.
-                                                             (line  172)
+                                                             (line  200)
 * __unordsf2:                            Soft float library routines.
-                                                             (line  171)
+                                                             (line  199)
 * __unordtf2:                            Soft float library routines.
-                                                             (line  173)
+                                                             (line  201)
 * __usadduda3:                           Fixed-point fractional library routines.
                                                              (line   83)
 * __usaddudq3:                           Fixed-point fractional library routines.
@@ -54536,7 +54703,7 @@ Concept Index
 * addr_vec:                              Side Effects.       (line  299)
 * addr_vec, length of:                   Insn Lengths.       (line   26)
 * addvM4 instruction pattern:            Standard Names.     (line  627)
-* ADJUST_FIELD_ALIGN:                    Storage Layout.     (line  217)
+* ADJUST_FIELD_ALIGN:                    Storage Layout.     (line  231)
 * ADJUST_INSN_LENGTH:                    Insn Lengths.       (line   41)
 * ADJUST_REG_ALLOC_ORDER:                Allocation Order.   (line   22)
 * aggregates as return values:           Aggregate Return.   (line    6)
@@ -54717,7 +54884,7 @@ Concept Index
 * attributes, defining:                  Defining Attributes.
                                                              (line    6)
 * attributes, target-specific:           Target Attributes.  (line    6)
-* ATTRIBUTE_ALIGNED_VALUE:               Storage Layout.     (line  199)
+* ATTRIBUTE_ALIGNED_VALUE:               Storage Layout.     (line  213)
 * attr_flag:                             Expressions.        (line  138)
 * autoincrement addressing, availability: Portability.       (line   20)
 * autoincrement/decrement addressing:    Simple Constraints. (line   30)
@@ -54750,14 +54917,15 @@ Concept Index
 * BB_HEAD, BB_END:                       Maintaining the CFG.
                                                              (line   76)
 * bb_seq:                                GIMPLE sequences.   (line   72)
-* BIGGEST_ALIGNMENT:                     Storage Layout.     (line  184)
-* BIGGEST_FIELD_ALIGNMENT:               Storage Layout.     (line  210)
+* BIGGEST_ALIGNMENT:                     Storage Layout.     (line  198)
+* BIGGEST_FIELD_ALIGNMENT:               Storage Layout.     (line  224)
 * BImode:                                Machine Modes.      (line   22)
 * BIND_EXPR:                             Unary and Binary Expressions.
                                                              (line    6)
 * BINFO_TYPE:                            Classes.            (line    6)
 * bit-fields:                            Bit-Fields.         (line    6)
-* BITFIELD_NBYTES_LIMITED:               Storage Layout.     (line  437)
+* BITFIELD_NBYTES_LIMITED:               Storage Layout.     (line  451)
+* BITINT_TYPE:                           Types.              (line    6)
 * bitreverse:                            Arithmetic.         (line  257)
 * BITS_BIG_ENDIAN:                       Storage Layout.     (line   11)
 * BITS_BIG_ENDIAN, effect on sign_extract: Bit-Fields.       (line    8)
@@ -55182,8 +55350,8 @@ Concept Index
 * Data Dependency Analysis:              Dependency analysis.
                                                              (line    6)
 * data structures:                       Per-Function Data.  (line    6)
-* DATA_ABI_ALIGNMENT:                    Storage Layout.     (line  272)
-* DATA_ALIGNMENT:                        Storage Layout.     (line  259)
+* DATA_ABI_ALIGNMENT:                    Storage Layout.     (line  286)
+* DATA_ALIGNMENT:                        Storage Layout.     (line  273)
 * DATA_SECTION_ASM_OP:                   Sections.           (line   52)
 * DBR_OUTPUT_SEQEND:                     Instruction Output. (line  133)
 * dbr_sequence_length:                   Instruction Output. (line  133)
@@ -55479,7 +55647,7 @@ Concept Index
 * Empty Statements:                      Empty Statements.   (line    6)
 * EMPTY_CLASS_EXPR:                      Statements for C and C++.
                                                              (line    6)
-* EMPTY_FIELD_BOUNDARY:                  Storage Layout.     (line  350)
+* EMPTY_FIELD_BOUNDARY:                  Storage Layout.     (line  364)
 * Emulated TLS:                          Emulated TLS.       (line    6)
 * enabled:                               Disable Insn Alternatives.
                                                              (line    6)
@@ -55683,7 +55851,7 @@ Concept Index
 * function-call insns:                   Calls.              (line    6)
 * functions, leaf:                       Leaf Functions.     (line    6)
 * FUNCTION_ARG_REGNO_P:                  Register Arguments. (line  255)
-* FUNCTION_BOUNDARY:                     Storage Layout.     (line  181)
+* FUNCTION_BOUNDARY:                     Storage Layout.     (line  195)
 * FUNCTION_DECL:                         Functions.          (line    6)
 * FUNCTION_DECL <1>:                     Functions for C++.  (line    6)
 * FUNCTION_MODE:                         Misc.               (line  377)
@@ -56333,7 +56501,7 @@ Concept Index
 * INCOMING_REGNO:                        Register Basics.    (line  129)
 * INCOMING_REG_PARM_STACK_SPACE:         Stack Arguments.    (line   76)
 * INCOMING_RETURN_ADDR_RTX:              Frame Layout.       (line  133)
-* INCOMING_STACK_BOUNDARY:               Storage Layout.     (line  176)
+* INCOMING_STACK_BOUNDARY:               Storage Layout.     (line  190)
 * INDEX_REG_CLASS:                       Register Classes.   (line  140)
 * indirect_jump instruction pattern:     Standard Names.     (line 2450)
 * indirect_operand:                      Machine-Independent Predicates.
@@ -56560,9 +56728,9 @@ Concept Index
 * LOAD_EXTEND_OP:                        Misc.               (line   80)
 * load_multiple instruction pattern:     Standard Names.     (line  136)
 * Local Register Allocator (LRA):        RTL passes.         (line  188)
-* LOCAL_ALIGNMENT:                       Storage Layout.     (line  293)
+* LOCAL_ALIGNMENT:                       Storage Layout.     (line  307)
 * LOCAL_CLASS_P:                         Classes.            (line   70)
-* LOCAL_DECL_ALIGNMENT:                  Storage Layout.     (line  330)
+* LOCAL_DECL_ALIGNMENT:                  Storage Layout.     (line  344)
 * LOCAL_INCLUDE_DIR:                     Driver.             (line  316)
 * LOCAL_LABEL_PREFIX:                    Instruction Output. (line  151)
 * LOCAL_REGNO:                           Register Basics.    (line  143)
@@ -56634,7 +56802,7 @@ Concept Index
 * MAKE_DECL_ONE_ONLY:                    Label Output.       (line  281)
 * make_safe_from:                        Expander Definitions.
                                                              (line  150)
-* MALLOC_ABI_ALIGNMENT:                  Storage Layout.     (line  195)
+* MALLOC_ABI_ALIGNMENT:                  Storage Layout.     (line  209)
 * Manipulating GIMPLE statements:        Manipulating GIMPLE statements.
                                                              (line    6)
 * marking roots:                         GGC Roots.          (line    6)
@@ -56678,11 +56846,11 @@ Concept Index
 * MAX_BITSIZE_MODE_ANY_MODE:             Machine Modes.      (line  454)
 * MAX_BITS_PER_WORD:                     Storage Layout.     (line   54)
 * MAX_CONDITIONAL_EXECUTE:               Misc.               (line  564)
-* MAX_FIXED_MODE_SIZE:                   Storage Layout.     (line  475)
+* MAX_FIXED_MODE_SIZE:                   Storage Layout.     (line  489)
 * MAX_MOVE_MAX:                          Misc.               (line  127)
-* MAX_OFILE_ALIGNMENT:                   Storage Layout.     (line  233)
+* MAX_OFILE_ALIGNMENT:                   Storage Layout.     (line  247)
 * MAX_REGS_PER_ADDRESS:                  Addressing Modes.   (line   42)
-* MAX_STACK_ALIGNMENT:                   Storage Layout.     (line  227)
+* MAX_STACK_ALIGNMENT:                   Storage Layout.     (line  241)
 * maybe_undef:                           GTY Options.        (line  178)
 * may_trap_p, tree_could_trap_p:         Edges.              (line  114)
 * mcount:                                Profiling.          (line   12)
@@ -56722,8 +56890,8 @@ Concept Index
 * mem_thread_fence instruction pattern:  Standard Names.     (line 3105)
 * MEM_VOLATILE_P:                        Flags.              (line   65)
 * METHOD_TYPE:                           Types.              (line    6)
-* MINIMUM_ALIGNMENT:                     Storage Layout.     (line  343)
-* MINIMUM_ATOMIC_ALIGNMENT:              Storage Layout.     (line  203)
+* MINIMUM_ALIGNMENT:                     Storage Layout.     (line  357)
+* MINIMUM_ATOMIC_ALIGNMENT:              Storage Layout.     (line  217)
 * minM3 instruction pattern:             Standard Names.     (line  692)
 * minus:                                 Arithmetic.         (line   38)
 * minus and attributes:                  Expressions.        (line   83)
@@ -57000,7 +57168,7 @@ Concept Index
 * parameters, precompiled headers:       PCH Target.         (line    6)
 * parity:                                Arithmetic.         (line  248)
 * parityM2 instruction pattern:          Standard Names.     (line 1720)
-* PARM_BOUNDARY:                         Storage Layout.     (line  155)
+* PARM_BOUNDARY:                         Storage Layout.     (line  169)
 * PARM_DECL:                             Declarations.       (line    6)
 * PARSE_LDD_OUTPUT:                      Macros for Initialization.
                                                              (line  133)
@@ -57017,7 +57185,7 @@ Concept Index
 * pc:                                    Regs and Memory.    (line  347)
 * pc and attributes:                     Insn Lengths.       (line   20)
 * pc, RTL sharing:                       Sharing.            (line   28)
-* PCC_BITFIELD_TYPE_MATTERS:             Storage Layout.     (line  369)
+* PCC_BITFIELD_TYPE_MATTERS:             Storage Layout.     (line  383)
 * PCC_STATIC_STRUCT_RETURN:              Aggregate Return.   (line   64)
 * PC_REGNUM:                             Register Basics.    (line  150)
 * pc_rtx:                                Regs and Memory.    (line  352)
@@ -57101,7 +57269,7 @@ Concept Index
                                                              (line   24)
 * PREFERRED_DEBUGGING_TYPE:              All Debuggers.      (line   40)
 * PREFERRED_RELOAD_CLASS:                Register Classes.   (line  249)
-* PREFERRED_STACK_BOUNDARY:              Storage Layout.     (line  169)
+* PREFERRED_STACK_BOUNDARY:              Storage Layout.     (line  183)
 * prefetch:                              Side Effects.       (line  314)
 * prefetch and /v:                       Flags.              (line   92)
 * prefetch instruction pattern:          Standard Names.     (line 2764)
@@ -57362,7 +57530,7 @@ Concept Index
                                                              (line    6)
 * ROUND_MOD_EXPR:                        Unary and Binary Expressions.
                                                              (line    6)
-* ROUND_TYPE_ALIGN:                      Storage Layout.     (line  466)
+* ROUND_TYPE_ALIGN:                      Storage Layout.     (line  480)
 * RPO:                                   RTL SSA Instructions.
                                                              (line    6)
 * RSHIFT_EXPR:                           Unary and Binary Expressions.
@@ -57580,7 +57748,7 @@ Concept Index
 * stack smashing protection:             Stack Smashing Protection.
                                                              (line    6)
 * STACK_ALIGNMENT_NEEDED:                Frame Layout.       (line   41)
-* STACK_BOUNDARY:                        Storage Layout.     (line  161)
+* STACK_BOUNDARY:                        Storage Layout.     (line  175)
 * STACK_CHECK_BUILTIN:                   Stack Checking.     (line   31)
 * STACK_CHECK_FIXED_FRAME_SIZE:          Stack Checking.     (line   83)
 * STACK_CHECK_MAX_FRAME_SIZE:            Stack Checking.     (line   74)
@@ -57610,9 +57778,9 @@ Concept Index
 * STACK_PUSH_CODE:                       Frame Layout.       (line   12)
 * STACK_REGS:                            Stack Registers.    (line   19)
 * STACK_REG_COVER_CLASS:                 Stack Registers.    (line   22)
-* STACK_SAVEAREA_MODE:                   Storage Layout.     (line  482)
-* STACK_SIZE_MODE:                       Storage Layout.     (line  493)
-* STACK_SLOT_ALIGNMENT:                  Storage Layout.     (line  314)
+* STACK_SAVEAREA_MODE:                   Storage Layout.     (line  496)
+* STACK_SIZE_MODE:                       Storage Layout.     (line  507)
+* STACK_SLOT_ALIGNMENT:                  Storage Layout.     (line  328)
 * standard pattern names:                Standard Names.     (line    6)
 * STANDARD_STARTFILE_PREFIX:             Driver.             (line  278)
 * STANDARD_STARTFILE_PREFIX_1:           Driver.             (line  285)
@@ -57647,8 +57815,8 @@ Concept Index
 * STORE_FLAG_VALUE:                      Misc.               (line  237)
 * STORE_MAX_PIECES:                      Costs.              (line  222)
 * store_multiple instruction pattern:    Standard Names.     (line  159)
-* strcpy:                                Storage Layout.     (line  267)
-* STRICT_ALIGNMENT:                      Storage Layout.     (line  364)
+* strcpy:                                Storage Layout.     (line  281)
+* STRICT_ALIGNMENT:                      Storage Layout.     (line  378)
 * strict_low_part:                       RTL Declarations.   (line    9)
 * strict_memory_address_p:               Addressing Modes.   (line  194)
 * STRING_CST:                            Constant expressions.
@@ -57658,7 +57826,7 @@ Concept Index
 * strlenM instruction pattern:           Standard Names.     (line 1891)
 * structure value address:               Aggregate Return.   (line    6)
 * structures, returning:                 Interface.          (line   10)
-* STRUCTURE_SIZE_BOUNDARY:               Storage Layout.     (line  356)
+* STRUCTURE_SIZE_BOUNDARY:               Storage Layout.     (line  370)
 * subM3 instruction pattern:             Standard Names.     (line  617)
 * SUBOBJECT:                             Statements for C and C++.
                                                              (line    6)
@@ -57762,7 +57930,7 @@ Concept Index
 * target specifications:                 Run-time Target.    (line    6)
 * targetm:                               Target Structure.   (line    6)
 * targets, makefile:                     Makefile.           (line    6)
-* TARGET_ABSOLUTE_BIGGEST_ALIGNMENT:     Storage Layout.     (line  190)
+* TARGET_ABSOLUTE_BIGGEST_ALIGNMENT:     Storage Layout.     (line  204)
 * TARGET_ADDITIONAL_ALLOCNO_CLASS_P:     Register Classes.   (line  644)
 * TARGET_ADDRESS_COST:                   Costs.              (line  351)
 * TARGET_ADDR_SPACE_ADDRESS_MODE:        Named Address Spaces.
@@ -57785,7 +57953,7 @@ Concept Index
                                                              (line   48)
 * TARGET_ADDR_SPACE_ZERO_ADDRESS_VALID:  Named Address Spaces.
                                                              (line   86)
-* TARGET_ALIGN_ANON_BITFIELD:            Storage Layout.     (line  441)
+* TARGET_ALIGN_ANON_BITFIELD:            Storage Layout.     (line  455)
 * TARGET_ALLOCATE_INITIAL_VALUE:         Misc.               (line  822)
 * TARGET_ALLOCATE_STACK_SLOTS_FOR_ARGS:  Misc.               (line 1100)
 * TARGET_ALWAYS_STRIP_DOTDOT:            Driver.             (line  250)
@@ -57917,7 +58085,7 @@ Concept Index
 * TARGET_COMPUTE_PRESSURE_CLASSES:       Register Classes.   (line  660)
 * TARGET_COMP_TYPE_ATTRIBUTES:           Target Attributes.  (line   25)
 * TARGET_CONDITIONAL_REGISTER_USAGE:     Register Basics.    (line  102)
-* TARGET_CONSTANT_ALIGNMENT:             Storage Layout.     (line  280)
+* TARGET_CONSTANT_ALIGNMENT:             Storage Layout.     (line  294)
 * TARGET_CONST_ANCHOR:                   Misc.               (line 1111)
 * TARGET_CONST_NOT_OK_FOR_DEBUG_P:       Addressing Modes.   (line  246)
 * TARGET_CONVERT_TO_TYPE:                Misc.               (line 1038)
@@ -57939,10 +58107,11 @@ Concept Index
 * TARGET_CXX_LIBRARY_RTTI_COMDAT:        C++ ABI.            (line   68)
 * TARGET_CXX_USE_AEABI_ATEXIT:           C++ ABI.            (line   73)
 * TARGET_CXX_USE_ATEXIT_FOR_CXA_ATEXIT:  C++ ABI.            (line   79)
+* TARGET_C_BITINT_TYPE_INFO:             Storage Layout.     (line  131)
 * TARGET_C_EXCESS_PRECISION:             Storage Layout.     (line  109)
 * TARGET_C_PREINCLUDE:                   Misc.               (line  397)
 * TARGET_DEBUG_UNWIND_INFO:              DWARF.              (line   31)
-* TARGET_DECIMAL_FLOAT_SUPPORTED_P:      Storage Layout.     (line  546)
+* TARGET_DECIMAL_FLOAT_SUPPORTED_P:      Storage Layout.     (line  560)
 * TARGET_DECLSPEC:                       Target Attributes.  (line   72)
 * TARGET_DEFAULT_PACK_STRUCT:            Misc.               (line  481)
 * TARGET_DEFAULT_SHORT_ENUMS:            Type Layout.        (line  123)
@@ -57975,7 +58144,7 @@ Concept Index
 * TARGET_D_TEMPLATES_ALWAYS_COMDAT:      D Language and ABI. (line   59)
 * TARGET_EDOM:                           Library Calls.      (line   59)
 * TARGET_EMIT_CALL_BUILTIN___CLEAR_CACHE: Trampolines.       (line  131)
-* TARGET_EMIT_SUPPORT_TINFOS:            Storage Layout.     (line  596)
+* TARGET_EMIT_SUPPORT_TINFOS:            Storage Layout.     (line  610)
 * TARGET_EMPTY_RECORD_P:                 Aggregate Return.   (line   88)
 * TARGET_EMUTLS_DEBUG_FORM_TLS_ADDRESS:  Emulated TLS.       (line   67)
 * TARGET_EMUTLS_GET_ADDRESS:             Emulated TLS.       (line   18)
@@ -58000,7 +58169,7 @@ Concept Index
 * TARGET_EXPAND_BUILTIN:                 Misc.               (line  652)
 * TARGET_EXPAND_BUILTIN_SAVEREGS:        Varargs.            (line   64)
 * TARGET_EXPAND_DIVMOD_LIBFUNC:          Scheduling.         (line  461)
-* TARGET_EXPAND_TO_RTL_HOOK:             Storage Layout.     (line  552)
+* TARGET_EXPAND_TO_RTL_HOOK:             Storage Layout.     (line  566)
 * TARGET_EXPR:                           Unary and Binary Expressions.
                                                              (line    6)
 * TARGET_EXTRA_INCLUDES:                 Misc.               (line  952)
@@ -58008,7 +58177,7 @@ Concept Index
 * TARGET_EXTRA_PRE_INCLUDES:             Misc.               (line  959)
 * TARGET_FIXED_CONDITION_CODE_REGS:      MODE_CC Condition Codes.
                                                              (line  105)
-* TARGET_FIXED_POINT_SUPPORTED_P:        Storage Layout.     (line  549)
+* TARGET_FIXED_POINT_SUPPORTED_P:        Storage Layout.     (line  563)
 * target_flags:                          Run-time Target.    (line   51)
 * TARGET_FLAGS_REGNUM:                   MODE_CC Condition Codes.
                                                              (line  132)
@@ -58086,7 +58255,7 @@ Concept Index
 * TARGET_INSERT_ATTRIBUTES:              Target Attributes.  (line   80)
 * TARGET_INSN_CALLEE_ABI:                Register Basics.    (line   65)
 * TARGET_INSN_COST:                      Costs.              (line  387)
-* TARGET_INSTANTIATE_DECLS:              Storage Layout.     (line  560)
+* TARGET_INSTANTIATE_DECLS:              Storage Layout.     (line  574)
 * TARGET_INVALID_ARG_FOR_UNPROTOTYPED_FN: Misc.              (line 1005)
 * TARGET_INVALID_BINARY_OP:              Misc.               (line 1024)
 * TARGET_INVALID_CONVERSION:             Misc.               (line 1011)
@@ -58104,24 +58273,24 @@ Concept Index
 * TARGET_LIBC_HAS_FAST_FUNCTION:         Library Calls.      (line   85)
 * TARGET_LIBC_HAS_FUNCTION:              Library Calls.      (line   77)
 * TARGET_LIBFUNC_GNU_PREFIX:             Library Calls.      (line   24)
-* TARGET_LIBGCC_CMP_RETURN_MODE:         Storage Layout.     (line  502)
+* TARGET_LIBGCC_CMP_RETURN_MODE:         Storage Layout.     (line  516)
 * TARGET_LIBGCC_FLOATING_MODE_SUPPORTED_P: Register Arguments.
                                                              (line  418)
 * TARGET_LIBGCC_SDATA_SECTION:           Sections.           (line  136)
-* TARGET_LIBGCC_SHIFT_COUNT_MODE:        Storage Layout.     (line  508)
+* TARGET_LIBGCC_SHIFT_COUNT_MODE:        Storage Layout.     (line  522)
 * TARGET_LIBM_FUNCTION_MAX_ERROR:        Library Calls.      (line   89)
 * TARGET_LIB_INT_CMP_BIASED:             Library Calls.      (line   42)
 * TARGET_LOOP_UNROLL_ADJUST:             Misc.               (line  933)
-* TARGET_LOWER_LOCAL_DECL_ALIGNMENT:     Storage Layout.     (line  248)
+* TARGET_LOWER_LOCAL_DECL_ALIGNMENT:     Storage Layout.     (line  262)
 * TARGET_LRA_P:                          Register Classes.   (line  577)
 * TARGET_MACHINE_DEPENDENT_REORG:        Misc.               (line  611)
 * TARGET_MANGLE_ASSEMBLER_NAME:          Label Output.       (line  356)
 * TARGET_MANGLE_DECL_ASSEMBLER_NAME:     Sections.           (line  255)
-* TARGET_MANGLE_TYPE:                    Storage Layout.     (line  564)
+* TARGET_MANGLE_TYPE:                    Storage Layout.     (line  578)
 * TARGET_MAX_ANCHOR_OFFSET:              Anchored Addresses. (line   38)
 * TARGET_MAX_NOCE_IFCVT_SEQ_COST:        Costs.              (line  397)
 * TARGET_MD_ASM_ADJUST:                  Misc.               (line  526)
-* TARGET_MEMBER_TYPE_FORCES_BLK:         Storage Layout.     (line  454)
+* TARGET_MEMBER_TYPE_FORCES_BLK:         Storage Layout.     (line  468)
 * TARGET_MEMMODEL_CHECK:                 Misc.               (line 1134)
 * TARGET_MEMORY_MOVE_COST:               Costs.              (line   79)
 * TARGET_MEMTAG_ADD_TAG:                 Misc.               (line 1302)
@@ -58149,11 +58318,11 @@ Concept Index
 * TARGET_MODE_NEEDED:                    Mode Switching.     (line   50)
 * TARGET_MODE_PRIORITY:                  Mode Switching.     (line   78)
 * TARGET_MODE_REP_EXTENDED:              Misc.               (line  199)
-* TARGET_MS_BITFIELD_LAYOUT_P:           Storage Layout.     (line  518)
+* TARGET_MS_BITFIELD_LAYOUT_P:           Storage Layout.     (line  532)
 * TARGET_MUST_PASS_IN_STACK:             Register Arguments. (line   51)
 * TARGET_MUST_PASS_IN_STACK, and TARGET_FUNCTION_ARG: Register Arguments.
                                                              (line   43)
-* TARGET_NARROW_VOLATILE_BITFIELD:       Storage Layout.     (line  447)
+* TARGET_NARROW_VOLATILE_BITFIELD:       Storage Layout.     (line  461)
 * TARGET_NEED_IPA_FN_TARGET_INFO:        Target Attributes.  (line  198)
 * TARGET_NEW_ADDRESS_PROFITABLE_P:       Costs.              (line  422)
 * TARGET_NOCE_CONVERSION_PROFITABLE_P:   Costs.              (line  416)
@@ -58201,7 +58370,7 @@ Concept Index
 * TARGET_PRETEND_OUTGOING_VARARGS_NAMED: Varargs.            (line  147)
 * TARGET_PROFILE_BEFORE_PROLOGUE:        Sections.           (line  315)
 * TARGET_PROMOTED_TYPE:                  Misc.               (line 1030)
-* TARGET_PROMOTE_FUNCTION_MODE:          Storage Layout.     (line  131)
+* TARGET_PROMOTE_FUNCTION_MODE:          Storage Layout.     (line  145)
 * TARGET_PROMOTE_PROTOTYPES:             Stack Arguments.    (line   10)
 * TARGET_PTRMEMFUNC_VBIT_LOCATION:       Type Layout.        (line  250)
 * TARGET_PUSH_ARGUMENT:                  Stack Arguments.    (line   17)
@@ -58313,7 +58482,7 @@ Concept Index
 * TARGET_STARTING_FRAME_OFFSET and virtual registers: Regs and Memory.
                                                              (line   74)
 * TARGET_STATIC_CHAIN:                   Frame Registers.    (line   90)
-* TARGET_STATIC_RTX_ALIGNMENT:           Storage Layout.     (line  252)
+* TARGET_STATIC_RTX_ALIGNMENT:           Storage Layout.     (line  266)
 * TARGET_STRICT_ARGUMENT_NAMING:         Varargs.            (line  110)
 * TARGET_STRING_OBJECT_REF_TYPE_P:       Run-time Target.    (line  114)
 * TARGET_STRIP_NAME_ENCODING:            Sections.           (line  302)
@@ -58331,7 +58500,7 @@ Concept Index
 * TARGET_UNSPEC_MAY_TRAP_P:              Misc.               (line  841)
 * TARGET_UNWIND_TABLES_DEFAULT:          Exception Region Output.
                                                              (line   73)
-* TARGET_UNWIND_WORD_MODE:               Storage Layout.     (line  514)
+* TARGET_UNWIND_WORD_MODE:               Storage Layout.     (line  528)
 * TARGET_UPDATE_IPA_FN_TARGET_INFO:      Target Attributes.  (line  180)
 * TARGET_UPDATE_STACK_BOUNDARY:          Misc.               (line 1070)
 * TARGET_USES_WEAK_UNWIND_INFO:          Exception Handling. (line  123)
@@ -58369,7 +58538,7 @@ Concept Index
 * TARGET_VECTORIZE_VECTOR_ALIGNMENT_REACHABLE: Addressing Modes.
                                                              (line  326)
 * TARGET_VECTORIZE_VEC_PERM_CONST:       Addressing Modes.   (line  332)
-* TARGET_VECTOR_ALIGNMENT:               Storage Layout.     (line  307)
+* TARGET_VECTOR_ALIGNMENT:               Storage Layout.     (line  321)
 * TARGET_VECTOR_MODE_SUPPORTED_ANY_TARGET_P: Register Arguments.
                                                              (line  344)
 * TARGET_VECTOR_MODE_SUPPORTED_P:        Register Arguments. (line  339)
@@ -58944,456 +59113,456 @@ Node: Portability5964
 Node: Interface7770
 Node: Libgcc10843
 Node: Integer library routines12758
-Node: Soft float library routines19748
-Node: Decimal float library routines31704
-Node: Fixed-point fractional library routines47462
-Node: Exception handling routines148022
-Node: Miscellaneous routines149129
-Node: Languages151265
-Node: Source Tree152822
-Node: Configure Terms153409
-Node: Top Level156467
-Node: gcc Directory160743
-Node: Subdirectories161719
-Node: Configuration164011
-Node: Config Fragments164791
-Node: System Config166080
-Node: Configuration Files167040
-Node: Build169848
-Node: Makefile170268
-Ref: Makefile-Footnote-1177725
-Ref: Makefile-Footnote-2177878
-Node: Library Files177956
-Node: Headers178540
-Node: Documentation180737
-Node: Texinfo Manuals181612
-Node: Man Page Generation184069
-Node: Miscellaneous Docs185849
-Node: Front End187308
-Node: Front End Directory191174
-Node: Front End Config192543
-Node: Front End Makefile195496
-Node: Back End199464
-Node: Testsuites204596
-Node: Test Idioms205585
-Node: Test Directives209048
-Node: Directives209587
-Node: Selectors222613
-Node: Effective-Target Keywords226073
-Ref: arm_fp_ok242470
-Ref: arm_fp_dp_ok242649
-Ref: arm_neon_ok243738
-Ref: arm_neon_ok_no_float_abi243915
-Ref: arm_neonv2_ok244090
-Ref: arm_fp16_ok244265
-Ref: arm_neon_fp16_ok244615
-Ref: arm_vfp3_ok245603
-Ref: arm_arch_v8a_hard_ok245754
-Ref: arm_v8_1a_neon_ok246544
-Ref: arm_v8_2a_fp16_scalar_ok246984
-Ref: arm_v8_2a_fp16_neon_ok247443
-Ref: arm_v8_2a_dotprod_neon_ok247926
-Ref: arm_fp16fml_neon_ok248583
-Ref: arm_coproc1_ok251681
-Ref: arm_coproc2_ok251831
-Ref: arm_coproc3_ok252091
-Ref: arm_simd32_ok252482
-Ref: arm_sat_ok252667
-Ref: arm_dsp_ok252856
-Ref: arm_softfp_ok253041
-Ref: arm_hard_ok253122
-Ref: arm_mve253197
-Ref: arm_v8_1_lob_ok253274
-Ref: default_packed268079
-Ref: stack_size_et271539
-Node: Add Options274446
-Ref: arm_fp16_ieee275720
-Ref: arm_fp16_alternative275979
-Ref: stack_size_ao278623
-Node: Require Support279091
-Node: Final Actions282157
-Node: Ada Tests292743
-Node: C Tests293942
-Node: LTO Testing298456
-Node: gcov Testing300171
-Node: profopt Testing303213
-Node: compat Testing304976
-Node: Torture Tests309332
-Node: GIMPLE Tests311040
-Node: RTL Tests312310
-Node: Options313632
-Node: Option file format314077
-Node: Option properties322857
-Node: Passes340738
-Node: Parsing pass341611
-Node: Gimplification pass345161
-Node: Pass manager347043
-Node: IPA passes348908
-Node: Small IPA passes349801
-Node: Regular IPA passes353405
-Node: Late IPA passes358375
-Node: Tree SSA passes359360
-Node: RTL passes382098
-Node: Optimization info394750
-Node: Dump setup395569
-Node: Optimization groups396731
-Node: Dump files and streams397766
-Node: Dump output verbosity399009
-Node: Dump types400081
-Node: Dump examples402520
-Node: poly_int404049
-Node: Overview of poly_int405563
-Node: Consequences of using poly_int408291
-Node: Comparisons involving poly_int409960
-Node: Comparison functions for poly_int411618
-Node: Properties of the poly_int comparisons412869
-Node: Comparing potentially-unordered poly_ints415441
-Node: Comparing ordered poly_ints416364
-Node: Checking for a poly_int marker value418454
-Node: Range checks on poly_ints419327
-Node: Sorting poly_ints422033
-Node: Arithmetic on poly_ints422830
-Node: Using poly_int with C++ arithmetic operators423643
-Node: wi arithmetic on poly_ints425222
-Node: Division of poly_ints426090
-Node: Other poly_int arithmetic427665
-Node: Alignment of poly_ints429111
-Node: Computing bounds on poly_ints432472
-Node: Converting poly_ints433901
-Node: Miscellaneous poly_int routines437652
-Node: Guidelines for using poly_int438316
-Node: GENERIC443388
-Node: Deficiencies445232
-Node: Tree overview445473
-Node: Macros and Functions449677
-Node: Identifiers450562
-Node: Containers452263
-Node: Types453488
-Node: Declarations466637
-Node: Working with declarations467136
-Node: Internal structure473054
-Node: Current structure hierarchy473442
-Node: Adding new DECL node types475671
-Node: Attributes480131
-Node: Expression trees481415
-Node: Constant expressions483189
-Node: Storage References489541
-Node: Unary and Binary Expressions493486
-Node: Vectors515665
-Node: Statements527581
-Node: Basic Statements528121
-Node: Blocks533186
-Node: Statement Sequences534933
-Node: Empty Statements535274
-Node: Jumps535856
-Node: Cleanups536549
-Node: OpenMP538628
-Node: OpenACC547557
-Node: Functions548770
-Node: Function Basics549245
-Node: Function Properties553037
-Node: Language-dependent trees555910
-Node: C and C++ Trees556807
-Node: Types for C++559712
-Node: Namespaces564994
-Node: Classes568240
-Node: Functions for C++573452
-Node: Statements for C and C++580041
-Node: C++ Expressions588972
-Node: GIMPLE590587
-Node: Tuple representation594310
-Node: Class hierarchy of GIMPLE statements601638
-Node: GIMPLE instruction set606634
-Node: GIMPLE Exception Handling608419
-Node: Temporaries610367
-Ref: Temporaries-Footnote-1611705
-Node: Operands611770
-Node: Compound Expressions612543
-Node: Compound Lvalues612777
-Node: Conditional Expressions613559
-Node: Logical Operators614238
-Node: Manipulating GIMPLE statements621761
-Node: Tuple specific accessors627619
-Node: GIMPLE_ASM628430
-Node: GIMPLE_ASSIGN630969
-Node: GIMPLE_BIND635889
-Node: GIMPLE_CALL637815
-Node: GIMPLE_CATCH642166
-Node: GIMPLE_COND643380
-Node: GIMPLE_DEBUG646343
-Node: GIMPLE_EH_FILTER651123
-Node: GIMPLE_LABEL652750
-Node: GIMPLE_GOTO653403
-Node: GIMPLE_NOP653950
-Node: GIMPLE_OMP_ATOMIC_LOAD654332
-Node: GIMPLE_OMP_ATOMIC_STORE655360
-Node: GIMPLE_OMP_CONTINUE656071
-Node: GIMPLE_OMP_CRITICAL657598
-Node: GIMPLE_OMP_FOR658636
-Node: GIMPLE_OMP_MASTER662286
-Node: GIMPLE_OMP_ORDERED662676
-Node: GIMPLE_OMP_PARALLEL663091
-Node: GIMPLE_OMP_RETURN666036
-Node: GIMPLE_OMP_SECTION666713
-Node: GIMPLE_OMP_SECTIONS667409
-Node: GIMPLE_OMP_SINGLE669101
-Node: GIMPLE_OMP_STRUCTURED_BLOCK670114
-Node: GIMPLE_PHI670934
-Node: GIMPLE_RESX672319
-Node: GIMPLE_RETURN673070
-Node: GIMPLE_SWITCH673672
-Node: GIMPLE_TRY675609
-Node: GIMPLE_WITH_CLEANUP_EXPR677473
-Node: GIMPLE sequences678392
-Node: Sequence iterators681740
-Node: Adding a new GIMPLE statement code690547
-Node: Statement and operand traversals691956
-Node: Tree SSA694708
-Node: Annotations696504
-Node: SSA Operands696917
-Node: SSA711113
-Node: Alias analysis721096
-Node: Memory model724965
-Node: RTL726324
-Node: RTL Objects728570
-Node: RTL Classes732523
-Node: Accessors738273
-Node: Special Accessors740522
-Node: Flags746579
-Node: Machine Modes762788
-Node: Constants781591
-Node: Regs and Memory793896
-Node: Arithmetic811767
-Node: Comparisons822946
-Node: Bit-Fields826800
-Node: Vector Operations828391
-Node: Conversions830531
-Node: RTL Declarations835101
-Node: Side Effects835965
-Node: Incdec852981
-Node: Assembler856405
-Node: Debug Information858008
-Node: Insns859999
-Node: Calls887054
-Node: RTL SSA889733
-Node: Using RTL SSA891128
-Node: RTL SSA Instructions893071
-Ref: RTL SSA Instructions-Footnote-1894469
-Node: RTL SSA Basic Blocks894603
-Ref: real RTL SSA insns895083
-Ref: RTL SSA Basic Blocks-Footnote-1897381
-Node: RTL SSA Resources897523
-Node: RTL SSA Accesses898660
-Ref: RTL SSA Accesses-Footnote-1900405
-Node: RTL SSA Phi Nodes900552
-Node: RTL SSA Access Lists902578
-Node: Changing RTL Instructions906951
-Node: Changing One RTL SSA Instruction907560
-Node: Changing Multiple RTL SSA Instructions912614
-Node: Sharing916986
-Node: Reading RTL920244
-Node: Control Flow921256
-Node: Basic Blocks923054
-Node: Edges928736
-Node: Profile information937591
-Node: Maintaining the CFG942361
-Node: Liveness information948309
-Node: Loop Analysis and Representation950512
-Node: Loop representation951548
-Node: Loop querying959162
-Node: Loop manipulation962129
-Node: LCSSA964551
-Node: Scalar evolutions966642
-Node: loop-iv969950
-Node: Number of iterations971958
-Node: Dependency analysis976171
-Node: Machine Desc982735
-Node: Overview985394
-Node: Patterns987503
-Node: Example992574
-Node: RTL Template994055
-Node: Output Template1004944
-Node: Output Statement1009253
-Node: Compact Syntax1013682
-Node: Predicates1018677
-Node: Machine-Independent Predicates1021677
-Node: Defining Predicates1026782
-Node: Constraints1032973
-Node: Simple Constraints1034460
-Node: Multi-Alternative1047658
-Node: Class Preferences1050946
-Node: Modifiers1051858
-Node: Machine Constraints1056714
-Node: Disable Insn Alternatives1120955
-Node: Define Constraints1124519
-Node: C Constraint Interface1133378
-Node: Standard Names1136589
-Ref: shift patterns1187613
-Ref: prologue instruction pattern1256137
-Ref: window_save instruction pattern1256642
-Ref: epilogue instruction pattern1256923
-Node: Pattern Ordering1280714
-Node: Dependent Patterns1281950
-Node: Jump Patterns1283586
-Node: Looping Patterns1285271
-Node: Insn Canonicalizations1291018
-Node: Expander Definitions1296798
-Node: Insn Splitting1305237
-Node: Including Patterns1320628
-Node: Peephole Definitions1322433
-Node: define_peephole1323706
-Node: define_peephole21330138
-Node: Insn Attributes1334874
-Node: Defining Attributes1335981
-Ref: define_enum_attr1339585
-Node: Expressions1340637
-Node: Tagging Insns1347683
-Node: Attr Example1352162
-Node: Insn Lengths1354547
-Node: Constant Attributes1358023
-Node: Mnemonic Attribute1359219
-Node: Delay Slots1360758
-Node: Processor pipeline description1364013
-Ref: Processor pipeline description-Footnote-11383160
-Node: Conditional Execution1383486
-Node: Define Subst1387045
-Node: Define Subst Example1389138
-Node: Define Subst Pattern Matching1392193
-Node: Define Subst Output Template1393507
-Node: Constant Definitions1395930
-Ref: define_enum1399857
-Node: Iterators1400357
-Node: Mode Iterators1401002
-Node: Defining Mode Iterators1402024
-Node: Substitutions1403606
-Node: Examples1405926
-Node: Code Iterators1407394
-Node: Int Iterators1410570
-Node: Subst Iterators1413173
-Node: Parameterized Names1414925
-Node: Target Macros1419043
-Node: Target Structure1422178
-Node: Driver1424814
-Node: Run-time Target1444369
-Node: Per-Function Data1455266
-Node: Storage Layout1458089
-Node: Type Layout1487046
-Node: Registers1500925
-Node: Register Basics1501899
-Node: Allocation Order1509673
-Node: Values in Registers1512175
-Node: Leaf Functions1519743
-Node: Stack Registers1522641
-Node: Register Classes1523922
-Node: Stack and Calling1559267
-Node: Frame Layout1559873
-Node: Exception Handling1572190
-Node: Stack Checking1578524
-Node: Frame Registers1584194
-Node: Elimination1592914
-Node: Stack Arguments1596836
-Node: Register Arguments1604387
-Node: Scalar Return1629999
-Node: Aggregate Return1636580
-Node: Caller Saves1641424
-Node: Function Entry1642170
-Node: Profiling1653900
-Node: Tail Calls1656048
-Node: Shrink-wrapping separate components1657974
-Node: Stack Smashing Protection1661065
-Node: Miscellaneous Register Hooks1663588
-Node: Varargs1664453
-Node: Trampolines1672760
-Node: Library Calls1682544
-Node: Addressing Modes1688803
-Node: Anchored Addresses1721206
-Node: Condition Code1723937
-Node: MODE_CC Condition Codes1725794
-Node: Costs1732651
-Node: Scheduling1755359
-Node: Sections1779424
-Node: PIC1796152
-Node: Assembler Format1798253
-Node: File Framework1799392
-Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1807111
-Node: Data Output1808812
-Node: Uninitialized Data1817238
-Node: Label Output1822333
-Node: Initialization1847466
-Node: Macros for Initialization1853662
-Node: Instruction Output1860985
-Node: Dispatch Tables1871864
-Node: Exception Region Output1877679
-Node: Alignment Output1884921
-Node: Debugging Info1888710
-Node: All Debuggers1889260
-Node: DWARF1892245
-Node: VMS Debug1898098
-Node: CTF Debug1898715
-Node: BTF Debug1899080
-Node: Floating Point1899427
-Node: Mode Switching1902208
-Node: Target Attributes1906725
-Node: Emulated TLS1918334
-Node: MIPS Coprocessors1921762
-Node: PCH Target1922929
-Node: C++ ABI1924813
-Node: D Language and ABI1929677
-Node: Named Address Spaces1932985
-Node: Misc1939108
-Ref: TARGET_SHIFT_TRUNCATION_MASK1947115
-Node: Host Config2009325
-Node: Host Common2010422
-Node: Filesystem2012816
-Node: Host Misc2017037
-Node: Fragments2019612
-Node: Target Fragment2020859
-Node: Host Fragment2032093
-Node: Collect22032337
-Node: Header Dirs2035184
-Node: Type Information2036655
-Node: GTY Options2040266
-Node: Inheritance and GTY2053530
-Ref: Inheritance and GTY-Footnote-12055125
-Node: User GC2055395
-Node: GGC Roots2059254
-Node: Files2059998
-Node: Invoking the garbage collector2062725
-Node: Troubleshooting2064401
-Node: Plugins2065504
-Node: Plugins loading2066633
-Node: Plugin API2067781
-Node: Plugins pass2075798
-Node: Plugins GC2077781
-Node: Plugins description2079566
-Node: Plugins attr2080116
-Node: Plugins recording2082444
-Node: Plugins gate2083322
-Node: Plugins tracking2083921
-Node: Plugins building2084517
-Node: LTO2088128
-Node: LTO Overview2089004
-Node: LTO object file layout2094896
-Node: IPA2099583
-Node: WHOPR2108793
-Node: Internal flags2113417
-Node: Match and Simplify2114852
-Node: GIMPLE API2115822
-Node: The Language2118648
-Node: Static Analyzer2131611
-Node: Analyzer Internals2131876
-Node: Debugging the Analyzer2147952
-Node: User Experience Guidelines2155804
-Node: Guidelines for Diagnostics2156741
-Ref: input_location_example2165093
-Node: Guidelines for Options2174988
-Node: Funding2175165
-Node: GNU Project2177691
-Node: Copying2178356
-Node: GNU Free Documentation License2216092
-Node: Contributors2241421
-Node: Option Index2283946
-Node: Concept Index2284841
+Node: Soft float library routines22605
+Node: Decimal float library routines35889
+Node: Fixed-point fractional library routines52782
+Node: Exception handling routines153342
+Node: Miscellaneous routines154449
+Node: Languages156585
+Node: Source Tree158142
+Node: Configure Terms158729
+Node: Top Level161787
+Node: gcc Directory166063
+Node: Subdirectories167039
+Node: Configuration169331
+Node: Config Fragments170111
+Node: System Config171400
+Node: Configuration Files172360
+Node: Build175168
+Node: Makefile175588
+Ref: Makefile-Footnote-1183045
+Ref: Makefile-Footnote-2183198
+Node: Library Files183276
+Node: Headers183860
+Node: Documentation186057
+Node: Texinfo Manuals186932
+Node: Man Page Generation189389
+Node: Miscellaneous Docs191169
+Node: Front End192628
+Node: Front End Directory196494
+Node: Front End Config197863
+Node: Front End Makefile200816
+Node: Back End204784
+Node: Testsuites209916
+Node: Test Idioms210905
+Node: Test Directives214368
+Node: Directives214907
+Node: Selectors227933
+Node: Effective-Target Keywords231393
+Ref: arm_fp_ok247790
+Ref: arm_fp_dp_ok247969
+Ref: arm_neon_ok249058
+Ref: arm_neon_ok_no_float_abi249235
+Ref: arm_neonv2_ok249410
+Ref: arm_fp16_ok249585
+Ref: arm_neon_fp16_ok249935
+Ref: arm_vfp3_ok250923
+Ref: arm_arch_v8a_hard_ok251074
+Ref: arm_v8_1a_neon_ok251864
+Ref: arm_v8_2a_fp16_scalar_ok252304
+Ref: arm_v8_2a_fp16_neon_ok252763
+Ref: arm_v8_2a_dotprod_neon_ok253246
+Ref: arm_fp16fml_neon_ok253903
+Ref: arm_coproc1_ok257001
+Ref: arm_coproc2_ok257151
+Ref: arm_coproc3_ok257411
+Ref: arm_simd32_ok257802
+Ref: arm_sat_ok257987
+Ref: arm_dsp_ok258176
+Ref: arm_softfp_ok258361
+Ref: arm_hard_ok258442
+Ref: arm_mve258517
+Ref: arm_v8_1_lob_ok258594
+Ref: default_packed273399
+Ref: stack_size_et276859
+Node: Add Options279766
+Ref: arm_fp16_ieee281040
+Ref: arm_fp16_alternative281299
+Ref: stack_size_ao283943
+Node: Require Support284411
+Node: Final Actions287477
+Node: Ada Tests298063
+Node: C Tests299262
+Node: LTO Testing303776
+Node: gcov Testing305491
+Node: profopt Testing308533
+Node: compat Testing310296
+Node: Torture Tests314652
+Node: GIMPLE Tests316360
+Node: RTL Tests317630
+Node: Options318952
+Node: Option file format319397
+Node: Option properties328177
+Node: Passes346058
+Node: Parsing pass346931
+Node: Gimplification pass350481
+Node: Pass manager352363
+Node: IPA passes354228
+Node: Small IPA passes355121
+Node: Regular IPA passes358725
+Node: Late IPA passes363695
+Node: Tree SSA passes364680
+Node: RTL passes387418
+Node: Optimization info400070
+Node: Dump setup400889
+Node: Optimization groups402051
+Node: Dump files and streams403086
+Node: Dump output verbosity404329
+Node: Dump types405401
+Node: Dump examples407840
+Node: poly_int409369
+Node: Overview of poly_int410883
+Node: Consequences of using poly_int413611
+Node: Comparisons involving poly_int415280
+Node: Comparison functions for poly_int416938
+Node: Properties of the poly_int comparisons418189
+Node: Comparing potentially-unordered poly_ints420761
+Node: Comparing ordered poly_ints421684
+Node: Checking for a poly_int marker value423774
+Node: Range checks on poly_ints424647
+Node: Sorting poly_ints427353
+Node: Arithmetic on poly_ints428150
+Node: Using poly_int with C++ arithmetic operators428963
+Node: wi arithmetic on poly_ints430542
+Node: Division of poly_ints431410
+Node: Other poly_int arithmetic432985
+Node: Alignment of poly_ints434431
+Node: Computing bounds on poly_ints437792
+Node: Converting poly_ints439221
+Node: Miscellaneous poly_int routines442972
+Node: Guidelines for using poly_int443636
+Node: GENERIC448708
+Node: Deficiencies450552
+Node: Tree overview450793
+Node: Macros and Functions454997
+Node: Identifiers455882
+Node: Containers457583
+Node: Types458808
+Node: Declarations472387
+Node: Working with declarations472886
+Node: Internal structure478804
+Node: Current structure hierarchy479192
+Node: Adding new DECL node types481421
+Node: Attributes485881
+Node: Expression trees487165
+Node: Constant expressions488939
+Node: Storage References495291
+Node: Unary and Binary Expressions499236
+Node: Vectors521415
+Node: Statements533331
+Node: Basic Statements533871
+Node: Blocks538936
+Node: Statement Sequences540683
+Node: Empty Statements541024
+Node: Jumps541606
+Node: Cleanups542299
+Node: OpenMP544378
+Node: OpenACC553307
+Node: Functions554520
+Node: Function Basics554995
+Node: Function Properties558787
+Node: Language-dependent trees561660
+Node: C and C++ Trees562557
+Node: Types for C++565462
+Node: Namespaces570744
+Node: Classes573990
+Node: Functions for C++579202
+Node: Statements for C and C++585791
+Node: C++ Expressions594722
+Node: GIMPLE596337
+Node: Tuple representation600060
+Node: Class hierarchy of GIMPLE statements607388
+Node: GIMPLE instruction set612384
+Node: GIMPLE Exception Handling614169
+Node: Temporaries616117
+Ref: Temporaries-Footnote-1617455
+Node: Operands617520
+Node: Compound Expressions618293
+Node: Compound Lvalues618527
+Node: Conditional Expressions619309
+Node: Logical Operators619988
+Node: Manipulating GIMPLE statements627511
+Node: Tuple specific accessors633369
+Node: GIMPLE_ASM634180
+Node: GIMPLE_ASSIGN636719
+Node: GIMPLE_BIND641639
+Node: GIMPLE_CALL643565
+Node: GIMPLE_CATCH647916
+Node: GIMPLE_COND649130
+Node: GIMPLE_DEBUG652093
+Node: GIMPLE_EH_FILTER656873
+Node: GIMPLE_LABEL658500
+Node: GIMPLE_GOTO659153
+Node: GIMPLE_NOP659700
+Node: GIMPLE_OMP_ATOMIC_LOAD660082
+Node: GIMPLE_OMP_ATOMIC_STORE661110
+Node: GIMPLE_OMP_CONTINUE661821
+Node: GIMPLE_OMP_CRITICAL663348
+Node: GIMPLE_OMP_FOR664386
+Node: GIMPLE_OMP_MASTER668036
+Node: GIMPLE_OMP_ORDERED668426
+Node: GIMPLE_OMP_PARALLEL668841
+Node: GIMPLE_OMP_RETURN671786
+Node: GIMPLE_OMP_SECTION672463
+Node: GIMPLE_OMP_SECTIONS673159
+Node: GIMPLE_OMP_SINGLE674851
+Node: GIMPLE_OMP_STRUCTURED_BLOCK675864
+Node: GIMPLE_PHI676684
+Node: GIMPLE_RESX678069
+Node: GIMPLE_RETURN678820
+Node: GIMPLE_SWITCH679422
+Node: GIMPLE_TRY681359
+Node: GIMPLE_WITH_CLEANUP_EXPR683223
+Node: GIMPLE sequences684142
+Node: Sequence iterators687490
+Node: Adding a new GIMPLE statement code696297
+Node: Statement and operand traversals697706
+Node: Tree SSA700458
+Node: Annotations702254
+Node: SSA Operands702667
+Node: SSA716863
+Node: Alias analysis726846
+Node: Memory model730715
+Node: RTL732074
+Node: RTL Objects734320
+Node: RTL Classes738273
+Node: Accessors744023
+Node: Special Accessors746272
+Node: Flags752329
+Node: Machine Modes768538
+Node: Constants787341
+Node: Regs and Memory799646
+Node: Arithmetic817517
+Node: Comparisons828696
+Node: Bit-Fields832550
+Node: Vector Operations834141
+Node: Conversions836281
+Node: RTL Declarations840851
+Node: Side Effects841715
+Node: Incdec858731
+Node: Assembler862155
+Node: Debug Information863758
+Node: Insns865749
+Node: Calls892804
+Node: RTL SSA895483
+Node: Using RTL SSA896878
+Node: RTL SSA Instructions898821
+Ref: RTL SSA Instructions-Footnote-1900219
+Node: RTL SSA Basic Blocks900353
+Ref: real RTL SSA insns900833
+Ref: RTL SSA Basic Blocks-Footnote-1903131
+Node: RTL SSA Resources903273
+Node: RTL SSA Accesses904410
+Ref: RTL SSA Accesses-Footnote-1906155
+Node: RTL SSA Phi Nodes906302
+Node: RTL SSA Access Lists908328
+Node: Changing RTL Instructions912701
+Node: Changing One RTL SSA Instruction913310
+Node: Changing Multiple RTL SSA Instructions918364
+Node: Sharing922736
+Node: Reading RTL925994
+Node: Control Flow927006
+Node: Basic Blocks928804
+Node: Edges934486
+Node: Profile information943341
+Node: Maintaining the CFG948111
+Node: Liveness information954059
+Node: Loop Analysis and Representation956262
+Node: Loop representation957298
+Node: Loop querying964912
+Node: Loop manipulation967879
+Node: LCSSA970301
+Node: Scalar evolutions972392
+Node: loop-iv975700
+Node: Number of iterations977708
+Node: Dependency analysis981921
+Node: Machine Desc988485
+Node: Overview991144
+Node: Patterns993253
+Node: Example998324
+Node: RTL Template999805
+Node: Output Template1010694
+Node: Output Statement1015003
+Node: Compact Syntax1019432
+Node: Predicates1024427
+Node: Machine-Independent Predicates1027427
+Node: Defining Predicates1032532
+Node: Constraints1038723
+Node: Simple Constraints1040210
+Node: Multi-Alternative1053408
+Node: Class Preferences1056696
+Node: Modifiers1057608
+Node: Machine Constraints1062464
+Node: Disable Insn Alternatives1127088
+Node: Define Constraints1130652
+Node: C Constraint Interface1139511
+Node: Standard Names1142722
+Ref: shift patterns1193746
+Ref: prologue instruction pattern1262270
+Ref: window_save instruction pattern1262775
+Ref: epilogue instruction pattern1263056
+Node: Pattern Ordering1286847
+Node: Dependent Patterns1288083
+Node: Jump Patterns1289719
+Node: Looping Patterns1291404
+Node: Insn Canonicalizations1297151
+Node: Expander Definitions1302931
+Node: Insn Splitting1311370
+Node: Including Patterns1326761
+Node: Peephole Definitions1328566
+Node: define_peephole1329839
+Node: define_peephole21336271
+Node: Insn Attributes1341007
+Node: Defining Attributes1342114
+Ref: define_enum_attr1345718
+Node: Expressions1346770
+Node: Tagging Insns1353816
+Node: Attr Example1358295
+Node: Insn Lengths1360680
+Node: Constant Attributes1364156
+Node: Mnemonic Attribute1365352
+Node: Delay Slots1366891
+Node: Processor pipeline description1370146
+Ref: Processor pipeline description-Footnote-11389293
+Node: Conditional Execution1389619
+Node: Define Subst1393178
+Node: Define Subst Example1395271
+Node: Define Subst Pattern Matching1398326
+Node: Define Subst Output Template1399640
+Node: Constant Definitions1402063
+Ref: define_enum1405990
+Node: Iterators1406490
+Node: Mode Iterators1407135
+Node: Defining Mode Iterators1408157
+Node: Substitutions1409739
+Node: Examples1412059
+Node: Code Iterators1413527
+Node: Int Iterators1416703
+Node: Subst Iterators1419306
+Node: Parameterized Names1421058
+Node: Target Macros1425176
+Node: Target Structure1428311
+Node: Driver1430947
+Node: Run-time Target1450502
+Node: Per-Function Data1461399
+Node: Storage Layout1464222
+Node: Type Layout1494014
+Node: Registers1507893
+Node: Register Basics1508867
+Node: Allocation Order1516641
+Node: Values in Registers1519143
+Node: Leaf Functions1526711
+Node: Stack Registers1529609
+Node: Register Classes1530890
+Node: Stack and Calling1566235
+Node: Frame Layout1566841
+Node: Exception Handling1579158
+Node: Stack Checking1585492
+Node: Frame Registers1591162
+Node: Elimination1599882
+Node: Stack Arguments1603804
+Node: Register Arguments1611355
+Node: Scalar Return1636967
+Node: Aggregate Return1643548
+Node: Caller Saves1648392
+Node: Function Entry1649138
+Node: Profiling1660868
+Node: Tail Calls1663016
+Node: Shrink-wrapping separate components1664942
+Node: Stack Smashing Protection1668033
+Node: Miscellaneous Register Hooks1670556
+Node: Varargs1671421
+Node: Trampolines1679728
+Node: Library Calls1689512
+Node: Addressing Modes1695771
+Node: Anchored Addresses1728174
+Node: Condition Code1730905
+Node: MODE_CC Condition Codes1732762
+Node: Costs1739619
+Node: Scheduling1762327
+Node: Sections1786392
+Node: PIC1803120
+Node: Assembler Format1805221
+Node: File Framework1806360
+Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1814079
+Node: Data Output1815780
+Node: Uninitialized Data1824206
+Node: Label Output1829301
+Node: Initialization1854434
+Node: Macros for Initialization1860630
+Node: Instruction Output1867953
+Node: Dispatch Tables1878832
+Node: Exception Region Output1884647
+Node: Alignment Output1891889
+Node: Debugging Info1895678
+Node: All Debuggers1896228
+Node: DWARF1899213
+Node: VMS Debug1905066
+Node: CTF Debug1905683
+Node: BTF Debug1906048
+Node: Floating Point1906395
+Node: Mode Switching1909176
+Node: Target Attributes1913693
+Node: Emulated TLS1925302
+Node: MIPS Coprocessors1928730
+Node: PCH Target1929897
+Node: C++ ABI1931781
+Node: D Language and ABI1936645
+Node: Named Address Spaces1939953
+Node: Misc1946076
+Ref: TARGET_SHIFT_TRUNCATION_MASK1954083
+Node: Host Config2016293
+Node: Host Common2017390
+Node: Filesystem2019784
+Node: Host Misc2024005
+Node: Fragments2026580
+Node: Target Fragment2027827
+Node: Host Fragment2039061
+Node: Collect22039305
+Node: Header Dirs2042152
+Node: Type Information2043623
+Node: GTY Options2047234
+Node: Inheritance and GTY2060498
+Ref: Inheritance and GTY-Footnote-12062093
+Node: User GC2062363
+Node: GGC Roots2066222
+Node: Files2066966
+Node: Invoking the garbage collector2069693
+Node: Troubleshooting2071369
+Node: Plugins2072472
+Node: Plugins loading2073601
+Node: Plugin API2074749
+Node: Plugins pass2082766
+Node: Plugins GC2084749
+Node: Plugins description2086534
+Node: Plugins attr2087084
+Node: Plugins recording2089412
+Node: Plugins gate2090290
+Node: Plugins tracking2090889
+Node: Plugins building2091485
+Node: LTO2095096
+Node: LTO Overview2095972
+Node: LTO object file layout2101864
+Node: IPA2106551
+Node: WHOPR2115761
+Node: Internal flags2120385
+Node: Match and Simplify2121820
+Node: GIMPLE API2122790
+Node: The Language2125616
+Node: Static Analyzer2138579
+Node: Analyzer Internals2138844
+Node: Debugging the Analyzer2154920
+Node: User Experience Guidelines2162772
+Node: Guidelines for Diagnostics2163709
+Ref: input_location_example2172061
+Node: Guidelines for Options2181956
+Node: Funding2182133
+Node: GNU Project2184659
+Node: Copying2185324
+Node: GNU Free Documentation License2223060
+Node: Contributors2248389
+Node: Option Index2290914
+Node: Concept Index2291809
 
 End Tag Table
 
