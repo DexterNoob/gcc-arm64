@@ -4,7 +4,7 @@
 ;;; Don't parse this file wihout knowing GCC gengtype internals.
 ;;; This file should be parsed by the same gengtype which wrote it.
 
-(!version  "14.0.0 20230907 (Dexter)")
+(!version  "14.0.0 20230910 (Dexter)")
 (!srcdir  "../../gcc/gcc")
 (!languages 12 ada c cp d fortran go jit lto m2 objc objcp rust)
 (!fileslist 242 0
@@ -30590,15 +30590,15 @@
    (!type already_seen 2275)
   )
   gc_pointed_to "hash_map<tree,tree_pair_p>"
-  (!srcfileloc  "cp/pt.cc" 30522)
+  (!srcfileloc  "cp/pt.cc" 30599)
   (!fields 2 
    (!pair  "tree_pair_p"
     (!type already_seen 543)
-    (!srcfileloc  "cp/pt.cc" 30522)
+    (!srcfileloc  "cp/pt.cc" 30599)
     nil )
    (!pair  "tree"
     (!type already_seen 23)
-    (!srcfileloc  "cp/pt.cc" 30522)
+    (!srcfileloc  "cp/pt.cc" 30599)
     nil )
   )
  )
@@ -31924,7 +31924,7 @@
   nil )
  (!pair  "hash_map<tree,tree_pair_p>"
   (!type already_seen 2275)
-  (!srcfileloc  "cp/pt.cc" 30522)
+  (!srcfileloc  "cp/pt.cc" 30599)
   nil )
  (!pair  "pending_template"
   (!type already_seen 2259)
@@ -36873,7 +36873,7 @@
   nil )
  (!pair  "dguide_cache"
   (!type already_seen 2276)
-  (!srcfileloc  "cp/pt.cc" 30522)
+  (!srcfileloc  "cp/pt.cc" 30599)
   (!options 
    (!option deletable string  "")
   )
@@ -36962,7 +36962,7 @@
   nil )
  (!pair  "generic_parm_count"
   (!type already_seen 2)
-  (!srcfileloc  "cp/parser.cc" 50417)
+  (!srcfileloc  "cp/parser.cc" 50420)
   nil )
  (!pair  "cp_parser_decl_specs_attrs"
   (!type already_seen 85)
