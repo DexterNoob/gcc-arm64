@@ -33099,6 +33099,7 @@ file.
 * PCH Target::          Validity checking for precompiled headers.
 * C++ ABI::             Controlling C++ ABI changes.
 * D Language and ABI::  Controlling D ABI changes.
+* Rust Language and ABI:: Controlling Rust ABI changes.
 * Named Address Spaces:: Adding support for named address spaces
 * Misc::                Everything else.
 
@@ -33154,6 +33155,14 @@ declared in ‘d/d-target.h’, the initializer ‘TARGETDM_INITIALIZER’ in
 ‘d/d-target-def.h’.  If targets initialize ‘targetdm’ themselves, they
 should set ‘target_has_targetdm=yes’ in ‘config.gcc’; otherwise a
 default definition is used.
+
+ Similarly, there is a ‘targetrustm’ variable for hooks that are
+specific to the Rust language front end, documented as “Rust Target
+Hook”.  This is declared in ‘rust/rust-target.h’, the initializer
+‘TARGETRUSTM_INITIALIZER’ in ‘rust/rust-target-def.h’.  If targets
+initialize ‘targetrustm’ themselves, they should set
+‘target_has_targetrustm=yes’ in ‘config.gcc’; otherwise a default
+definition is used.
 
 
 File: gccint.info,  Node: Driver,  Next: Run-time Target,  Prev: Target Structure,  Up: Target Macros
@@ -43312,7 +43321,7 @@ File: gccint.info,  Node: C++ ABI,  Next: D Language and ABI,  Prev: PCH Target,
      Return target-specific mangling context of DECL or ‘NULL_TREE’.
 
 
-File: gccint.info,  Node: D Language and ABI,  Next: Named Address Spaces,  Prev: C++ ABI,  Up: Target Macros
+File: gccint.info,  Node: D Language and ABI,  Next: Rust Language and ABI,  Prev: C++ ABI,  Up: Target Macros
 
 18.29 D ABI parameters
 ======================
@@ -43377,9 +43386,26 @@ File: gccint.info,  Node: D Language and ABI,  Next: Named Address Spaces,  Prev
      The default is ‘false’.
 
 
-File: gccint.info,  Node: Named Address Spaces,  Next: Misc,  Prev: D Language and ABI,  Up: Target Macros
+File: gccint.info,  Node: Rust Language and ABI,  Next: Named Address Spaces,  Prev: D Language and ABI,  Up: Target Macros
 
-18.30 Adding support for named address spaces
+18.30 Rust ABI parameters
+=========================
+
+ -- Rust Target Hook: void TARGET_RUST_CPU_INFO (void)
+     Declare all environmental CPU info and features relating to the
+     target CPU using the function ‘rust_add_target_info’, which takes a
+     string representing the feature key and a string representing the
+     feature value.  Configuration pairs predefined by this hook apply
+     to all files that are being compiled.
+
+ -- Rust Target Hook: void TARGET_RUST_OS_INFO (void)
+     Similar to ‘TARGET_RUST_CPU_INFO’, but is used for configuration
+     info relating to the target operating system.
+
+
+File: gccint.info,  Node: Named Address Spaces,  Next: Misc,  Prev: Rust Language and ABI,  Up: Target Macros
+
+18.31 Adding support for named address spaces
 =============================================
 
 The draft technical report of the ISO/IEC JTC1 S22 WG14 N1275 standards
@@ -43496,7 +43522,7 @@ keyword for named address space #1:
 
 File: gccint.info,  Node: Misc,  Prev: Named Address Spaces,  Up: Target Macros
 
-18.31 Miscellaneous Parameters
+18.32 Miscellaneous Parameters
 ==============================
 
 Here are several miscellaneous parameters.
@@ -57180,6 +57206,8 @@ Concept Index
 * parameters, d abi:                     D Language and ABI. (line    6)
 * parameters, miscellaneous:             Misc.               (line    6)
 * parameters, precompiled headers:       PCH Target.         (line    6)
+* parameters, rust abi:                  Rust Language and ABI.
+                                                             (line    6)
 * parity:                                Arithmetic.         (line  248)
 * parityM2 instruction pattern:          Standard Names.     (line 1720)
 * PARM_BOUNDARY:                         Storage Layout.     (line  169)
@@ -58401,6 +58429,10 @@ Concept Index
 * TARGET_RETURN_POPS_ARGS:               Stack Arguments.    (line  101)
 * TARGET_RTX_COSTS:                      Costs.              (line  320)
 * TARGET_RUN_TARGET_SELFTESTS:           Misc.               (line 1267)
+* TARGET_RUST_CPU_INFO:                  Rust Language and ABI.
+                                                             (line    6)
+* TARGET_RUST_OS_INFO:                   Rust Language and ABI.
+                                                             (line   13)
 * TARGET_SCALAR_MODE_SUPPORTED_P:        Register Arguments. (line  328)
 * TARGET_SCHED_ADJUST_COST:              Scheduling.         (line   35)
 * TARGET_SCHED_ADJUST_PRIORITY:          Scheduling.         (line   50)
@@ -59455,128 +59487,129 @@ Node: Int Iterators1417015
 Node: Subst Iterators1419618
 Node: Parameterized Names1421370
 Node: Target Macros1425488
-Node: Target Structure1428623
-Node: Driver1431259
-Node: Run-time Target1450814
-Node: Per-Function Data1461711
-Node: Storage Layout1464534
-Node: Type Layout1494326
-Node: Registers1508205
-Node: Register Basics1509179
-Node: Allocation Order1516953
-Node: Values in Registers1519455
-Node: Leaf Functions1527023
-Node: Stack Registers1529921
-Node: Register Classes1531202
-Node: Stack and Calling1566547
-Node: Frame Layout1567153
-Node: Exception Handling1579470
-Node: Stack Checking1585804
-Node: Frame Registers1591474
-Node: Elimination1600194
-Node: Stack Arguments1604116
-Node: Register Arguments1611667
-Node: Scalar Return1637279
-Node: Aggregate Return1643860
-Node: Caller Saves1648704
-Node: Function Entry1649450
-Node: Profiling1661180
-Node: Tail Calls1663328
-Node: Shrink-wrapping separate components1665254
-Node: Stack Smashing Protection1668345
-Node: Miscellaneous Register Hooks1670868
-Node: Varargs1671733
-Node: Trampolines1680040
-Node: Library Calls1689824
-Node: Addressing Modes1696083
-Node: Anchored Addresses1728486
-Node: Condition Code1731217
-Node: MODE_CC Condition Codes1733074
-Node: Costs1739931
-Node: Scheduling1762639
-Node: Sections1786704
-Node: PIC1803432
-Node: Assembler Format1805533
-Node: File Framework1806672
-Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1814391
-Node: Data Output1816092
-Node: Uninitialized Data1824518
-Node: Label Output1829613
-Node: Initialization1854746
-Node: Macros for Initialization1860942
-Node: Instruction Output1868265
-Node: Dispatch Tables1879144
-Node: Exception Region Output1884959
-Node: Alignment Output1892201
-Node: Debugging Info1895990
-Node: All Debuggers1896540
-Node: DWARF1899525
-Node: VMS Debug1905378
-Node: CTF Debug1905995
-Node: BTF Debug1906360
-Node: Floating Point1906707
-Node: Mode Switching1909488
-Node: Target Attributes1914005
-Node: Emulated TLS1925614
-Node: MIPS Coprocessors1929042
-Node: PCH Target1930209
-Node: C++ ABI1932093
-Node: D Language and ABI1936957
-Node: Named Address Spaces1940265
-Node: Misc1946388
-Ref: TARGET_SHIFT_TRUNCATION_MASK1954395
-Node: Host Config2016605
-Node: Host Common2017702
-Node: Filesystem2020096
-Node: Host Misc2024317
-Node: Fragments2026892
-Node: Target Fragment2028139
-Node: Host Fragment2039373
-Node: Collect22039617
-Node: Header Dirs2042464
-Node: Type Information2043935
-Node: GTY Options2047546
-Node: Inheritance and GTY2061134
-Ref: Inheritance and GTY-Footnote-12062729
-Node: User GC2062999
-Node: GGC Roots2066858
-Node: Files2067602
-Node: Invoking the garbage collector2070329
-Node: Troubleshooting2072005
-Node: Plugins2073108
-Node: Plugins loading2074237
-Node: Plugin API2075385
-Node: Plugins pass2083402
-Node: Plugins GC2085385
-Node: Plugins description2087170
-Node: Plugins attr2087720
-Node: Plugins recording2090048
-Node: Plugins gate2090926
-Node: Plugins tracking2091525
-Node: Plugins building2092121
-Node: LTO2095732
-Node: LTO Overview2096608
-Node: LTO object file layout2102500
-Node: IPA2107187
-Node: WHOPR2116397
-Node: Internal flags2121021
-Node: Match and Simplify2122456
-Node: GIMPLE API2123426
-Node: The Language2126252
-Node: Static Analyzer2139215
-Node: Analyzer Internals2139480
-Node: Debugging the Analyzer2155556
-Node: User Experience Guidelines2163408
-Node: Guidelines for Diagnostics2164345
-Ref: input_location_example2172697
-Node: Guidelines for Options2182592
-Node: Funding2182769
-Node: GNU Project2185295
-Node: Copying2185960
-Node: GNU Free Documentation License2223696
-Node: Contributors2249025
-Node: Option Index2291550
-Node: Concept Index2292445
+Node: Target Structure1428679
+Node: Driver1431753
+Node: Run-time Target1451308
+Node: Per-Function Data1462205
+Node: Storage Layout1465028
+Node: Type Layout1494820
+Node: Registers1508699
+Node: Register Basics1509673
+Node: Allocation Order1517447
+Node: Values in Registers1519949
+Node: Leaf Functions1527517
+Node: Stack Registers1530415
+Node: Register Classes1531696
+Node: Stack and Calling1567041
+Node: Frame Layout1567647
+Node: Exception Handling1579964
+Node: Stack Checking1586298
+Node: Frame Registers1591968
+Node: Elimination1600688
+Node: Stack Arguments1604610
+Node: Register Arguments1612161
+Node: Scalar Return1637773
+Node: Aggregate Return1644354
+Node: Caller Saves1649198
+Node: Function Entry1649944
+Node: Profiling1661674
+Node: Tail Calls1663822
+Node: Shrink-wrapping separate components1665748
+Node: Stack Smashing Protection1668839
+Node: Miscellaneous Register Hooks1671362
+Node: Varargs1672227
+Node: Trampolines1680534
+Node: Library Calls1690318
+Node: Addressing Modes1696577
+Node: Anchored Addresses1728980
+Node: Condition Code1731711
+Node: MODE_CC Condition Codes1733568
+Node: Costs1740425
+Node: Scheduling1763133
+Node: Sections1787198
+Node: PIC1803926
+Node: Assembler Format1806027
+Node: File Framework1807166
+Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1814885
+Node: Data Output1816586
+Node: Uninitialized Data1825012
+Node: Label Output1830107
+Node: Initialization1855240
+Node: Macros for Initialization1861436
+Node: Instruction Output1868759
+Node: Dispatch Tables1879638
+Node: Exception Region Output1885453
+Node: Alignment Output1892695
+Node: Debugging Info1896484
+Node: All Debuggers1897034
+Node: DWARF1900019
+Node: VMS Debug1905872
+Node: CTF Debug1906489
+Node: BTF Debug1906854
+Node: Floating Point1907201
+Node: Mode Switching1909982
+Node: Target Attributes1914499
+Node: Emulated TLS1926108
+Node: MIPS Coprocessors1929536
+Node: PCH Target1930703
+Node: C++ ABI1932587
+Node: D Language and ABI1937451
+Node: Rust Language and ABI1940760
+Node: Named Address Spaces1941507
+Node: Misc1947633
+Ref: TARGET_SHIFT_TRUNCATION_MASK1955640
+Node: Host Config2017850
+Node: Host Common2018947
+Node: Filesystem2021341
+Node: Host Misc2025562
+Node: Fragments2028137
+Node: Target Fragment2029384
+Node: Host Fragment2040618
+Node: Collect22040862
+Node: Header Dirs2043709
+Node: Type Information2045180
+Node: GTY Options2048791
+Node: Inheritance and GTY2062379
+Ref: Inheritance and GTY-Footnote-12063974
+Node: User GC2064244
+Node: GGC Roots2068103
+Node: Files2068847
+Node: Invoking the garbage collector2071574
+Node: Troubleshooting2073250
+Node: Plugins2074353
+Node: Plugins loading2075482
+Node: Plugin API2076630
+Node: Plugins pass2084647
+Node: Plugins GC2086630
+Node: Plugins description2088415
+Node: Plugins attr2088965
+Node: Plugins recording2091293
+Node: Plugins gate2092171
+Node: Plugins tracking2092770
+Node: Plugins building2093366
+Node: LTO2096977
+Node: LTO Overview2097853
+Node: LTO object file layout2103745
+Node: IPA2108432
+Node: WHOPR2117642
+Node: Internal flags2122266
+Node: Match and Simplify2123701
+Node: GIMPLE API2124671
+Node: The Language2127497
+Node: Static Analyzer2140460
+Node: Analyzer Internals2140725
+Node: Debugging the Analyzer2156801
+Node: User Experience Guidelines2164653
+Node: Guidelines for Diagnostics2165590
+Ref: input_location_example2173942
+Node: Guidelines for Options2183837
+Node: Funding2184014
+Node: GNU Project2186540
+Node: Copying2187205
+Node: GNU Free Documentation License2224941
+Node: Contributors2250270
+Node: Option Index2292795
+Node: Concept Index2293690
 
 End Tag Table
 
