@@ -360,9 +360,9 @@ extern int aarch64_float_recp_precision;
 #define aarch64_float_recp_precision global_options.x_aarch64_float_recp_precision
 #endif
 #ifdef GENERATOR_FILE
-extern enum aarch64_ldp_policy aarch64_ldp_policy_param;
+extern enum aarch64_ldp_stp_policy aarch64_ldp_policy_param;
 #else
-  enum aarch64_ldp_policy x_aarch64_ldp_policy_param;
+  enum aarch64_ldp_stp_policy x_aarch64_ldp_policy_param;
 #define aarch64_ldp_policy_param global_options.x_aarch64_ldp_policy_param
 #endif
 #ifdef GENERATOR_FILE
@@ -390,9 +390,9 @@ extern int aarch64_mops_memset_size_threshold;
 #define aarch64_mops_memset_size_threshold global_options.x_aarch64_mops_memset_size_threshold
 #endif
 #ifdef GENERATOR_FILE
-extern enum aarch64_stp_policy aarch64_stp_policy_param;
+extern enum aarch64_ldp_stp_policy aarch64_stp_policy_param;
 #else
-  enum aarch64_stp_policy x_aarch64_stp_policy_param;
+  enum aarch64_ldp_stp_policy x_aarch64_stp_policy_param;
 #define aarch64_stp_policy_param global_options.x_aarch64_stp_policy_param
 #endif
 #ifdef GENERATOR_FILE
