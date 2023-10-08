@@ -55,7 +55,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 2023-10-05 gcc-14.0.0 GNU
+.TH GCC 1 2023-10-08 gcc-14.0.0 GNU
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1373,7 +1373,7 @@ See RS/6000 and PowerPC Options.
 \&\-mrdseed  \-msgx \-mavx512vp2intersect \-mserialize \-mtsxldtrk
 \&\-mamx\-tile  \-mamx\-int8  \-mamx\-bf16 \-muintr \-mhreset \-mavxvnni
 \&\-mavx512fp16 \-mavxifma \-mavxvnniint8 \-mavxneconvert \-mcmpccxadd \-mamx\-fp16
-\&\-mprefetchi \-mraoint \-mamx\-complex \-mavxvnniint16 \-msm3 \-msha512 \-msm4
+\&\-mprefetchi \-mraoint \-mamx\-complex \-mavxvnniint16 \-msm3 \-msha512 \-msm4 \-mapxf
 \&\-mcldemote  \-mms\-bitfields  \-mno\-align\-stringops  \-minline\-all\-stringops
 \&\-minline\-stringops\-dynamically  \-mstringop\-strategy=\fR\fIalg\fR
 \&\fB\-mkl \-mwidekl
@@ -19844,9 +19844,9 @@ performance of the code.  Permissible values for this option are:
 \&\fBcortex\-a73.cortex\-a35\fR, \fBcortex\-a73.cortex\-a53\fR,
 \&\fBcortex\-a75.cortex\-a55\fR, \fBcortex\-a76.cortex\-a55\fR,
 \&\fBcortex\-r82\fR, \fBcortex\-x1\fR, \fBcortex\-x1c\fR, \fBcortex\-x2\fR,
-\&\fBcortex\-x3\fR, \fBcortex\-a510\fR, \fBcortex\-a520\fR, \fBcortex\-a710\fR,
-\&\fBcortex\-a715\fR, \fBcortex\-a720\fR, \fBampere1\fR, \fBampere1a\fR,
-and \fBnative\fR.
+\&\fBcortex\-x3\fR, \fBcortex\-x4\fR, \fBcortex\-a510\fR, \fBcortex\-a520\fR,
+\&\fBcortex\-a710\fR, \fBcortex\-a715\fR, \fBcortex\-a720\fR, \fBampere1\fR,
+\&\fBampere1a\fR, and \fBnative\fR.
 .Sp
 The values \fBcortex\-a57.cortex\-a53\fR, \fBcortex\-a72.cortex\-a53\fR,
 \&\fBcortex\-a73.cortex\-a35\fR, \fBcortex\-a73.cortex\-a53\fR,
@@ -20779,8 +20779,7 @@ The following options control how the assembly code is annotated:
 Annotate assembler instructions with estimated addresses.
 .IP \fB\-mannotate\-align\fR 4
 .IX Item "-mannotate-align"
-Explain what alignment considerations lead to the decision to make an
-instruction short or long.
+Does nothing.  Preserved for backward compatibility.
 .PP
 The following options are passed through to the linker:
 .IP \fB\-marclinux\fR 4
@@ -32725,6 +32724,8 @@ preferred alignment to \fB\-mpreferred\-stack\-boundary=2\fR.
 .IX Item "-msha512"
 .IP \fB\-msm4\fR 4
 .IX Item "-msm4"
+.IP \fB\-mapxf\fR 4
+.IX Item "-mapxf"
 .PD
 These switches enable the use of instructions in the MMX, SSE,
 AVX512ER, AVX512CD, AVX512VL, AVX512BW, AVX512DQ, AVX512IFMA, AVX512VBMI, SHA,
@@ -32736,9 +32737,9 @@ GFNI, VAES, WAITPKG, VPCLMULQDQ, AVX512BITALG, MOVDIRI, MOVDIR64B, AVX512BF16,
 ENQCMD, AVX512VPOPCNTDQ, AVX5124FMAPS, AVX512VNNI, AVX5124VNNIW, SERIALIZE,
 UINTR, HRESET, AMXTILE, AMXINT8, AMXBF16, KL, WIDEKL, AVXVNNI, AVX512\-FP16,
 AVXIFMA, AVXVNNIINT8, AVXNECONVERT, CMPCCXADD, AMX\-FP16, PREFETCHI, RAOINT,
-AMX-COMPLEX, AVXVNNIINT16, SM3, SHA512, SM4 or CLDEMOTE extended instruction
-sets. Each has a corresponding \fB\-mno\-\fR option to disable use of these
-instructions.
+AMX-COMPLEX, AVXVNNIINT16, SM3, SHA512, SM4, APX_F or CLDEMOTE extended
+instruction sets. Each has a corresponding \fB\-mno\-\fR option to disable
+use of these instructions.
 .Sp
 These extensions are also available as built-in functions: see
 \&\fBx86 Built-in Functions\fR, for details of the functions enabled and
