@@ -49139,6 +49139,7 @@ instructions, but allow the compiler to schedule those calls.
 * PRU Built-in Functions::
 * RISC-V Built-in Functions::
 * RISC-V Vector Intrinsics::
+* CORE-V Built-in Functions::
 * RX Built-in Functions::
 * S/390 System z Built-in Functions::
 * SH Built-in Functions::
@@ -55254,6 +55255,192 @@ RISC-V vector intrinsic specification, which is available at the
 following link:
 <https://github.com/riscv-non-isa/rvv-intrinsic-doc/tree/v0.11.x>.  All
 of these functions are declared in the include file ‘riscv_vector.h’.
+
+* Menu:
+
+* CORE-V Built-in Functions::
+
+
+File: gcc.info,  Node: CORE-V Built-in Functions,  Next: RX Built-in Functions,  Prev: RISC-V Vector Intrinsics,  Up: RISC-V Vector Intrinsics
+
+6.60.30.1 CORE-V Built-in Functions
+...................................
+
+These built-in functions are available for the CORE-V MAC machine
+architecture.  For more information on CORE-V built-ins, please see
+<https://github.com/openhwgroup/core-v-sw/blob/master/specifications/corev-builtin-spec.md#listing-of-multiply-accumulate-builtins-xcvmac>.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_mac (int32_t,
+          int32_t, int32_t)
+     Generated assembler ‘cv.mac’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_msu (int32_t,
+          int32_t, int32_t)
+     Generates the ‘cv.msu’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_muluN (uint32_t,
+          uint32_t, uint8_t)
+     Generates the ‘cv.muluN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_mulhhuN
+          (uint32_t, uint32_t, uint8_t)
+     Generates the ‘cv.mulhhuN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_mulsN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.mulsN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_mulhhsN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.mulhhsN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_muluRN (uint32_t,
+          uint32_t, uint8_t)
+     Generates the ‘cv.muluRN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_mulhhuRN
+          (uint32_t, uint32_t, uint8_t)
+     Generates the ‘cv.mulhhuRN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_mulsRN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.mulsRN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_mulhhsRN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.mulhhsRN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_macuN (uint32_t,
+          uint32_t, uint8_t)
+     Generates the ‘cv.macuN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_machhuN
+          (uint32_t, uint32_t, uint8_t)
+     Generates the ‘cv.machhuN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_macsN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.macsN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_machhsN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.machhsN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_macuRN (uint32_t,
+          uint32_t, uint8_t)
+     Generates the ‘cv.macuRN’ machine instruction.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_mac_machhuRN
+          (uint32_t, uint32_t, uint8_t)
+     Generates the ‘cv.machhuRN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_macsRN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.macsRN’ machine instruction.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_mac_machhsRN (int32_t,
+          int32_t, uint8_t)
+     Generates the ‘cv.machhsRN’ machine instruction.
+
+ These built-in functions are available for the CORE-V ALU machine
+architecture.  For more information on CORE-V built-ins, please see
+<https://github.com/openhwgroup/core-v-sw/blob/master/specifications/corev-builtin-spec.md#listing-of-miscellaneous-alu-builtins-xcvalu>
+
+ -- Built-in Function: int __builtin_riscv_cv_alu_slet (int32_t,
+          int32_t)
+     Generated assembler ‘cv.slet’
+
+ -- Built-in Function: int __builtin_riscv_cv_alu_sletu (uint32_t,
+          uint32_t)
+     Generated assembler ‘cv.sletu’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_min (int32_t,
+          int32_t)
+     Generated assembler ‘cv.min’
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_minu (uint32_t,
+          uint32_t)
+     Generated assembler ‘cv.minu’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_max (int32_t,
+          int32_t)
+     Generated assembler ‘cv.max’
+
+ -- Built-in Function: uint32_tnt __builtin_riscv_cv_alu_maxu (uint32_t,
+          uint32_t)
+     Generated assembler ‘cv.maxu’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_exths (int16_t)
+     Generated assembler ‘cv.exths’
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_exthz (uint16_t)
+     Generated assembler ‘cv.exthz’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_extbs (int8_t)
+     Generated assembler ‘cv.extbs’
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_extbz (uint8_t)
+     Generated assembler ‘cv.extbz’
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_clip (int32_t,
+          uint32_t)
+     Generated assembler ‘cv.clip’ if the uint32_t operand is a constant
+     and an exact power of 2.  Generated assembler ‘cv.clipr’ if the it
+     is a register.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_clipu (uint32_t,
+          uint32_t)
+     Generated assembler ‘cv.clipu’ if the uint32_t operand is a
+     constant and an exact power of 2.  Generated assembler ‘cv.clipur’
+     if the it is a register.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_addN (int32_t,
+          int32_t, uint8_t)
+     Generated assembler ‘cv.addN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.addNr’
+     if the it is a register.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_adduN (uint32_t,
+          uint32_t, uint8_t)
+     Generated assembler ‘cv.adduN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.adduNr’
+     if the it is a register.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_addRN (int32_t,
+          int32_t, uint8_t)
+     Generated assembler ‘cv.addRN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.addRNr’
+     if the it is a register.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_adduRN (uint32_t,
+          uint32_t, uint8_t)
+     Generated assembler ‘cv.adduRN’ if the uint8_t operand is a
+     constant and in the range 0 <= shft <= 31.  Generated assembler
+     ‘cv.adduRNr’ if the it is a register.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_subN (int32_t,
+          int32_t, uint8_t)
+     Generated assembler ‘cv.subN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.subNr’
+     if the it is a register.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_subuN (uint32_t,
+          uint32_t, uint8_t)
+     Generated assembler ‘cv.subuN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.subuNr’
+     if the it is a register.
+
+ -- Built-in Function: int32_t __builtin_riscv_cv_alu_subRN (int32_t,
+          int32_t, uint8_t)
+     Generated assembler ‘cv.subRN’ if the uint8_t operand is a constant
+     and in the range 0 <= shft <= 31.  Generated assembler ‘cv.subRNr’
+     if the it is a register.
+
+ -- Built-in Function: uint32_t __builtin_riscv_cv_alu_subuRN (uint32_t,
+          uint32_t, uint8_t)
+     Generated assembler ‘cv.subuRN’ if the uint8_t operand is a
+     constant and in the range 0 <= shft <= 31.  Generated assembler
+     ‘cv.subuRNr’ if the it is a register.
 
 
 File: gcc.info,  Node: RX Built-in Functions,  Next: S/390 System z Built-in Functions,  Prev: RISC-V Vector Intrinsics,  Up: Target Builtins
@@ -70505,6 +70692,82 @@ A.2 Concept and Symbol Index
                                                              (line  138)
 * __builtin_return:                      Constructing Calls. (line   47)
 * __builtin_return_address:              Return Address.     (line    9)
+* __builtin_riscv_cv_alu_addN:           CORE-V Built-in Functions.
+                                                             (line  134)
+* __builtin_riscv_cv_alu_addRN:          CORE-V Built-in Functions.
+                                                             (line  146)
+* __builtin_riscv_cv_alu_adduN:          CORE-V Built-in Functions.
+                                                             (line  140)
+* __builtin_riscv_cv_alu_adduRN:         CORE-V Built-in Functions.
+                                                             (line  152)
+* __builtin_riscv_cv_alu_clip:           CORE-V Built-in Functions.
+                                                             (line  122)
+* __builtin_riscv_cv_alu_clipu:          CORE-V Built-in Functions.
+                                                             (line  128)
+* __builtin_riscv_cv_alu_extbs:          CORE-V Built-in Functions.
+                                                             (line  116)
+* __builtin_riscv_cv_alu_extbz:          CORE-V Built-in Functions.
+                                                             (line  119)
+* __builtin_riscv_cv_alu_exths:          CORE-V Built-in Functions.
+                                                             (line  110)
+* __builtin_riscv_cv_alu_exthz:          CORE-V Built-in Functions.
+                                                             (line  113)
+* __builtin_riscv_cv_alu_max:            CORE-V Built-in Functions.
+                                                             (line  102)
+* __builtin_riscv_cv_alu_maxu:           CORE-V Built-in Functions.
+                                                             (line  106)
+* __builtin_riscv_cv_alu_min:            CORE-V Built-in Functions.
+                                                             (line   94)
+* __builtin_riscv_cv_alu_minu:           CORE-V Built-in Functions.
+                                                             (line   98)
+* __builtin_riscv_cv_alu_slet:           CORE-V Built-in Functions.
+                                                             (line   86)
+* __builtin_riscv_cv_alu_sletu:          CORE-V Built-in Functions.
+                                                             (line   90)
+* __builtin_riscv_cv_alu_subN:           CORE-V Built-in Functions.
+                                                             (line  158)
+* __builtin_riscv_cv_alu_subRN:          CORE-V Built-in Functions.
+                                                             (line  170)
+* __builtin_riscv_cv_alu_subuN:          CORE-V Built-in Functions.
+                                                             (line  164)
+* __builtin_riscv_cv_alu_subuRN:         CORE-V Built-in Functions.
+                                                             (line  176)
+* __builtin_riscv_cv_mac_mac:            CORE-V Built-in Functions.
+                                                             (line   10)
+* __builtin_riscv_cv_mac_machhsN:        CORE-V Built-in Functions.
+                                                             (line   62)
+* __builtin_riscv_cv_mac_machhsRN:       CORE-V Built-in Functions.
+                                                             (line   78)
+* __builtin_riscv_cv_mac_machhuN:        CORE-V Built-in Functions.
+                                                             (line   54)
+* __builtin_riscv_cv_mac_machhuRN:       CORE-V Built-in Functions.
+                                                             (line   70)
+* __builtin_riscv_cv_mac_macsN:          CORE-V Built-in Functions.
+                                                             (line   58)
+* __builtin_riscv_cv_mac_macsRN:         CORE-V Built-in Functions.
+                                                             (line   74)
+* __builtin_riscv_cv_mac_macuN:          CORE-V Built-in Functions.
+                                                             (line   50)
+* __builtin_riscv_cv_mac_macuRN:         CORE-V Built-in Functions.
+                                                             (line   66)
+* __builtin_riscv_cv_mac_msu:            CORE-V Built-in Functions.
+                                                             (line   14)
+* __builtin_riscv_cv_mac_mulhhsN:        CORE-V Built-in Functions.
+                                                             (line   30)
+* __builtin_riscv_cv_mac_mulhhsRN:       CORE-V Built-in Functions.
+                                                             (line   46)
+* __builtin_riscv_cv_mac_mulhhuN:        CORE-V Built-in Functions.
+                                                             (line   22)
+* __builtin_riscv_cv_mac_mulhhuRN:       CORE-V Built-in Functions.
+                                                             (line   38)
+* __builtin_riscv_cv_mac_mulsN:          CORE-V Built-in Functions.
+                                                             (line   26)
+* __builtin_riscv_cv_mac_mulsRN:         CORE-V Built-in Functions.
+                                                             (line   42)
+* __builtin_riscv_cv_mac_muluN:          CORE-V Built-in Functions.
+                                                             (line   18)
+* __builtin_riscv_cv_mac_muluRN:         CORE-V Built-in Functions.
+                                                             (line   34)
 * __builtin_riscv_pause:                 RISC-V Built-in Functions.
                                                              (line   12)
 * __builtin_rx_brk:                      RX Built-in Functions.
@@ -73386,171 +73649,172 @@ Node: x86 specific memory model extensions for transactional memory2082009
 Node: Object Size Checking2083295
 Node: Other Builtins2090946
 Node: Target Builtins2148507
-Node: AArch64 Built-in Functions2150289
-Node: Alpha Built-in Functions2150985
-Node: Altera Nios II Built-in Functions2154123
-Node: ARC Built-in Functions2158606
-Node: ARC SIMD Built-in Functions2164232
-Node: ARM iWMMXt Built-in Functions2174738
-Node: ARM C Language Extensions (ACLE)2181878
-Node: ARM Floating Point Status and Control Intrinsics2183163
-Node: ARM ARMv8-M Security Extensions2183650
-Node: AVR Built-in Functions2184950
-Node: Blackfin Built-in Functions2188854
-Node: BPF Built-in Functions2189482
-Node: FR-V Built-in Functions2196102
-Node: Argument Types2196987
-Node: Directly-mapped Integer Functions2198922
-Node: Directly-mapped Media Functions2200202
-Node: Raw read/write Functions2209540
-Node: Other Built-in Functions2210486
-Node: LoongArch Base Built-in Functions2211704
-Node: MIPS DSP Built-in Functions2217845
-Node: MIPS Paired-Single Support2230816
-Node: MIPS Loongson Built-in Functions2232349
-Node: Paired-Single Arithmetic2238911
-Node: Paired-Single Built-in Functions2240038
-Node: MIPS-3D Built-in Functions2242901
-Node: MIPS SIMD Architecture (MSA) Support2248675
-Node: MIPS SIMD Architecture Built-in Functions2251679
-Node: Other MIPS Built-in Functions2278533
-Node: MSP430 Built-in Functions2279566
-Node: NDS32 Built-in Functions2280979
-Node: Nvidia PTX Built-in Functions2282274
-Node: Basic PowerPC Built-in Functions2282900
-Node: Basic PowerPC Built-in Functions Available on all Configurations2283760
-Node: Basic PowerPC Built-in Functions Available on ISA 2.052293133
-Node: Basic PowerPC Built-in Functions Available on ISA 2.062299293
-Node: Basic PowerPC Built-in Functions Available on ISA 2.072301409
-Node: Basic PowerPC Built-in Functions Available on ISA 3.02302295
-Node: Basic PowerPC Built-in Functions Available on ISA 3.12309830
-Node: PowerPC AltiVec/VSX Built-in Functions2313811
-Node: PowerPC AltiVec Built-in Functions on ISA 2.052322766
-Node: PowerPC AltiVec Built-in Functions Available on ISA 2.062348170
-Node: PowerPC AltiVec Built-in Functions Available on ISA 2.072355284
-Node: PowerPC AltiVec Built-in Functions Available on ISA 3.02365094
-Node: PowerPC AltiVec Built-in Functions Available on ISA 3.12382126
-Node: PowerPC Hardware Transactional Memory Built-in Functions2415824
-Node: PowerPC Atomic Memory Operation Functions2424438
-Node: PowerPC Matrix-Multiply Assist Built-in Functions2427005
-Node: PRU Built-in Functions2433134
-Node: RISC-V Built-in Functions2434414
-Node: RISC-V Vector Intrinsics2435092
-Node: RX Built-in Functions2435591
-Node: S/390 System z Built-in Functions2439692
-Node: SH Built-in Functions2445053
-Node: SPARC VIS Built-in Functions2446817
-Node: TI C6X Built-in Functions2455368
-Node: x86 Built-in Functions2456419
-Node: x86 transactional memory intrinsics2523706
-Node: x86 control-flow protection intrinsics2527060
-Node: Target Format Checks2528847
-Node: Solaris Format Checks2529279
-Node: Darwin Format Checks2529729
-Node: Pragmas2530736
-Node: AArch64 Pragmas2531661
-Node: ARM Pragmas2532126
-Node: M32C Pragmas2532789
-Node: PRU Pragmas2533883
-Node: RS/6000 and PowerPC Pragmas2534466
-Node: S/390 Pragmas2535238
-Node: Darwin Pragmas2535816
-Node: Solaris Pragmas2536902
-Node: Symbol-Renaming Pragmas2538104
-Node: Structure-Layout Pragmas2539771
-Node: Weak Pragmas2542135
-Node: Diagnostic Pragmas2542882
-Node: Visibility Pragmas2547743
-Node: Push/Pop Macro Pragmas2548440
-Node: Function Specific Option Pragmas2549437
-Node: Loop-Specific Pragmas2551467
-Node: Unnamed Fields2553600
-Node: Thread-Local2555873
-Node: C99 Thread-Local Edits2558029
-Node: C++98 Thread-Local Edits2560103
-Node: Binary constants2563648
-Node: C++ Extensions2564347
-Node: C++ Volatiles2565993
-Node: Restricted Pointers2568344
-Node: Vague Linkage2569989
-Node: C++ Interface2573652
-Ref: C++ Interface-Footnote-12577544
-Node: Template Instantiation2577700
-Node: Bound member functions2583826
-Node: C++ Attributes2585370
-Node: Function Multiversioning2590694
-Node: Type Traits2592502
-Node: C++ Concepts2600576
-Node: Deprecated Features2602154
-Node: Backwards Compatibility2603991
-Node: Objective-C2605075
-Node: GNU Objective-C runtime API2605682
-Node: Modern GNU Objective-C runtime API2606693
-Node: Traditional GNU Objective-C runtime API2609209
-Node: Executing code before main2609952
-Node: What you can and what you cannot do in +load2612788
-Node: Type encoding2615276
-Node: Legacy type encoding2621042
-Node: @encode2622174
-Node: Method signatures2622755
-Node: Garbage Collection2624839
-Node: Constant string objects2627565
-Node: compatibility_alias2630132
-Node: Exceptions2630894
-Node: Synchronization2633696
-Node: Fast enumeration2634916
-Node: Using fast enumeration2635228
-Node: c99-like fast enumeration syntax2636471
-Node: Fast enumeration details2637178
-Node: Fast enumeration protocol2639608
-Node: Messaging with the GNU Objective-C runtime2642854
-Node: Dynamically registering methods2644246
-Node: Forwarding hook2645993
-Node: Compatibility2649121
-Node: Gcov2655775
-Node: Gcov Intro2656451
-Node: Invoking Gcov2659250
-Node: Gcov and Optimization2683506
-Node: Gcov Data Files2687341
-Node: Cross-profiling2688810
-Node: Freestanding Environments2690746
-Node: Gcov-tool2705877
-Node: Gcov-tool Intro2706310
-Node: Invoking Gcov-tool2708700
-Node: Gcov-dump2712297
-Node: Gcov-dump Intro2712624
-Node: Invoking Gcov-dump2712899
-Node: lto-dump2713696
-Node: lto-dump Intro2713999
-Node: Invoking lto-dump2714257
-Node: Trouble2715425
-Node: Actual Bugs2716847
-Node: Interoperation2717308
-Node: Incompatibilities2724373
-Node: Fixed Headers2732799
-Node: Standard Libraries2734483
-Node: Disappointments2735891
-Node: C++ Misunderstandings2740309
-Node: Static Definitions2741120
-Node: Name lookup2742205
-Ref: Name lookup-Footnote-12747114
-Node: Temporaries2747307
-Node: Copy Assignment2749336
-Node: Non-bugs2751207
-Node: Warnings and Errors2761929
-Node: Bugs2763719
-Node: Bug Criteria2764188
-Node: Bug Reporting2766444
-Node: Service2766662
-Node: Contributing2767487
-Node: Funding2768233
-Node: GNU Project2770742
-Node: Copying2771404
-Node: GNU Free Documentation License2809137
-Node: Contributors2834463
-Node: Indices2876980
-Node: Option Index2877226
-Node: Concept and Symbol Index3187690
+Node: AArch64 Built-in Functions2150319
+Node: Alpha Built-in Functions2151015
+Node: Altera Nios II Built-in Functions2154153
+Node: ARC Built-in Functions2158636
+Node: ARC SIMD Built-in Functions2164262
+Node: ARM iWMMXt Built-in Functions2174768
+Node: ARM C Language Extensions (ACLE)2181908
+Node: ARM Floating Point Status and Control Intrinsics2183193
+Node: ARM ARMv8-M Security Extensions2183680
+Node: AVR Built-in Functions2184980
+Node: Blackfin Built-in Functions2188884
+Node: BPF Built-in Functions2189512
+Node: FR-V Built-in Functions2196132
+Node: Argument Types2197017
+Node: Directly-mapped Integer Functions2198952
+Node: Directly-mapped Media Functions2200232
+Node: Raw read/write Functions2209570
+Node: Other Built-in Functions2210516
+Node: LoongArch Base Built-in Functions2211734
+Node: MIPS DSP Built-in Functions2217875
+Node: MIPS Paired-Single Support2230846
+Node: MIPS Loongson Built-in Functions2232379
+Node: Paired-Single Arithmetic2238941
+Node: Paired-Single Built-in Functions2240068
+Node: MIPS-3D Built-in Functions2242931
+Node: MIPS SIMD Architecture (MSA) Support2248705
+Node: MIPS SIMD Architecture Built-in Functions2251709
+Node: Other MIPS Built-in Functions2278563
+Node: MSP430 Built-in Functions2279596
+Node: NDS32 Built-in Functions2281009
+Node: Nvidia PTX Built-in Functions2282304
+Node: Basic PowerPC Built-in Functions2282930
+Node: Basic PowerPC Built-in Functions Available on all Configurations2283790
+Node: Basic PowerPC Built-in Functions Available on ISA 2.052293163
+Node: Basic PowerPC Built-in Functions Available on ISA 2.062299323
+Node: Basic PowerPC Built-in Functions Available on ISA 2.072301439
+Node: Basic PowerPC Built-in Functions Available on ISA 3.02302325
+Node: Basic PowerPC Built-in Functions Available on ISA 3.12309860
+Node: PowerPC AltiVec/VSX Built-in Functions2313841
+Node: PowerPC AltiVec Built-in Functions on ISA 2.052322796
+Node: PowerPC AltiVec Built-in Functions Available on ISA 2.062348200
+Node: PowerPC AltiVec Built-in Functions Available on ISA 2.072355314
+Node: PowerPC AltiVec Built-in Functions Available on ISA 3.02365124
+Node: PowerPC AltiVec Built-in Functions Available on ISA 3.12382156
+Node: PowerPC Hardware Transactional Memory Built-in Functions2415854
+Node: PowerPC Atomic Memory Operation Functions2424468
+Node: PowerPC Matrix-Multiply Assist Built-in Functions2427035
+Node: PRU Built-in Functions2433164
+Node: RISC-V Built-in Functions2434444
+Node: RISC-V Vector Intrinsics2435122
+Node: CORE-V Built-in Functions2435661
+Node: RX Built-in Functions2443262
+Node: S/390 System z Built-in Functions2447363
+Node: SH Built-in Functions2452724
+Node: SPARC VIS Built-in Functions2454488
+Node: TI C6X Built-in Functions2463039
+Node: x86 Built-in Functions2464090
+Node: x86 transactional memory intrinsics2531377
+Node: x86 control-flow protection intrinsics2534731
+Node: Target Format Checks2536518
+Node: Solaris Format Checks2536950
+Node: Darwin Format Checks2537400
+Node: Pragmas2538407
+Node: AArch64 Pragmas2539332
+Node: ARM Pragmas2539797
+Node: M32C Pragmas2540460
+Node: PRU Pragmas2541554
+Node: RS/6000 and PowerPC Pragmas2542137
+Node: S/390 Pragmas2542909
+Node: Darwin Pragmas2543487
+Node: Solaris Pragmas2544573
+Node: Symbol-Renaming Pragmas2545775
+Node: Structure-Layout Pragmas2547442
+Node: Weak Pragmas2549806
+Node: Diagnostic Pragmas2550553
+Node: Visibility Pragmas2555414
+Node: Push/Pop Macro Pragmas2556111
+Node: Function Specific Option Pragmas2557108
+Node: Loop-Specific Pragmas2559138
+Node: Unnamed Fields2561271
+Node: Thread-Local2563544
+Node: C99 Thread-Local Edits2565700
+Node: C++98 Thread-Local Edits2567774
+Node: Binary constants2571319
+Node: C++ Extensions2572018
+Node: C++ Volatiles2573664
+Node: Restricted Pointers2576015
+Node: Vague Linkage2577660
+Node: C++ Interface2581323
+Ref: C++ Interface-Footnote-12585215
+Node: Template Instantiation2585371
+Node: Bound member functions2591497
+Node: C++ Attributes2593041
+Node: Function Multiversioning2598365
+Node: Type Traits2600173
+Node: C++ Concepts2608247
+Node: Deprecated Features2609825
+Node: Backwards Compatibility2611662
+Node: Objective-C2612746
+Node: GNU Objective-C runtime API2613353
+Node: Modern GNU Objective-C runtime API2614364
+Node: Traditional GNU Objective-C runtime API2616880
+Node: Executing code before main2617623
+Node: What you can and what you cannot do in +load2620459
+Node: Type encoding2622947
+Node: Legacy type encoding2628713
+Node: @encode2629845
+Node: Method signatures2630426
+Node: Garbage Collection2632510
+Node: Constant string objects2635236
+Node: compatibility_alias2637803
+Node: Exceptions2638565
+Node: Synchronization2641367
+Node: Fast enumeration2642587
+Node: Using fast enumeration2642899
+Node: c99-like fast enumeration syntax2644142
+Node: Fast enumeration details2644849
+Node: Fast enumeration protocol2647279
+Node: Messaging with the GNU Objective-C runtime2650525
+Node: Dynamically registering methods2651917
+Node: Forwarding hook2653664
+Node: Compatibility2656792
+Node: Gcov2663446
+Node: Gcov Intro2664122
+Node: Invoking Gcov2666921
+Node: Gcov and Optimization2691177
+Node: Gcov Data Files2695012
+Node: Cross-profiling2696481
+Node: Freestanding Environments2698417
+Node: Gcov-tool2713548
+Node: Gcov-tool Intro2713981
+Node: Invoking Gcov-tool2716371
+Node: Gcov-dump2719968
+Node: Gcov-dump Intro2720295
+Node: Invoking Gcov-dump2720570
+Node: lto-dump2721367
+Node: lto-dump Intro2721670
+Node: Invoking lto-dump2721928
+Node: Trouble2723096
+Node: Actual Bugs2724518
+Node: Interoperation2724979
+Node: Incompatibilities2732044
+Node: Fixed Headers2740470
+Node: Standard Libraries2742154
+Node: Disappointments2743562
+Node: C++ Misunderstandings2747980
+Node: Static Definitions2748791
+Node: Name lookup2749876
+Ref: Name lookup-Footnote-12754785
+Node: Temporaries2754978
+Node: Copy Assignment2757007
+Node: Non-bugs2758878
+Node: Warnings and Errors2769600
+Node: Bugs2771390
+Node: Bug Criteria2771859
+Node: Bug Reporting2774115
+Node: Service2774333
+Node: Contributing2775158
+Node: Funding2775904
+Node: GNU Project2778413
+Node: Copying2779075
+Node: GNU Free Documentation License2816808
+Node: Contributors2842134
+Node: Indices2884651
+Node: Option Index2884897
+Node: Concept and Symbol Index3195361
 
 End Tag Table
 
