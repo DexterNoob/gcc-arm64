@@ -105,10 +105,6 @@ extern void gt_ggc_mx_machine_function (void *);
   if ((intptr_t)(X) != 0) gt_ggc_mx_bitmap_element (X);\
   } while (0)
 extern void gt_ggc_mx_bitmap_element (void *);
-#define gt_ggc_m_34generic_wide_int_wide_int_storage_(X) do { \
-  if ((intptr_t)(X) != 0) gt_ggc_mx_generic_wide_int_wide_int_storage_ (X);\
-  } while (0)
-extern void gt_ggc_mx_generic_wide_int_wide_int_storage_ (void *);
 #define gt_ggc_m_13coverage_data(X) do { \
   if ((intptr_t)(X) != 0) gt_ggc_mx_coverage_data (X);\
   } while (0)
@@ -533,6 +529,10 @@ extern void gt_ggc_mx_dw_loc_list_struct (void *);
   if ((intptr_t)(X) != 0) gt_ggc_mx_dw_discr_list_node (X);\
   } while (0)
 extern void gt_ggc_mx_dw_discr_list_node (void *);
+#define gt_ggc_m_11dw_wide_int(X) do { \
+  if ((intptr_t)(X) != 0) gt_ggc_mx_dw_wide_int (X);\
+  } while (0)
+extern void gt_ggc_mx_dw_wide_int (void *);
 #define gt_ggc_m_15dw_cfa_location(X) do { \
   if ((intptr_t)(X) != 0) gt_ggc_mx_dw_cfa_location (X);\
   } while (0)
@@ -1586,10 +1586,6 @@ extern void gt_pch_nx_machine_function (void *);
   if ((intptr_t)(X) != 0) gt_pch_nx_bitmap_element (X);\
   } while (0)
 extern void gt_pch_nx_bitmap_element (void *);
-#define gt_pch_n_34generic_wide_int_wide_int_storage_(X) do { \
-  if ((intptr_t)(X) != 0) gt_pch_nx_generic_wide_int_wide_int_storage_ (X);\
-  } while (0)
-extern void gt_pch_nx_generic_wide_int_wide_int_storage_ (void *);
 #define gt_pch_n_13coverage_data(X) do { \
   if ((intptr_t)(X) != 0) gt_pch_nx_coverage_data (X);\
   } while (0)
@@ -2014,6 +2010,10 @@ extern void gt_pch_nx_dw_loc_list_struct (void *);
   if ((intptr_t)(X) != 0) gt_pch_nx_dw_discr_list_node (X);\
   } while (0)
 extern void gt_pch_nx_dw_discr_list_node (void *);
+#define gt_pch_n_11dw_wide_int(X) do { \
+  if ((intptr_t)(X) != 0) gt_pch_nx_dw_wide_int (X);\
+  } while (0)
+extern void gt_pch_nx_dw_wide_int (void *);
 #define gt_pch_n_15dw_cfa_location(X) do { \
   if ((intptr_t)(X) != 0) gt_pch_nx_dw_cfa_location (X);\
   } while (0)
@@ -3113,8 +3113,6 @@ extern void gt_pch_p_16machine_function
     (void *, void *, gt_pointer_operator, void *);
 extern void gt_pch_p_14bitmap_element
     (void *, void *, gt_pointer_operator, void *);
-extern void gt_pch_p_34generic_wide_int_wide_int_storage_
-    (void *, void *, gt_pointer_operator, void *);
 extern void gt_pch_p_13coverage_data
     (void *, void *, gt_pointer_operator, void *);
 extern void gt_pch_p_9mem_attrs
@@ -3326,6 +3324,8 @@ extern void gt_pch_p_17dw_loc_descr_node
 extern void gt_pch_p_18dw_loc_list_struct
     (void *, void *, gt_pointer_operator, void *);
 extern void gt_pch_p_18dw_discr_list_node
+    (void *, void *, gt_pointer_operator, void *);
+extern void gt_pch_p_11dw_wide_int
     (void *, void *, gt_pointer_operator, void *);
 extern void gt_pch_p_15dw_cfa_location
     (void *, void *, gt_pointer_operator, void *);
