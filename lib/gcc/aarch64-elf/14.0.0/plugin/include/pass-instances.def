@@ -523,6 +523,7 @@ NEXT_PASS (pass_cc_fusion, 1);
 	  NEXT_PASS (pass_if_after_reload, 1);
 	  NEXT_PASS (pass_regrename, 1);
 NEXT_PASS (pass_fma_steering, 1);
+	  NEXT_PASS (pass_fold_mem_offsets, 1);
 	  NEXT_PASS (pass_cprop_hardreg, 1);
 	  NEXT_PASS (pass_fast_rtl_dce, 1);
 NEXT_PASS (pass_track_speculation, 1);

@@ -4568,10 +4568,10 @@ attribute, but it only affects the part of the section following the
 ‘FILL’ command takes precedence.  *Note Output Section Fill::, for
 details on the fill expression.
 
-   Inserts a string containing the version of the linker at the current
-point.  Note - by default this directive is disabled and will do
-nothing.  It only becomes active if the ‘--enable-linker-version’
-command line option is used.
+   The ‘LINKER_VERSION’ command inserts a string containing the version
+of the linker at the current point.  Note - by default this directive is
+disabled and will do nothing.  It only becomes active if the
+‘--enable-linker-version’ command line option is used.
 
    Built-in linker scripts for ELF based targets already include this
 directive in their ‘.comment’ section.
@@ -9585,62 +9585,62 @@ Node: Input Section Common202601
 Node: Input Section Keep204111
 Node: Input Section Example204619
 Node: Output Section Data206090
-Node: Output Section Keywords209803
-Node: Output Section Discarding213478
-Node: Output Section Attributes215420
-Node: Output Section Type216541
-Node: Output Section LMA218926
-Node: Forced Output Alignment222069
-Node: Forced Input Alignment222500
-Node: Output Section Constraint222888
-Node: Output Section Region223324
-Node: Output Section Phdr223761
-Node: Output Section Fill224437
-Node: Overlay Description225603
-Node: MEMORY230148
-Node: PHDRS234900
-Node: VERSION240378
-Node: Expressions248669
-Node: Constants249682
-Node: Symbolic Constants250624
-Node: Symbols251191
-Node: Orphan Sections251946
-Node: Location Counter253539
-Node: Operators258117
-Node: Evaluation259147
-Node: Expression Section260519
-Node: Builtin Functions264597
-Node: Implicit Linker Scripts273678
-Node: Plugins274465
-Node: libdep Plugin275026
-Node: Machine Dependent276871
-Node: H8/300278035
-Node: M68HC11/68HC12280236
-Node: ARM281743
-Node: HPPA ELF32294171
-Node: M68K295846
-Node: MIPS296795
-Node: MMIX297955
-Node: MSP430299176
-Node: NDS32301169
-Node: Nios II302217
-Node: PowerPC ELF32303589
-Node: PowerPC64 ELF64306534
-Node: S/390 ELF316652
-Node: SPU ELF317011
-Node: TI COFF319737
-Node: WIN32320277
-Node: Xtensa342032
-Node: BFD345587
-Node: BFD outline347049
-Node: BFD information loss348343
-Node: Canonical format350897
-Node: Reporting Bugs355242
-Node: Bug Criteria355948
-Node: Bug Reporting356671
-Node: MRI363844
-Node: GNU Free Documentation License368523
-Node: LD Index393863
+Node: Output Section Keywords209836
+Node: Output Section Discarding213511
+Node: Output Section Attributes215453
+Node: Output Section Type216574
+Node: Output Section LMA218959
+Node: Forced Output Alignment222102
+Node: Forced Input Alignment222533
+Node: Output Section Constraint222921
+Node: Output Section Region223357
+Node: Output Section Phdr223794
+Node: Output Section Fill224470
+Node: Overlay Description225636
+Node: MEMORY230181
+Node: PHDRS234933
+Node: VERSION240411
+Node: Expressions248702
+Node: Constants249715
+Node: Symbolic Constants250657
+Node: Symbols251224
+Node: Orphan Sections251979
+Node: Location Counter253572
+Node: Operators258150
+Node: Evaluation259180
+Node: Expression Section260552
+Node: Builtin Functions264630
+Node: Implicit Linker Scripts273711
+Node: Plugins274498
+Node: libdep Plugin275059
+Node: Machine Dependent276904
+Node: H8/300278068
+Node: M68HC11/68HC12280269
+Node: ARM281776
+Node: HPPA ELF32294204
+Node: M68K295879
+Node: MIPS296828
+Node: MMIX297988
+Node: MSP430299209
+Node: NDS32301202
+Node: Nios II302250
+Node: PowerPC ELF32303622
+Node: PowerPC64 ELF64306567
+Node: S/390 ELF316685
+Node: SPU ELF317044
+Node: TI COFF319770
+Node: WIN32320310
+Node: Xtensa342065
+Node: BFD345620
+Node: BFD outline347082
+Node: BFD information loss348376
+Node: Canonical format350930
+Node: Reporting Bugs355275
+Node: Bug Criteria355981
+Node: Bug Reporting356704
+Node: MRI363877
+Node: GNU Free Documentation License368556
+Node: LD Index393896
 
 End Tag Table
 
