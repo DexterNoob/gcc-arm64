@@ -6587,22 +6587,28 @@ The GCC testsuite defines the following directives to be used within
 ................................
 
 ‘scan-assembler REGEX [{ target/xfail SELECTOR }]’
-     Passes if REGEX matches text in the test’s assembler output.
+     Passes if REGEX matches text in the test’s assembler output,
+     excluding LTO sections.
+
+‘scan-raw-assembler REGEX [{ target/xfail SELECTOR }]’
+     Passes if REGEX matches text in the test’s assembler output,
+     including LTO sections.
 
 ‘scan-assembler-not REGEX [{ target/xfail SELECTOR }]’
-     Passes if REGEX does not match text in the test’s assembler output.
+     Passes if REGEX does not match text in the test’s assembler output,
+     excluding LTO sections.
 
 ‘scan-assembler-times REGEX NUM [{ target/xfail SELECTOR }]’
      Passes if REGEX is matched exactly NUM times in the test’s
-     assembler output.
+     assembler output, excluding LTO sections.
 
 ‘scan-assembler-dem REGEX [{ target/xfail SELECTOR }]’
      Passes if REGEX matches text in the test’s demangled assembler
-     output.
+     output, excluding LTO sections.
 
 ‘scan-assembler-dem-not REGEX [{ target/xfail SELECTOR }]’
      Passes if REGEX does not match text in the test’s demangled
-     assembler output.
+     assembler output, excluding LTO sections.
 
 ‘scan-assembler-symbol-section FUNCTIONS SECTION [{ target/xfail SELECTOR }]’
      Passes if FUNCTIONS are all in SECTION.  The caller needs to allow
@@ -32690,6 +32696,18 @@ true”.  ‘(MODE "")’ can also be abbreviated to ‘MODE’.  For example:
  means that the ‘:DI’ expansion only applies if ‘TARGET_64BIT’ but that
 the ‘:SI’ expansion has no such constraint.
 
+ It is also possible to include iterators in other iterators.  For
+example:
+
+     (define_mode_iterator VI [V16QI V8HI V4SI V2DI])
+     (define_mode_iterator VF [V8HF V4SF (V2DF "TARGET_DOUBLE")])
+     (define_mode_iterator V [VI (VF "TARGET_FLOAT")])
+
+ makes ‘:V’ iterate over the modes in ‘VI’ and the modes in ‘VF’.  When
+a construct uses ‘:V’, the ‘V8HF’ and ‘V4SF’ expansions require
+‘TARGET_FLOAT’ while the ‘V2DF’ expansion requires ‘TARGET_DOUBLE &&
+TARGET_FLOAT’.
+
  Iterators are applied in the order they are defined.  This can be
 significant if two iterators are used in a construct that requires
 substitutions.  *Note Substitutions::.
@@ -42866,7 +42884,7 @@ The following macros control mode switching optimizations:
 
  -- Macro: OPTIMIZE_MODE_SWITCHING (ENTITY)
      Define this macro if the port needs extra instructions inserted for
-     mode switching in an optimizing compilation.
+     mode switching.
 
      For an example, the SH4 can perform both single and double
      precision floating point operations, but to perform a single
@@ -42877,70 +42895,136 @@ The following macros control mode switching optimizations:
      cannot put this into instruction emitting or
      ‘TARGET_MACHINE_DEPENDENT_REORG’.
 
-     You can have multiple entities that are mode-switched, and select
-     at run time which entities actually need it.
+     You can have multiple entities that are mode-switched, some of
+     which might only be needed conditionally.  The entities are
+     identified by their index into the ‘NUM_MODES_FOR_MODE_SWITCHING’
+     initializer, with the length of the initializer determining the
+     number of entities.
+
      ‘OPTIMIZE_MODE_SWITCHING’ should return nonzero for any ENTITY that
-     needs mode-switching.  If you define this macro, you also have to
-     define ‘NUM_MODES_FOR_MODE_SWITCHING’, ‘TARGET_MODE_NEEDED’,
-     ‘TARGET_MODE_PRIORITY’ and ‘TARGET_MODE_EMIT’.
-     ‘TARGET_MODE_AFTER’, ‘TARGET_MODE_ENTRY’, and ‘TARGET_MODE_EXIT’
-     are optional.
+     needs mode-switching.
+
+     If you define this macro, you also have to define
+     ‘NUM_MODES_FOR_MODE_SWITCHING’, ‘TARGET_MODE_NEEDED’,
+     ‘TARGET_MODE_PRIORITY’ and ‘TARGET_MODE_EMIT’.  The other macros in
+     this section are optional.
 
  -- Macro: NUM_MODES_FOR_MODE_SWITCHING
      If you define ‘OPTIMIZE_MODE_SWITCHING’, you have to define this as
      initializer for an array of integers.  Each initializer element N
      refers to an entity that needs mode switching, and specifies the
-     number of different modes that might need to be set for this
-     entity.  The position of the initializer in the
-     initializer—starting counting at zero—determines the integer that
-     is used to refer to the mode-switched entity in question.  In
-     macros that take mode arguments / yield a mode result, modes are
-     represented as numbers 0 ... N − 1.  N is used to specify that no
-     mode switch is needed / supplied.
+     number of different modes that are defined for that entity.  The
+     position of the element in the initializer—starting counting at
+     zero—determines the integer that is used to refer to the
+     mode-switched entity in question.  Modes are represented as numbers
+     0 ... N − 1.  In mode arguments and return values, N either
+     represents an unknown mode or “no mode”, depending on context.
 
  -- Target Hook: void TARGET_MODE_EMIT (int ENTITY, int MODE, int
           PREV_MODE, HARD_REG_SET REGS_LIVE)
      Generate one or more insns to set ENTITY to MODE.  HARD_REG_LIVE is
      the set of hard registers live at the point where the insn(s) are
-     to be inserted.  PREV_MOXDE indicates the mode to switch from.
-     Sets of a lower numbered entity will be emitted before sets of a
-     higher numbered entity to a mode of the same or lower priority.
+     to be inserted.  PREV_MOXDE indicates the mode to switch from, or
+     is the number of modes if the previous mode is not known.  Sets of
+     a lower numbered entity will be emitted before sets of a higher
+     numbered entity to a mode of the same or lower priority.
 
- -- Target Hook: int TARGET_MODE_NEEDED (int ENTITY, rtx_insn *INSN)
+ -- Target Hook: int TARGET_MODE_NEEDED (int ENTITY, rtx_insn *INSN,
+          HARD_REG_SET REGS_LIVE)
      ENTITY is an integer specifying a mode-switched entity.  If
-     ‘OPTIMIZE_MODE_SWITCHING’ is defined, you must define this macro to
-     return an integer value not larger than the corresponding element
-     in ‘NUM_MODES_FOR_MODE_SWITCHING’, to denote the mode that ENTITY
-     must be switched into prior to the execution of INSN.
+     ‘OPTIMIZE_MODE_SWITCHING’ is defined, you must define this hook to
+     return the mode that ENTITY must be switched into prior to the
+     execution of INSN, or the number of modes if INSN has no such
+     requirement.  REGS_LIVE contains the set of hard registers that are
+     live before INSN.
 
  -- Target Hook: int TARGET_MODE_AFTER (int ENTITY, int MODE, rtx_insn
-          *INSN)
+          *INSN, HARD_REG_SET REGS_LIVE)
      ENTITY is an integer specifying a mode-switched entity.  If this
-     macro is defined, it is evaluated for every INSN during mode
-     switching.  It determines the mode that an insn results in (if
-     different from the incoming mode).
+     hook is defined, it is evaluated for every INSN during mode
+     switching.  It returns the mode that ENTITY is in after INSN has
+     been executed.  MODE is the mode that ENTITY was in before INSN was
+     executed, taking account of TARGET_MODE_NEEDED.  REGS_LIVE is the
+     set of hard registers that are live after INSN has been executed.
+
+     MODE is equal to the number of modes defined for ENTITY if the mode
+     before INSN is unknown.  The hook should likewise return the number
+     of modes if it does not know what mode ENTITY has after INSN.
+
+     Not defining the hook is equivalent to returning MODE.
+
+ -- Target Hook: int TARGET_MODE_CONFLUENCE (int ENTITY, int MODE1, int
+          MODE2)
+     By default, the mode-switching pass assumes that a given entity’s
+     modes are mutually exclusive.  This means that the pass can only
+     tell ‘TARGET_MODE_EMIT’ about an entity’s previous mode if all
+     incoming paths of execution leave the entity in the same state.
+
+     However, some entities might have overlapping, non-exclusive modes,
+     so that it is sometimes possible to represent “mode MODE1 or mode
+     MODE2” with something more specific than “mode not known”.  If this
+     is true for at least one entity, you should define this hook and
+     make it return a mode that includes MODE1 and MODE2 as
+     possibilities.  (The mode can include other possibilities too.)
+     The hook should return the number of modes if no suitable mode
+     exists for the given arguments.
+
+ -- Target Hook: int TARGET_MODE_BACKPROP (int ENTITY, int MODE1, int
+          MODE2)
+     If defined, the mode-switching pass uses this hook to
+     back-propagate mode requirements through blocks that have no mode
+     requirements of their own.  Specifically, MODE1 is the mode that
+     ENTITY has on exit from a block B1 (say) and MODE2 is the mode that
+     the next block requires ENTITY to have.  B1 does not have any mode
+     requirements of its own.
+
+     The hook should return the mode that it prefers or requires ENTITY
+     to have in B1, or the number of modes if there is no such
+     requirement.  If the hook returns a required mode for more than one
+     of B1’s outgoing edges, those modes are combined as for
+     ‘TARGET_MODE_CONFLUENCE’.
+
+     For example, suppose there is a “one-shot” entity that, for a given
+     execution of a function, either stays off or makes exactly one
+     transition from off to on.  It is safe to make the transition at
+     any time, but it is better not to do so unnecessarily.  This hook
+     allows the function to manage such an entity without having to
+     track its state at runtime.  Specifically.  the entity would have
+     two modes, 0 for off and 1 for on, with 2 representing “don’t
+     know”.  The system is forbidden from transitioning from 2 to 1,
+     since 2 represents the possibility that the entity is already on
+     (and the aim is to avoid having to emit code to check for that
+     case).  This hook would therefore return 1 when MODE1 is 2 and
+     MODE2 is 1, which would force the entity to be on in the source
+     block.  Applying this inductively would remove all transitions in
+     which the previous state is unknown.
 
  -- Target Hook: int TARGET_MODE_ENTRY (int ENTITY)
-     If this macro is defined, it is evaluated for every ENTITY that
-     needs mode switching.  It should evaluate to an integer, which is a
-     mode that ENTITY is assumed to be switched to at function entry.
-     If ‘TARGET_MODE_ENTRY’ is defined then ‘TARGET_MODE_EXIT’ must be
-     defined.
+     If this hook is defined, it is evaluated for every ENTITY that
+     needs mode switching.  It should return the mode that ENTITY is
+     guaranteed to be in on entry to the function, or the number of
+     modes if there is no such guarantee.  If ‘TARGET_MODE_ENTRY’ is
+     defined then ‘TARGET_MODE_EXIT’ must be defined.
 
  -- Target Hook: int TARGET_MODE_EXIT (int ENTITY)
-     If this macro is defined, it is evaluated for every ENTITY that
-     needs mode switching.  It should evaluate to an integer, which is a
-     mode that ENTITY is assumed to be switched to at function exit.  If
-     ‘TARGET_MODE_EXIT’ is defined then ‘TARGET_MODE_ENTRY’ must be
-     defined.
+     If this hook is defined, it is evaluated for every ENTITY that
+     needs mode switching.  It should return the mode that ENTITY must
+     be in on return from the function, or the number of modes if there
+     is no such requirement.  If ‘TARGET_MODE_EXIT’ is defined then
+     ‘TARGET_MODE_ENTRY’ must be defined.
+
+ -- Target Hook: int TARGET_MODE_EH_HANDLER (int ENTITY)
+     If this hook is defined, it should return the mode that ENTITY is
+     guaranteed to be in on entry to an exception handler, or the number
+     of modes if there is no such guarantee.
 
  -- Target Hook: int TARGET_MODE_PRIORITY (int ENTITY, int N)
-     This macro specifies the order in which modes for ENTITY are
+     This hook specifies the order in which modes for ENTITY are
      processed.  0 is the highest priority,
-     ‘NUM_MODES_FOR_MODE_SWITCHING[ENTITY] - 1’ the lowest.  The value
-     of the macro should be an integer designating a mode for ENTITY.
-     For any fixed ENTITY, ‘mode_priority’ (ENTITY, N) shall be a
-     bijection in 0 ... ‘num_modes_for_mode_switching[ENTITY] - 1’.
+     ‘NUM_MODES_FOR_MODE_SWITCHING[ENTITY] - 1’ the lowest.  The hook
+     returns an integer designating a mode for ENTITY.  For any fixed
+     ENTITY, ‘mode_priority’ (ENTITY, N) shall be a bijection in 0 ...
+     ‘num_modes_for_mode_switching[ENTITY] - 1’.
 
 
 File: gccint.info,  Node: Target Attributes,  Next: Emulated TLS,  Prev: Mode Switching,  Up: Target Macros
@@ -57177,7 +57261,7 @@ Concept Index
 * Number of iterations analysis:         Number of iterations.
                                                              (line    6)
 * NUM_MACHINE_MODES:                     Machine Modes.      (line  387)
-* NUM_MODES_FOR_MODE_SWITCHING:          Mode Switching.     (line   30)
+* NUM_MODES_FOR_MODE_SWITCHING:          Mode Switching.     (line   35)
 * NUM_POLY_INT_COEFFS:                   Overview of poly_int.
                                                              (line   24)
 * N_REG_CLASSES:                         Register Classes.   (line   81)
@@ -58434,13 +58518,16 @@ Concept Index
 * TARGET_MIN_DIVISIONS_FOR_RECIP_MUL:    Misc.               (line  112)
 * TARGET_MODES_TIEABLE_P:                Values in Registers.
                                                              (line  123)
-* TARGET_MODE_AFTER:                     Mode Switching.     (line   57)
+* TARGET_MODE_AFTER:                     Mode Switching.     (line   64)
+* TARGET_MODE_BACKPROP:                  Mode Switching.     (line   95)
+* TARGET_MODE_CONFLUENCE:                Mode Switching.     (line   79)
 * TARGET_MODE_DEPENDENT_ADDRESS_P:       Addressing Modes.   (line  204)
-* TARGET_MODE_EMIT:                      Mode Switching.     (line   42)
-* TARGET_MODE_ENTRY:                     Mode Switching.     (line   64)
-* TARGET_MODE_EXIT:                      Mode Switching.     (line   71)
-* TARGET_MODE_NEEDED:                    Mode Switching.     (line   50)
-* TARGET_MODE_PRIORITY:                  Mode Switching.     (line   78)
+* TARGET_MODE_EH_HANDLER:                Mode Switching.     (line  139)
+* TARGET_MODE_EMIT:                      Mode Switching.     (line   46)
+* TARGET_MODE_ENTRY:                     Mode Switching.     (line  125)
+* TARGET_MODE_EXIT:                      Mode Switching.     (line  132)
+* TARGET_MODE_NEEDED:                    Mode Switching.     (line   55)
+* TARGET_MODE_PRIORITY:                  Mode Switching.     (line  144)
 * TARGET_MODE_REP_EXTENDED:              Misc.               (line  199)
 * TARGET_MS_BITFIELD_LAYOUT_P:           Storage Layout.     (line  532)
 * TARGET_MUST_PASS_IN_STACK:             Register Arguments. (line   51)
@@ -59310,389 +59397,389 @@ Ref: arm_fp16_alternative282018
 Ref: stack_size_ao284662
 Node: Require Support285130
 Node: Final Actions288196
-Node: Ada Tests298912
-Node: C Tests300111
-Node: LTO Testing304625
-Node: gcov Testing306340
-Node: profopt Testing309382
-Node: compat Testing311145
-Node: Torture Tests315501
-Node: GIMPLE Tests317209
-Node: RTL Tests318479
-Node: Options319801
-Node: Option file format320246
-Node: Option properties329026
-Node: Passes347620
-Node: Parsing pass348493
-Node: Gimplification pass352043
-Node: Pass manager353925
-Node: IPA passes355790
-Node: Small IPA passes356683
-Node: Regular IPA passes360287
-Node: Late IPA passes365257
-Node: Tree SSA passes366242
-Node: RTL passes388984
-Node: Optimization info401636
-Node: Dump setup402455
-Node: Optimization groups403617
-Node: Dump files and streams404652
-Node: Dump output verbosity405895
-Node: Dump types406967
-Node: Dump examples409406
-Node: poly_int410935
-Node: Overview of poly_int412449
-Node: Consequences of using poly_int415177
-Node: Comparisons involving poly_int416846
-Node: Comparison functions for poly_int418504
-Node: Properties of the poly_int comparisons419755
-Node: Comparing potentially-unordered poly_ints422327
-Node: Comparing ordered poly_ints423250
-Node: Checking for a poly_int marker value425340
-Node: Range checks on poly_ints426213
-Node: Sorting poly_ints428919
-Node: Arithmetic on poly_ints429716
-Node: Using poly_int with C++ arithmetic operators430529
-Node: wi arithmetic on poly_ints432108
-Node: Division of poly_ints432976
-Node: Other poly_int arithmetic434551
-Node: Alignment of poly_ints435997
-Node: Computing bounds on poly_ints439358
-Node: Converting poly_ints440787
-Node: Miscellaneous poly_int routines444538
-Node: Guidelines for using poly_int445202
-Node: GENERIC450274
-Node: Deficiencies452118
-Node: Tree overview452359
-Node: Macros and Functions456563
-Node: Identifiers457448
-Node: Containers459149
-Node: Types460374
-Node: Declarations473953
-Node: Working with declarations474452
-Node: Internal structure480370
-Node: Current structure hierarchy480758
-Node: Adding new DECL node types482987
-Node: Attributes487447
-Node: Expression trees488731
-Node: Constant expressions490505
-Node: Storage References496857
-Node: Unary and Binary Expressions500802
-Node: Vectors523131
-Node: Statements535047
-Node: Basic Statements535587
-Node: Blocks540652
-Node: Statement Sequences542399
-Node: Empty Statements542740
-Node: Jumps543322
-Node: Cleanups544015
-Node: OpenMP546094
-Node: OpenACC555023
-Node: Functions556236
-Node: Function Basics556711
-Node: Function Properties560503
-Node: Language-dependent trees563376
-Node: C and C++ Trees564273
-Node: Types for C++567178
-Node: Namespaces572460
-Node: Classes575706
-Node: Functions for C++580918
-Node: Statements for C and C++587507
-Node: C++ Expressions596438
-Node: GIMPLE598053
-Node: Tuple representation601776
-Node: Class hierarchy of GIMPLE statements609104
-Node: GIMPLE instruction set614100
-Node: GIMPLE Exception Handling615885
-Node: Temporaries617833
-Ref: Temporaries-Footnote-1619171
-Node: Operands619236
-Node: Compound Expressions620009
-Node: Compound Lvalues620243
-Node: Conditional Expressions621025
-Node: Logical Operators621704
-Node: Manipulating GIMPLE statements629227
-Node: Tuple specific accessors635085
-Node: GIMPLE_ASM635896
-Node: GIMPLE_ASSIGN638435
-Node: GIMPLE_BIND643355
-Node: GIMPLE_CALL645281
-Node: GIMPLE_CATCH649632
-Node: GIMPLE_COND650846
-Node: GIMPLE_DEBUG653809
-Node: GIMPLE_EH_FILTER658589
-Node: GIMPLE_LABEL660216
-Node: GIMPLE_GOTO660869
-Node: GIMPLE_NOP661416
-Node: GIMPLE_OMP_ATOMIC_LOAD661798
-Node: GIMPLE_OMP_ATOMIC_STORE662826
-Node: GIMPLE_OMP_CONTINUE663537
-Node: GIMPLE_OMP_CRITICAL665064
-Node: GIMPLE_OMP_FOR666102
-Node: GIMPLE_OMP_MASTER669752
-Node: GIMPLE_OMP_ORDERED670142
-Node: GIMPLE_OMP_PARALLEL670557
-Node: GIMPLE_OMP_RETURN673502
-Node: GIMPLE_OMP_SECTION674179
-Node: GIMPLE_OMP_SECTIONS674875
-Node: GIMPLE_OMP_SINGLE676567
-Node: GIMPLE_OMP_STRUCTURED_BLOCK677580
-Node: GIMPLE_PHI678400
-Node: GIMPLE_RESX679785
-Node: GIMPLE_RETURN680536
-Node: GIMPLE_SWITCH681138
-Node: GIMPLE_TRY683075
-Node: GIMPLE_WITH_CLEANUP_EXPR684939
-Node: GIMPLE sequences685858
-Node: Sequence iterators689206
-Node: Adding a new GIMPLE statement code698013
-Node: Statement and operand traversals699422
-Node: Tree SSA702174
-Node: Annotations703970
-Node: SSA Operands704383
-Node: SSA718579
-Node: Alias analysis728562
-Node: Memory model732431
-Node: RTL733790
-Node: RTL Objects736036
-Node: RTL Classes739989
-Node: Accessors745739
-Node: Special Accessors747988
-Node: Flags754045
-Node: Machine Modes770254
-Node: Constants789057
-Node: Regs and Memory801362
-Node: Arithmetic819233
-Node: Comparisons830412
-Node: Bit-Fields834266
-Node: Vector Operations835857
-Node: Conversions837997
-Node: RTL Declarations842567
-Node: Side Effects843431
-Node: Incdec860447
-Node: Assembler863871
-Node: Debug Information865474
-Node: Insns867465
-Node: Calls894520
-Node: RTL SSA897199
-Node: Using RTL SSA898594
-Node: RTL SSA Instructions900537
-Ref: RTL SSA Instructions-Footnote-1901935
-Node: RTL SSA Basic Blocks902069
-Ref: real RTL SSA insns902549
-Ref: RTL SSA Basic Blocks-Footnote-1904847
-Node: RTL SSA Resources904989
-Node: RTL SSA Accesses906126
-Ref: RTL SSA Accesses-Footnote-1907871
-Node: RTL SSA Phi Nodes908018
-Node: RTL SSA Access Lists910044
-Node: Changing RTL Instructions914417
-Node: Changing One RTL SSA Instruction915026
-Node: Changing Multiple RTL SSA Instructions920080
-Node: Sharing924452
-Node: Reading RTL927710
-Node: Control Flow928722
-Node: Basic Blocks930520
-Node: Edges936202
-Node: Profile information945057
-Node: Maintaining the CFG949827
-Node: Liveness information955775
-Node: Loop Analysis and Representation957978
-Node: Loop representation959014
-Node: Loop querying966628
-Node: Loop manipulation969595
-Node: LCSSA972017
-Node: Scalar evolutions974108
-Node: loop-iv977416
-Node: Number of iterations979424
-Node: Dependency analysis983637
-Node: Machine Desc990201
-Node: Overview992860
-Node: Patterns994969
-Node: Example1000040
-Node: RTL Template1001521
-Node: Output Template1012410
-Node: Output Statement1016719
-Node: Compact Syntax1021148
-Node: Predicates1026143
-Node: Machine-Independent Predicates1029143
-Node: Defining Predicates1034248
-Node: Constraints1040439
-Node: Simple Constraints1041926
-Node: Multi-Alternative1055124
-Node: Class Preferences1058412
-Node: Modifiers1059324
-Node: Machine Constraints1064180
-Node: Disable Insn Alternatives1128804
-Node: Define Constraints1132368
-Node: C Constraint Interface1141227
-Node: Standard Names1144438
-Ref: shift patterns1195973
-Ref: prologue instruction pattern1264716
-Ref: window_save instruction pattern1265221
-Ref: epilogue instruction pattern1265502
-Node: Pattern Ordering1289293
-Node: Dependent Patterns1290529
-Node: Jump Patterns1292165
-Node: Looping Patterns1293850
-Node: Insn Canonicalizations1299597
-Node: Expander Definitions1305377
-Node: Insn Splitting1313816
-Node: Including Patterns1329207
-Node: Peephole Definitions1331012
-Node: define_peephole1332285
-Node: define_peephole21338717
-Node: Insn Attributes1343453
-Node: Defining Attributes1344560
-Ref: define_enum_attr1348164
-Node: Expressions1349216
-Node: Tagging Insns1356262
-Node: Attr Example1360741
-Node: Insn Lengths1363126
-Node: Constant Attributes1366602
-Node: Mnemonic Attribute1367798
-Node: Delay Slots1369337
-Node: Processor pipeline description1372592
-Ref: Processor pipeline description-Footnote-11391739
-Node: Conditional Execution1392065
-Node: Define Subst1395624
-Node: Define Subst Example1397717
-Node: Define Subst Pattern Matching1400772
-Node: Define Subst Output Template1402086
-Node: Constant Definitions1404509
-Ref: define_enum1408436
-Node: Iterators1408936
-Node: Mode Iterators1409581
-Node: Defining Mode Iterators1410603
-Node: Substitutions1412185
-Node: Examples1414505
-Node: Code Iterators1415973
-Node: Int Iterators1419149
-Node: Subst Iterators1421752
-Node: Parameterized Names1423504
-Node: Target Macros1427622
-Node: Target Structure1430813
-Node: Driver1433887
-Node: Run-time Target1453442
-Node: Per-Function Data1464339
-Node: Storage Layout1467162
-Node: Type Layout1496954
-Node: Registers1510833
-Node: Register Basics1511807
-Node: Allocation Order1519581
-Node: Values in Registers1522083
-Node: Leaf Functions1529651
-Node: Stack Registers1532549
-Node: Register Classes1533830
-Node: Stack and Calling1570417
-Node: Frame Layout1571023
-Node: Exception Handling1583340
-Node: Stack Checking1589674
-Node: Frame Registers1595344
-Node: Elimination1604064
-Node: Stack Arguments1607986
-Node: Register Arguments1615537
-Node: Scalar Return1641149
-Node: Aggregate Return1647730
-Node: Caller Saves1652574
-Node: Function Entry1653320
-Node: Profiling1665050
-Node: Tail Calls1667198
-Node: Shrink-wrapping separate components1669124
-Node: Stack Smashing Protection1672215
-Node: Miscellaneous Register Hooks1674738
-Node: Varargs1675603
-Node: Trampolines1683910
-Node: Library Calls1693694
-Node: Addressing Modes1699953
-Node: Anchored Addresses1732356
-Node: Condition Code1735087
-Node: MODE_CC Condition Codes1736944
-Node: Costs1743801
-Node: Scheduling1766509
-Node: Sections1790574
-Node: PIC1807302
-Node: Assembler Format1809403
-Node: File Framework1810542
-Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1818261
-Node: Data Output1819962
-Node: Uninitialized Data1828388
-Node: Label Output1833483
-Node: Initialization1858616
-Node: Macros for Initialization1864812
-Node: Instruction Output1872135
-Node: Dispatch Tables1883014
-Node: Exception Region Output1888829
-Node: Alignment Output1896071
-Node: Debugging Info1899860
-Node: All Debuggers1900410
-Node: DWARF1903395
-Node: VMS Debug1909248
-Node: CTF Debug1909865
-Node: BTF Debug1910230
-Node: Floating Point1910577
-Node: Mode Switching1913358
-Node: Target Attributes1917875
-Node: Emulated TLS1929484
-Node: MIPS Coprocessors1932912
-Node: PCH Target1934079
-Node: C++ ABI1935963
-Node: D Language and ABI1940827
-Node: Rust Language and ABI1944136
-Node: Named Address Spaces1944883
-Node: Misc1951009
-Ref: TARGET_SHIFT_TRUNCATION_MASK1959016
-Node: Host Config2021226
-Node: Host Common2022323
-Node: Filesystem2024717
-Node: Host Misc2028938
-Node: Fragments2031513
-Node: Target Fragment2032760
-Node: Host Fragment2043994
-Node: Collect22044238
-Node: Header Dirs2047085
-Node: Type Information2048556
-Node: GTY Options2052167
-Node: Inheritance and GTY2065755
-Ref: Inheritance and GTY-Footnote-12067350
-Node: User GC2067620
-Node: GGC Roots2071479
-Node: Files2072223
-Node: Invoking the garbage collector2074950
-Node: Troubleshooting2076626
-Node: Plugins2077729
-Node: Plugins loading2078858
-Node: Plugin API2080006
-Node: Plugins pass2088023
-Node: Plugins GC2090006
-Node: Plugins description2091791
-Node: Plugins attr2092341
-Node: Plugins recording2094669
-Node: Plugins gate2095547
-Node: Plugins tracking2096146
-Node: Plugins building2096742
-Node: LTO2100353
-Node: LTO Overview2101229
-Node: LTO object file layout2107121
-Node: IPA2111808
-Node: WHOPR2121018
-Node: Internal flags2125642
-Node: Match and Simplify2127077
-Node: GIMPLE API2128047
-Node: The Language2130873
-Node: Static Analyzer2143836
-Node: Analyzer Internals2144101
-Node: Debugging the Analyzer2160177
-Node: User Experience Guidelines2168029
-Node: Guidelines for Diagnostics2168966
-Ref: input_location_example2177318
-Node: Guidelines for Options2187213
-Node: Funding2187390
-Node: GNU Project2189916
-Node: Copying2190581
-Node: GNU Free Documentation License2228317
-Node: Contributors2253646
-Node: Option Index2296245
-Node: Concept Index2297140
+Node: Ada Tests299199
+Node: C Tests300398
+Node: LTO Testing304912
+Node: gcov Testing306627
+Node: profopt Testing309669
+Node: compat Testing311432
+Node: Torture Tests315788
+Node: GIMPLE Tests317496
+Node: RTL Tests318766
+Node: Options320088
+Node: Option file format320533
+Node: Option properties329313
+Node: Passes347907
+Node: Parsing pass348780
+Node: Gimplification pass352330
+Node: Pass manager354212
+Node: IPA passes356077
+Node: Small IPA passes356970
+Node: Regular IPA passes360574
+Node: Late IPA passes365544
+Node: Tree SSA passes366529
+Node: RTL passes389271
+Node: Optimization info401923
+Node: Dump setup402742
+Node: Optimization groups403904
+Node: Dump files and streams404939
+Node: Dump output verbosity406182
+Node: Dump types407254
+Node: Dump examples409693
+Node: poly_int411222
+Node: Overview of poly_int412736
+Node: Consequences of using poly_int415464
+Node: Comparisons involving poly_int417133
+Node: Comparison functions for poly_int418791
+Node: Properties of the poly_int comparisons420042
+Node: Comparing potentially-unordered poly_ints422614
+Node: Comparing ordered poly_ints423537
+Node: Checking for a poly_int marker value425627
+Node: Range checks on poly_ints426500
+Node: Sorting poly_ints429206
+Node: Arithmetic on poly_ints430003
+Node: Using poly_int with C++ arithmetic operators430816
+Node: wi arithmetic on poly_ints432395
+Node: Division of poly_ints433263
+Node: Other poly_int arithmetic434838
+Node: Alignment of poly_ints436284
+Node: Computing bounds on poly_ints439645
+Node: Converting poly_ints441074
+Node: Miscellaneous poly_int routines444825
+Node: Guidelines for using poly_int445489
+Node: GENERIC450561
+Node: Deficiencies452405
+Node: Tree overview452646
+Node: Macros and Functions456850
+Node: Identifiers457735
+Node: Containers459436
+Node: Types460661
+Node: Declarations474240
+Node: Working with declarations474739
+Node: Internal structure480657
+Node: Current structure hierarchy481045
+Node: Adding new DECL node types483274
+Node: Attributes487734
+Node: Expression trees489018
+Node: Constant expressions490792
+Node: Storage References497144
+Node: Unary and Binary Expressions501089
+Node: Vectors523418
+Node: Statements535334
+Node: Basic Statements535874
+Node: Blocks540939
+Node: Statement Sequences542686
+Node: Empty Statements543027
+Node: Jumps543609
+Node: Cleanups544302
+Node: OpenMP546381
+Node: OpenACC555310
+Node: Functions556523
+Node: Function Basics556998
+Node: Function Properties560790
+Node: Language-dependent trees563663
+Node: C and C++ Trees564560
+Node: Types for C++567465
+Node: Namespaces572747
+Node: Classes575993
+Node: Functions for C++581205
+Node: Statements for C and C++587794
+Node: C++ Expressions596725
+Node: GIMPLE598340
+Node: Tuple representation602063
+Node: Class hierarchy of GIMPLE statements609391
+Node: GIMPLE instruction set614387
+Node: GIMPLE Exception Handling616172
+Node: Temporaries618120
+Ref: Temporaries-Footnote-1619458
+Node: Operands619523
+Node: Compound Expressions620296
+Node: Compound Lvalues620530
+Node: Conditional Expressions621312
+Node: Logical Operators621991
+Node: Manipulating GIMPLE statements629514
+Node: Tuple specific accessors635372
+Node: GIMPLE_ASM636183
+Node: GIMPLE_ASSIGN638722
+Node: GIMPLE_BIND643642
+Node: GIMPLE_CALL645568
+Node: GIMPLE_CATCH649919
+Node: GIMPLE_COND651133
+Node: GIMPLE_DEBUG654096
+Node: GIMPLE_EH_FILTER658876
+Node: GIMPLE_LABEL660503
+Node: GIMPLE_GOTO661156
+Node: GIMPLE_NOP661703
+Node: GIMPLE_OMP_ATOMIC_LOAD662085
+Node: GIMPLE_OMP_ATOMIC_STORE663113
+Node: GIMPLE_OMP_CONTINUE663824
+Node: GIMPLE_OMP_CRITICAL665351
+Node: GIMPLE_OMP_FOR666389
+Node: GIMPLE_OMP_MASTER670039
+Node: GIMPLE_OMP_ORDERED670429
+Node: GIMPLE_OMP_PARALLEL670844
+Node: GIMPLE_OMP_RETURN673789
+Node: GIMPLE_OMP_SECTION674466
+Node: GIMPLE_OMP_SECTIONS675162
+Node: GIMPLE_OMP_SINGLE676854
+Node: GIMPLE_OMP_STRUCTURED_BLOCK677867
+Node: GIMPLE_PHI678687
+Node: GIMPLE_RESX680072
+Node: GIMPLE_RETURN680823
+Node: GIMPLE_SWITCH681425
+Node: GIMPLE_TRY683362
+Node: GIMPLE_WITH_CLEANUP_EXPR685226
+Node: GIMPLE sequences686145
+Node: Sequence iterators689493
+Node: Adding a new GIMPLE statement code698300
+Node: Statement and operand traversals699709
+Node: Tree SSA702461
+Node: Annotations704257
+Node: SSA Operands704670
+Node: SSA718866
+Node: Alias analysis728849
+Node: Memory model732718
+Node: RTL734077
+Node: RTL Objects736323
+Node: RTL Classes740276
+Node: Accessors746026
+Node: Special Accessors748275
+Node: Flags754332
+Node: Machine Modes770541
+Node: Constants789344
+Node: Regs and Memory801649
+Node: Arithmetic819520
+Node: Comparisons830699
+Node: Bit-Fields834553
+Node: Vector Operations836144
+Node: Conversions838284
+Node: RTL Declarations842854
+Node: Side Effects843718
+Node: Incdec860734
+Node: Assembler864158
+Node: Debug Information865761
+Node: Insns867752
+Node: Calls894807
+Node: RTL SSA897486
+Node: Using RTL SSA898881
+Node: RTL SSA Instructions900824
+Ref: RTL SSA Instructions-Footnote-1902222
+Node: RTL SSA Basic Blocks902356
+Ref: real RTL SSA insns902836
+Ref: RTL SSA Basic Blocks-Footnote-1905134
+Node: RTL SSA Resources905276
+Node: RTL SSA Accesses906413
+Ref: RTL SSA Accesses-Footnote-1908158
+Node: RTL SSA Phi Nodes908305
+Node: RTL SSA Access Lists910331
+Node: Changing RTL Instructions914704
+Node: Changing One RTL SSA Instruction915313
+Node: Changing Multiple RTL SSA Instructions920367
+Node: Sharing924739
+Node: Reading RTL927997
+Node: Control Flow929009
+Node: Basic Blocks930807
+Node: Edges936489
+Node: Profile information945344
+Node: Maintaining the CFG950114
+Node: Liveness information956062
+Node: Loop Analysis and Representation958265
+Node: Loop representation959301
+Node: Loop querying966915
+Node: Loop manipulation969882
+Node: LCSSA972304
+Node: Scalar evolutions974395
+Node: loop-iv977703
+Node: Number of iterations979711
+Node: Dependency analysis983924
+Node: Machine Desc990488
+Node: Overview993147
+Node: Patterns995256
+Node: Example1000327
+Node: RTL Template1001808
+Node: Output Template1012697
+Node: Output Statement1017006
+Node: Compact Syntax1021435
+Node: Predicates1026430
+Node: Machine-Independent Predicates1029430
+Node: Defining Predicates1034535
+Node: Constraints1040726
+Node: Simple Constraints1042213
+Node: Multi-Alternative1055411
+Node: Class Preferences1058699
+Node: Modifiers1059611
+Node: Machine Constraints1064467
+Node: Disable Insn Alternatives1129091
+Node: Define Constraints1132655
+Node: C Constraint Interface1141514
+Node: Standard Names1144725
+Ref: shift patterns1196260
+Ref: prologue instruction pattern1265003
+Ref: window_save instruction pattern1265508
+Ref: epilogue instruction pattern1265789
+Node: Pattern Ordering1289580
+Node: Dependent Patterns1290816
+Node: Jump Patterns1292452
+Node: Looping Patterns1294137
+Node: Insn Canonicalizations1299884
+Node: Expander Definitions1305664
+Node: Insn Splitting1314103
+Node: Including Patterns1329494
+Node: Peephole Definitions1331299
+Node: define_peephole1332572
+Node: define_peephole21339004
+Node: Insn Attributes1343740
+Node: Defining Attributes1344847
+Ref: define_enum_attr1348451
+Node: Expressions1349503
+Node: Tagging Insns1356549
+Node: Attr Example1361028
+Node: Insn Lengths1363413
+Node: Constant Attributes1366889
+Node: Mnemonic Attribute1368085
+Node: Delay Slots1369624
+Node: Processor pipeline description1372879
+Ref: Processor pipeline description-Footnote-11392026
+Node: Conditional Execution1392352
+Node: Define Subst1395911
+Node: Define Subst Example1398004
+Node: Define Subst Pattern Matching1401059
+Node: Define Subst Output Template1402373
+Node: Constant Definitions1404796
+Ref: define_enum1408723
+Node: Iterators1409223
+Node: Mode Iterators1409868
+Node: Defining Mode Iterators1410890
+Node: Substitutions1412982
+Node: Examples1415302
+Node: Code Iterators1416770
+Node: Int Iterators1419946
+Node: Subst Iterators1422549
+Node: Parameterized Names1424301
+Node: Target Macros1428419
+Node: Target Structure1431610
+Node: Driver1434684
+Node: Run-time Target1454239
+Node: Per-Function Data1465136
+Node: Storage Layout1467959
+Node: Type Layout1497751
+Node: Registers1511630
+Node: Register Basics1512604
+Node: Allocation Order1520378
+Node: Values in Registers1522880
+Node: Leaf Functions1530448
+Node: Stack Registers1533346
+Node: Register Classes1534627
+Node: Stack and Calling1571214
+Node: Frame Layout1571820
+Node: Exception Handling1584137
+Node: Stack Checking1590471
+Node: Frame Registers1596141
+Node: Elimination1604861
+Node: Stack Arguments1608783
+Node: Register Arguments1616334
+Node: Scalar Return1641946
+Node: Aggregate Return1648527
+Node: Caller Saves1653371
+Node: Function Entry1654117
+Node: Profiling1665847
+Node: Tail Calls1667995
+Node: Shrink-wrapping separate components1669921
+Node: Stack Smashing Protection1673012
+Node: Miscellaneous Register Hooks1675535
+Node: Varargs1676400
+Node: Trampolines1684707
+Node: Library Calls1694491
+Node: Addressing Modes1700750
+Node: Anchored Addresses1733153
+Node: Condition Code1735884
+Node: MODE_CC Condition Codes1737741
+Node: Costs1744598
+Node: Scheduling1767306
+Node: Sections1791371
+Node: PIC1808099
+Node: Assembler Format1810200
+Node: File Framework1811339
+Ref: TARGET_HAVE_SWITCHABLE_BSS_SECTIONS1819058
+Node: Data Output1820759
+Node: Uninitialized Data1829185
+Node: Label Output1834280
+Node: Initialization1859413
+Node: Macros for Initialization1865609
+Node: Instruction Output1872932
+Node: Dispatch Tables1883811
+Node: Exception Region Output1889626
+Node: Alignment Output1896868
+Node: Debugging Info1900657
+Node: All Debuggers1901207
+Node: DWARF1904192
+Node: VMS Debug1910045
+Node: CTF Debug1910662
+Node: BTF Debug1911027
+Node: Floating Point1911374
+Node: Mode Switching1914155
+Node: Target Attributes1922275
+Node: Emulated TLS1933884
+Node: MIPS Coprocessors1937312
+Node: PCH Target1938479
+Node: C++ ABI1940363
+Node: D Language and ABI1945227
+Node: Rust Language and ABI1948536
+Node: Named Address Spaces1949283
+Node: Misc1955409
+Ref: TARGET_SHIFT_TRUNCATION_MASK1963416
+Node: Host Config2025626
+Node: Host Common2026723
+Node: Filesystem2029117
+Node: Host Misc2033338
+Node: Fragments2035913
+Node: Target Fragment2037160
+Node: Host Fragment2048394
+Node: Collect22048638
+Node: Header Dirs2051485
+Node: Type Information2052956
+Node: GTY Options2056567
+Node: Inheritance and GTY2070155
+Ref: Inheritance and GTY-Footnote-12071750
+Node: User GC2072020
+Node: GGC Roots2075879
+Node: Files2076623
+Node: Invoking the garbage collector2079350
+Node: Troubleshooting2081026
+Node: Plugins2082129
+Node: Plugins loading2083258
+Node: Plugin API2084406
+Node: Plugins pass2092423
+Node: Plugins GC2094406
+Node: Plugins description2096191
+Node: Plugins attr2096741
+Node: Plugins recording2099069
+Node: Plugins gate2099947
+Node: Plugins tracking2100546
+Node: Plugins building2101142
+Node: LTO2104753
+Node: LTO Overview2105629
+Node: LTO object file layout2111521
+Node: IPA2116208
+Node: WHOPR2125418
+Node: Internal flags2130042
+Node: Match and Simplify2131477
+Node: GIMPLE API2132447
+Node: The Language2135273
+Node: Static Analyzer2148236
+Node: Analyzer Internals2148501
+Node: Debugging the Analyzer2164577
+Node: User Experience Guidelines2172429
+Node: Guidelines for Diagnostics2173366
+Ref: input_location_example2181718
+Node: Guidelines for Options2191613
+Node: Funding2191790
+Node: GNU Project2194316
+Node: Copying2194981
+Node: GNU Free Documentation License2232717
+Node: Contributors2258046
+Node: Option Index2300645
+Node: Concept Index2301540
 
 End Tag Table
 
