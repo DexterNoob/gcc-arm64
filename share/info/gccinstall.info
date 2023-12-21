@@ -3419,28 +3419,11 @@ are no longer a multiple of 2 bytes.
 hppa*-hp-hpux*
 ==============
 
-Support for HP-UX version 9 and older was discontinued in GCC 3.4.
-
-   We require using gas/binutils on all hppa platforms.  Version 2.19 or
-later is recommended.
+We require using gas on all hppa platforms.  Version 2.19 or later is
+recommended.
 
    It may be helpful to configure GCC with the ‘--with-gnu-as’ and
 ‘--with-as=...’ options to ensure that GCC can find GAS.
-
-   The HP assembler should not be used with GCC. It is rarely tested and
-may not work.  It shouldn’t be used with any languages other than C due
-to its many limitations.
-
-   Specifically, ‘-g’ does not work (HP-UX uses a peculiar debugging
-format which GCC does not know about).  It also inserts timestamps into
-each object file it creates, causing the 3-stage comparison test to fail
-during a bootstrap.  You should be able to continue by saying ‘make
-all-host all-target’ after getting the failure from ‘make’.
-
-   Various GCC features are not supported.  For example, it does not
-support weak symbols or alias definitions.  As a result, explicit
-template instantiations are required when using C++.  This makes it
-difficult if not impossible to build many C++ applications.
 
    There are two default scheduling models for instructions.  These are
 PROCESSOR_7100LC and PROCESSOR_8000.  They are selected from the pa-risc
@@ -3466,28 +3449,10 @@ standard.
 
    More specific information to ‘hppa*-hp-hpux*’ targets follows.
 
-hppa*-hp-hpux10
-===============
-
-For hpux10.20, we _highly_ recommend you pick up the latest sed patch
-‘PHCO_19798’ from HP.
-
-   The C++ ABI has changed incompatibly in GCC 4.0.  COMDAT subspaces
-are used for one-only code and data.  This resolves many of the previous
-problems in using C++ on this target.  However, the ABI is not
-compatible with the one implemented under HP-UX 11 using secondary
-definitions.
-
 hppa*-hp-hpux11
 ===============
 
-GCC 3.0 and up support HP-UX 11.  GCC 2.95.x is not supported and cannot
-be used to compile GCC 3.0 and up.
-
-   The libffi library haven’t been ported to 64-bit HP-UX and doesn’t
-build.
-
-   Refer to binaries for information about obtaining precompiled GCC
+Refer to binaries for information about obtaining precompiled GCC
 binaries for HP-UX.  Precompiled binaries must be obtained to build the
 Ada language as it cannot be bootstrapped using C.  Ada is only
 available for the 32-bit PA-RISC runtime.
@@ -3564,9 +3529,7 @@ program core dumps.  Binutils 2.14 corrects a problem on the 64-bit port
 resulting from HP’s non-standard use of the .init and .fini sections for
 array initializers and finalizers.
 
-   Although the HP and GNU linkers are both supported for the
-‘hppa64-hp-hpux11*’ target, it is strongly recommended that the HP
-linker be used for link editing on this target.
+   Only the HP linker is supported for the ‘hppa64-hp-hpux11*’ target.
 
    At this time, the GNU linker does not support the creation of long
 branch stubs.  As a result, it cannot successfully link binaries
@@ -4997,71 +4960,70 @@ Ref: x-x-freebsd155450
 Ref: ft32-x-elf156597
 Ref: h8300-hms156695
 Ref: hppa-hp-hpux157047
-Ref: hppa-hp-hpux10159469
-Ref: hppa-hp-hpux11159886
-Ref: x-x-linux-gnu165404
-Ref: ix86-x-linux165735
-Ref: ix86-x-solaris2166048
-Ref: ia64-x-linux166308
-Ref: ia64-x-hpux166559
-Ref: x-ibm-aix167126
-Ref: TransferAixShobj170854
-Ref: iq2000-x-elf174756
-Ref: lm32-x-elf174896
-Ref: lm32-x-uclinux175000
-Ref: loongarch175128
-Ref: m32c-x-elf175801
-Ref: m32r-x-elf175903
-Ref: m68k-x-x176005
-Ref: m68k-x-uclinux177135
-Ref: microblaze-x-elf177388
-Ref: mips-x-x177507
-Ref: moxie-x-elf179501
-Ref: msp430-x-elf179548
-Ref: nds32le-x-elf180117
-Ref: nds32be-x-elf180189
-Ref: nvptx-x-none180258
-Ref: or1k-x-elf181167
-Ref: or1k-x-linux181298
-Ref: powerpc-x-x181379
-Ref: powerpc-x-darwin181578
-Ref: powerpc-x-elf182073
-Ref: powerpc-x-linux-gnu182158
-Ref: powerpc-x-netbsd182253
-Ref: powerpc-x-eabisim182341
-Ref: powerpc-x-eabi182467
-Ref: powerpcle-x-elf182543
-Ref: powerpcle-x-eabisim182635
-Ref: powerpcle-x-eabi182768
-Ref: rl78-x-elf182851
-Ref: riscv32-x-elf182957
-Ref: riscv32-x-linux183146
-Ref: riscv64-x-elf183303
-Ref: riscv64-x-linux183492
-Ref: rx-x-elf183649
-Ref: s390-x-linux183695
-Ref: s390x-x-linux183767
-Ref: s390x-ibm-tpf183854
-Ref: x-x-solaris2183985
-Ref: sparc-x-x187926
-Ref: sparc-sun-solaris2188428
-Ref: sparc-x-linux189343
-Ref: sparc64-x-solaris2189374
-Ref: sparcv9-x-solaris2189465
-Ref: c6x-x-x190214
-Ref: visium-x-elf190306
-Ref: x-x-vxworks190414
-Ref: x86-64-x-x192003
-Ref: x86-64-x-solaris2192335
-Ref: xtensa-x-elf192989
-Ref: xtensa-x-linux193668
-Ref: windows194021
-Ref: x-x-cygwin195674
-Ref: x-x-mingw32196229
-Ref: older196627
-Ref: elf198768
-Node: GNU Free Documentation License199022
-Node: Concept Index224363
+Ref: hppa-hp-hpux11158597
+Ref: x-x-linux-gnu163815
+Ref: ix86-x-linux164146
+Ref: ix86-x-solaris2164459
+Ref: ia64-x-linux164719
+Ref: ia64-x-hpux164970
+Ref: x-ibm-aix165537
+Ref: TransferAixShobj169265
+Ref: iq2000-x-elf173167
+Ref: lm32-x-elf173307
+Ref: lm32-x-uclinux173411
+Ref: loongarch173539
+Ref: m32c-x-elf174212
+Ref: m32r-x-elf174314
+Ref: m68k-x-x174416
+Ref: m68k-x-uclinux175546
+Ref: microblaze-x-elf175799
+Ref: mips-x-x175918
+Ref: moxie-x-elf177912
+Ref: msp430-x-elf177959
+Ref: nds32le-x-elf178528
+Ref: nds32be-x-elf178600
+Ref: nvptx-x-none178669
+Ref: or1k-x-elf179578
+Ref: or1k-x-linux179709
+Ref: powerpc-x-x179790
+Ref: powerpc-x-darwin179989
+Ref: powerpc-x-elf180484
+Ref: powerpc-x-linux-gnu180569
+Ref: powerpc-x-netbsd180664
+Ref: powerpc-x-eabisim180752
+Ref: powerpc-x-eabi180878
+Ref: powerpcle-x-elf180954
+Ref: powerpcle-x-eabisim181046
+Ref: powerpcle-x-eabi181179
+Ref: rl78-x-elf181262
+Ref: riscv32-x-elf181368
+Ref: riscv32-x-linux181557
+Ref: riscv64-x-elf181714
+Ref: riscv64-x-linux181903
+Ref: rx-x-elf182060
+Ref: s390-x-linux182106
+Ref: s390x-x-linux182178
+Ref: s390x-ibm-tpf182265
+Ref: x-x-solaris2182396
+Ref: sparc-x-x186337
+Ref: sparc-sun-solaris2186839
+Ref: sparc-x-linux187754
+Ref: sparc64-x-solaris2187785
+Ref: sparcv9-x-solaris2187876
+Ref: c6x-x-x188625
+Ref: visium-x-elf188717
+Ref: x-x-vxworks188825
+Ref: x86-64-x-x190414
+Ref: x86-64-x-solaris2190746
+Ref: xtensa-x-elf191400
+Ref: xtensa-x-linux192079
+Ref: windows192432
+Ref: x-x-cygwin194085
+Ref: x-x-mingw32194640
+Ref: older195038
+Ref: elf197179
+Node: GNU Free Documentation License197433
+Node: Concept Index222774
 
 End Tag Table
 
