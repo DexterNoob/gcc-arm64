@@ -9,7 +9,7 @@
 BASEVER, DATESTAMP, DEVPHASE, and REVISION are defined by the
 Makefile.  */
 
-#define version_string "14.0.1 20240114 (Dexter)"
+#define version_string "14.0.1 20240118 (Dexter)"
 #define pkgversion_string "(Noob GCC) "
 
 /* This is the location of the online document giving instructions for
