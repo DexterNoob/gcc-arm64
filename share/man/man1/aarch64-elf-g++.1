@@ -55,7 +55,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 2024-01-31 gcc-14.0.1 GNU
+.TH GCC 1 2024-02-04 gcc-14.0.1 GNU
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -3820,7 +3820,7 @@ classes of the form:
 \&        };
 .Ve
 .Sp
-as \f(CW\*(C`std::span\*(C'\fR\-like; that is, the class is a non-union class template
+as \f(CW\*(C`std::span\*(C'\fR\-like; that is, the class is a non-union class
 that has a pointer data member and a trivial destructor.
 .Sp
 This warning is enabled by \fB\-Wall\fR.
@@ -29288,6 +29288,14 @@ Supported extension are listed below:
 .IX Item "zicond"
 \&\f(CW@tab\fR 1.0
 \&\f(CW@tab\fR Integer conditional operations extension.
+.IP za64rs 4
+.IX Item "za64rs"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Reservation set size of 64 bytes.
+.IP za128rs 4
+.IX Item "za128rs"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Reservation set size of 128 bytes.
 .IP zawrs 4
 .IX Item "zawrs"
 \&\f(CW@tab\fR 1.0
@@ -29396,6 +29404,26 @@ Supported extension are listed below:
 .IX Item "zicbop"
 \&\f(CW@tab\fR 1.0
 \&\f(CW@tab\fR Cache-block prefetch extension.
+.IP zic64b 4
+.IX Item "zic64b"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Cache block size isf 64 bytes.
+.IP ziccamoa 4
+.IX Item "ziccamoa"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Main memory supports all atomics in A.
+.IP ziccif 4
+.IX Item "ziccif"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Main memory supports instruction fetch with atomicity requirement.
+.IP zicclsm 4
+.IX Item "zicclsm"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Main memory supports misaligned loads/stores.
+.IP ziccrse 4
+.IX Item "ziccrse"
+\&\f(CW@tab\fR 1.0
+\&\f(CW@tab\fR Main memory supports forward progress on LR/SC sequences.
 .IP zicntr 4
 .IX Item "zicntr"
 \&\f(CW@tab\fR 2.0
@@ -29712,7 +29740,8 @@ Permissible values for this option are: \fBsifive\-e20\fR, \fBsifive\-e21\fR,
 Optimize the output for the given processor, specified by microarchitecture or
 particular CPU name.  Permissible values for this option are: \fBrocket\fR,
 \&\fBsifive\-3\-series\fR, \fBsifive\-5\-series\fR, \fBsifive\-7\-series\fR,
-\&\fBthead\-c906\fR, \fBsize\fR, and all valid options for \fB\-mcpu=\fR.
+\&\fBthead\-c906\fR, \fBsize\fR, \fBsifive\-p600\-series\fR,
+and all valid options for \fB\-mcpu=\fR.
 .Sp
 When \fB\-mtune=\fR is not specified, use the setting from \fB\-mcpu\fR,
 the default is \fBrocket\fR if both are not specified.
