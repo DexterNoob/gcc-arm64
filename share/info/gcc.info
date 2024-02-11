@@ -606,7 +606,7 @@ _C++ Language Options_
           -Wno-non-template-friend  -Wold-style-cast
           -Woverloaded-virtual  -Wno-pmf-conversions -Wself-move -Wsign-promo
           -Wsized-deallocation  -Wsuggest-final-methods
-          -Wsuggest-final-types  -Wsuggest-override
+          -Wsuggest-final-types  -Wsuggest-override  -Wno-template-id-cdtor
           -Wno-terminate  -Wno-vexing-parse  -Wvirtual-inheritance
           -Wno-virtual-move-assign  -Wvolatile  -Wzero-as-null-pointer-constant
 
@@ -4516,6 +4516,19 @@ Dialect Options.
      The warning is inactive inside a system header file, such as the
      STL, so one can still use the STL. One may also use using
      directives and qualified names.
+
+‘-Wno-template-id-cdtor (C++ and Objective-C++ only)’
+     Disable the warning about the use of simple-template-id as the
+     declarator-id of a constructor or destructor, which became invalid
+     in C++20 via DR 2237.  For example:
+
+          template<typename T> struct S {
+            S<T>(); // should be S();
+            ~S<T>();  // should be ~S();
+          };
+
+     ‘-Wtemplate-id-cdtor’ is enabled by default with ‘-std=c++20’; it
+     is also enabled by ‘-Wc++20-compat’.
 
 ‘-Wno-terminate (C++ and Objective-C++ only)’
      Disable the warning about a throw-expression that will immediately
@@ -22204,9 +22217,9 @@ These options are defined for AVR implementations:
           MCU = ‘atmega48’, ‘atmega48a’, ‘atmega48p’, ‘atmega48pa’,
           ‘atmega48pb’, ‘atmega8’, ‘atmega8a’, ‘atmega8hva’, ‘atmega88’,
           ‘atmega88a’, ‘atmega88p’, ‘atmega88pa’, ‘atmega88pb’,
-          ‘atmega8515’, ‘atmega8535’, ‘ata6285’, ‘ata6286’, ‘ata6289’,
-          ‘ata6612c’, ‘at90pwm1’, ‘at90pwm2’, ‘at90pwm2b’, ‘at90pwm3’,
-          ‘at90pwm3b’, ‘at90pwm81’.
+          ‘atmega8515’, ‘atmega8535’, ‘ata5795’, ‘ata6285’, ‘ata6286’,
+          ‘ata6289’, ‘ata6612c’, ‘at90pwm1’, ‘at90pwm2’, ‘at90pwm2b’,
+          ‘at90pwm3’, ‘at90pwm3b’, ‘at90pwm81’.
 
      ‘avr5’
           “Enhanced” devices with 16 KiB up to 64 KiB of program memory.
@@ -22232,9 +22245,9 @@ These options are defined for AVR implementations:
           ‘atmega644rfr2’, ‘atmega645’, ‘atmega645a’, ‘atmega645p’,
           ‘atmega649’, ‘atmega649a’, ‘atmega649p’, ‘atmega6450’,
           ‘atmega6450a’, ‘atmega6450p’, ‘atmega6490’, ‘atmega6490a’,
-          ‘atmega6490p’, ‘ata5795’, ‘ata5790’, ‘ata5790n’, ‘ata5791’,
-          ‘ata6613c’, ‘ata6614q’, ‘ata5782’, ‘ata5831’, ‘ata8210’,
-          ‘ata8510’, ‘ata5787’, ‘ata5835’, ‘ata5700m322’, ‘ata5702m322’,
+          ‘atmega6490p’, ‘ata5790’, ‘ata5790n’, ‘ata5791’, ‘ata6613c’,
+          ‘ata6614q’, ‘ata5782’, ‘ata5831’, ‘ata8210’, ‘ata8510’,
+          ‘ata5787’, ‘ata5835’, ‘ata5700m322’, ‘ata5702m322’,
           ‘at90pwm161’, ‘at90pwm216’, ‘at90pwm316’, ‘at90can32’,
           ‘at90can64’, ‘at90scr100’, ‘at90usb646’, ‘at90usb647’,
           ‘at94k’, ‘m3000’.
@@ -73891,7 +73904,7 @@ look up both forms.
 * Waggregate-return:                     Warning Options.    (line 3238)
 * Waggressive-loop-optimizations:        Warning Options.    (line 3243)
 * Waligned-new:                          C++ Dialect Options.
-                                                             (line 1417)
+                                                             (line 1430)
 * Wall:                                  Warning Options.    (line  189)
 * Wall <1>:                              Standard Libraries. (line    6)
 * Walloc-size:                           Warning Options.    (line 1969)
@@ -74035,10 +74048,10 @@ look up both forms.
 * Wcast-function-type:                   Warning Options.    (line 2858)
 * Wcast-qual:                            Warning Options.    (line 2831)
 * Wcatch-value:                          C++ Dialect Options.
-                                                             (line 1463)
+                                                             (line 1476)
 * Wchar-subscripts:                      Warning Options.    (line  465)
 * Wclass-conversion:                     C++ Dialect Options.
-                                                             (line 1395)
+                                                             (line 1408)
 * Wclass-memaccess:                      C++ Dialect Options.
                                                              (line  994)
 * Wclobbered:                            Warning Options.    (line 2887)
@@ -74049,10 +74062,10 @@ look up both forms.
 * Wcompare-distinct-pointer-types:       Warning Options.    (line 2906)
 * Wcomplain-wrong-lang:                  Warning Options.    (line 2891)
 * Wconditionally-supported:              C++ Dialect Options.
-                                                             (line 1472)
+                                                             (line 1485)
 * Wconversion:                           Warning Options.    (line 2910)
 * Wconversion-null:                      C++ Dialect Options.
-                                                             (line 1546)
+                                                             (line 1559)
 * Wcoverage-invalid-line-number:         Warning Options.    (line  484)
 * Wcoverage-mismatch:                    Warning Options.    (line  470)
 * Wcpp:                                  Warning Options.    (line  494)
@@ -74068,7 +74081,7 @@ look up both forms.
 * Wdeclaration-after-statement:          Warning Options.    (line 2491)
 * Wdeclaration-missing-parameter-type:   Warning Options.    (line 3326)
 * Wdelete-incomplete:                    C++ Dialect Options.
-                                                             (line 1475)
+                                                             (line 1488)
 * Wdelete-non-virtual-dtor:              C++ Dialect Options.
                                                              (line  816)
 * Wdeprecated:                           Warning Options.    (line 3496)
@@ -74108,7 +74121,7 @@ look up both forms.
 * Wextra <1>:                            Warning Options.    (line 3365)
 * Wextra <2>:                            Warning Options.    (line 3525)
 * Wextra-semi:                           C++ Dialect Options.
-                                                             (line 1480)
+                                                             (line 1493)
 * Wfatal-errors:                         Warning Options.    (line   47)
 * Wflex-array-member-not-at-end:         Warning Options.    (line 3090)
 * Wfloat-conversion:                     Warning Options.    (line 3098)
@@ -74149,11 +74162,11 @@ look up both forms.
 * Wimplicit-function-declaration:        Warning Options.    (line  776)
 * Wimplicit-int:                         Warning Options.    (line  766)
 * Winaccessible-base:                    C++ Dialect Options.
-                                                             (line 1484)
+                                                             (line 1497)
 * Wincompatible-pointer-types:           Warning Options.    (line 2302)
 * Winfinite-recursion:                   Warning Options.    (line  741)
 * Winherited-variadic-ctor:              C++ Dialect Options.
-                                                             (line 1495)
+                                                             (line 1508)
 * Winit-list-lifetime:                   C++ Dialect Options.
                                                              (line  867)
 * Winit-self:                            Warning Options.    (line  751)
@@ -74169,7 +74182,7 @@ look up both forms.
                                                              (line  926)
 * Winvalid-memory-model:                 Warning Options.    (line 1555)
 * Winvalid-offsetof:                     C++ Dialect Options.
-                                                             (line 1500)
+                                                             (line 1513)
 * Winvalid-pch:                          Warning Options.    (line 3685)
 * Winvalid-utf8:                         Warning Options.    (line 3689)
 * Wjump-misses-init:                     Warning Options.    (line 3067)
@@ -74223,7 +74236,7 @@ look up both forms.
 * Wno-aggregate-return:                  Warning Options.    (line 3238)
 * Wno-aggressive-loop-optimizations:     Warning Options.    (line 3243)
 * Wno-aligned-new:                       C++ Dialect Options.
-                                                             (line 1417)
+                                                             (line 1430)
 * Wno-all:                               Warning Options.    (line  189)
 * Wno-alloc-size:                        Warning Options.    (line 1969)
 * Wno-alloc-size-larger-than:            Warning Options.    (line 1999)
@@ -74366,10 +74379,10 @@ look up both forms.
 * Wno-cast-function-type:                Warning Options.    (line 2858)
 * Wno-cast-qual:                         Warning Options.    (line 2831)
 * Wno-catch-value:                       C++ Dialect Options.
-                                                             (line 1463)
+                                                             (line 1476)
 * Wno-char-subscripts:                   Warning Options.    (line  465)
 * Wno-class-conversion:                  C++ Dialect Options.
-                                                             (line 1395)
+                                                             (line 1408)
 * Wno-class-memaccess:                   C++ Dialect Options.
                                                              (line  994)
 * Wno-clobbered:                         Warning Options.    (line 2887)
@@ -74377,10 +74390,10 @@ look up both forms.
                                                              (line  708)
 * Wno-complain-wrong-lang:               Warning Options.    (line 2891)
 * Wno-conditionally-supported:           C++ Dialect Options.
-                                                             (line 1472)
+                                                             (line 1485)
 * Wno-conversion:                        Warning Options.    (line 2910)
 * Wno-conversion-null:                   C++ Dialect Options.
-                                                             (line 1546)
+                                                             (line 1559)
 * Wno-coverage-invalid-line-number:      Warning Options.    (line  484)
 * Wno-coverage-mismatch:                 Warning Options.    (line  470)
 * Wno-cpp:                               Warning Options.    (line  494)
@@ -74396,7 +74409,7 @@ look up both forms.
 * Wno-declaration-after-statement:       Warning Options.    (line 2491)
 * Wno-declaration-missing-parameter-type: Warning Options.   (line 3326)
 * Wno-delete-incomplete:                 C++ Dialect Options.
-                                                             (line 1475)
+                                                             (line 1488)
 * Wno-delete-non-virtual-dtor:           C++ Dialect Options.
                                                              (line  816)
 * Wno-deprecated:                        Warning Options.    (line 3496)
@@ -74434,7 +74447,7 @@ look up both forms.
 * Wno-extra <1>:                         Warning Options.    (line 3365)
 * Wno-extra <2>:                         Warning Options.    (line 3525)
 * Wno-extra-semi:                        C++ Dialect Options.
-                                                             (line 1480)
+                                                             (line 1493)
 * Wno-fatal-errors:                      Warning Options.    (line   47)
 * Wno-flex-array-member-not-at-end:      Warning Options.    (line 3090)
 * Wno-float-conversion:                  Warning Options.    (line 3098)
@@ -74465,11 +74478,11 @@ look up both forms.
 * Wno-implicit-function-declaration:     Warning Options.    (line  776)
 * Wno-implicit-int:                      Warning Options.    (line  766)
 * Wno-inaccessible-base:                 C++ Dialect Options.
-                                                             (line 1484)
+                                                             (line 1497)
 * Wno-incompatible-pointer-types:        Warning Options.    (line 2302)
 * Wno-infinite-recursion:                Warning Options.    (line  741)
 * Wno-inherited-variadic-ctor:           C++ Dialect Options.
-                                                             (line 1495)
+                                                             (line 1508)
 * Wno-init-list-lifetime:                C++ Dialect Options.
                                                              (line  867)
 * Wno-init-self:                         Warning Options.    (line  751)
@@ -74483,7 +74496,7 @@ look up both forms.
                                                              (line  926)
 * Wno-invalid-memory-model:              Warning Options.    (line 1555)
 * Wno-invalid-offsetof:                  C++ Dialect Options.
-                                                             (line 1500)
+                                                             (line 1513)
 * Wno-invalid-pch:                       Warning Options.    (line 3685)
 * Wno-invalid-utf8:                      Warning Options.    (line 3689)
 * Wno-jump-misses-init:                  Warning Options.    (line 3067)
@@ -74564,7 +74577,7 @@ look up both forms.
 * Wno-pessimizing-move:                  C++ Dialect Options.
                                                              (line 1045)
 * Wno-placement-new:                     C++ Dialect Options.
-                                                             (line 1427)
+                                                             (line 1440)
 * Wno-pmf-conversions:                   C++ Dialect Options.
                                                              (line 1262)
 * Wno-pmf-conversions <1>:               Bound member functions.
@@ -74610,7 +74623,7 @@ look up both forms.
 * Wno-sign-promo:                        C++ Dialect Options.
                                                              (line 1266)
 * Wno-sized-deallocation:                C++ Dialect Options.
-                                                             (line 1512)
+                                                             (line 1525)
 * Wno-sizeof-array-argument:             Warning Options.    (line 3152)
 * Wno-sizeof-array-div:                  Warning Options.    (line 3108)
 * Wno-sizeof-pointer-div:                Warning Options.    (line 3122)
@@ -74641,11 +74654,11 @@ look up both forms.
 * Wno-suggest-attribute=noreturn:        Warning Options.    (line 1920)
 * Wno-suggest-attribute=pure:            Warning Options.    (line 1920)
 * Wno-suggest-final-methods:             C++ Dialect Options.
-                                                             (line 1532)
+                                                             (line 1545)
 * Wno-suggest-final-types:               C++ Dialect Options.
-                                                             (line 1523)
+                                                             (line 1536)
 * Wno-suggest-override:                  C++ Dialect Options.
-                                                             (line 1542)
+                                                             (line 1555)
 * Wno-switch:                            Warning Options.    (line 1274)
 * Wno-switch-bool:                       Warning Options.    (line 1294)
 * Wno-switch-default:                    Warning Options.    (line 1282)
@@ -74655,10 +74668,12 @@ look up both forms.
 * Wno-sync-nand:                         Warning Options.    (line 1334)
 * Wno-system-headers:                    Warning Options.    (line 2356)
 * Wno-tautological-compare:              Warning Options.    (line 2367)
+* Wno-template-id-cdtor:                 C++ Dialect Options.
+                                                             (line 1365)
 * Wno-templates:                         C++ Dialect Options.
                                                              (line 1272)
 * Wno-terminate:                         C++ Dialect Options.
-                                                             (line 1365)
+                                                             (line 1378)
 * Wno-traditional:                       Warning Options.    (line 2406)
 * Wno-traditional-conversion:            Warning Options.    (line 2483)
 * Wno-trampolines:                       Warning Options.    (line 2381)
@@ -74690,7 +74705,7 @@ look up both forms.
 * Wno-variadic-macros:                   Warning Options.    (line 3706)
 * Wno-vector-operation-performance:      Warning Options.    (line 3717)
 * Wno-vexing-parse:                      C++ Dialect Options.
-                                                             (line 1369)
+                                                             (line 1382)
 * Wno-virtual-inheritance:               C++ Dialect Options.
                                                              (line 1342)
 * Wno-virtual-move-assign:               C++ Dialect Options.
@@ -74700,12 +74715,12 @@ look up both forms.
 * Wno-vla-larger-than <1>:               Warning Options.    (line 3750)
 * Wno-vla-parameter:                     Warning Options.    (line 3754)
 * Wno-volatile:                          C++ Dialect Options.
-                                                             (line 1400)
+                                                             (line 1413)
 * Wno-volatile-register-var:             Warning Options.    (line 3793)
 * Wno-write-strings:                     Warning Options.    (line 2871)
 * Wno-xor-used-as-pow:                   Warning Options.    (line 3799)
 * Wno-zero-as-null-pointer-constant:     C++ Dialect Options.
-                                                             (line 1413)
+                                                             (line 1426)
 * Wnoexcept:                             C++ Dialect Options.
                                                              (line  974)
 * Wnoexcept-type:                        C++ Dialect Options.
@@ -74748,7 +74763,7 @@ look up both forms.
 * Wpessimizing-move:                     C++ Dialect Options.
                                                              (line 1045)
 * Wplacement-new:                        C++ Dialect Options.
-                                                             (line 1427)
+                                                             (line 1440)
 * Wpmf-conversions:                      C++ Dialect Options.
                                                              (line 1262)
 * Wpointer-arith:                        Warning Options.    (line 2641)
@@ -74797,7 +74812,7 @@ look up both forms.
 * Wsign-promo:                           C++ Dialect Options.
                                                              (line 1266)
 * Wsized-deallocation:                   C++ Dialect Options.
-                                                             (line 1512)
+                                                             (line 1525)
 * Wsizeof-array-argument:                Warning Options.    (line 3152)
 * Wsizeof-array-div:                     Warning Options.    (line 3108)
 * Wsizeof-pointer-div:                   Warning Options.    (line 3122)
@@ -74828,11 +74843,11 @@ look up both forms.
 * Wsuggest-attribute=noreturn:           Warning Options.    (line 1920)
 * Wsuggest-attribute=pure:               Warning Options.    (line 1920)
 * Wsuggest-final-methods:                C++ Dialect Options.
-                                                             (line 1532)
+                                                             (line 1545)
 * Wsuggest-final-types:                  C++ Dialect Options.
-                                                             (line 1523)
+                                                             (line 1536)
 * Wsuggest-override:                     C++ Dialect Options.
-                                                             (line 1542)
+                                                             (line 1555)
 * Wswitch:                               Warning Options.    (line 1274)
 * Wswitch-bool:                          Warning Options.    (line 1294)
 * Wswitch-default:                       Warning Options.    (line 1282)
@@ -74842,10 +74857,12 @@ look up both forms.
 * Wsync-nand:                            Warning Options.    (line 1334)
 * Wsystem-headers:                       Warning Options.    (line 2356)
 * Wtautological-compare:                 Warning Options.    (line 2367)
+* Wtemplate-id-cdtor:                    C++ Dialect Options.
+                                                             (line 1365)
 * Wtemplates:                            C++ Dialect Options.
                                                              (line 1272)
 * Wterminate:                            C++ Dialect Options.
-                                                             (line 1365)
+                                                             (line 1378)
 * Wtraditional:                          Warning Options.    (line 2406)
 * Wtraditional-conversion:               Warning Options.    (line 2483)
 * Wtrampolines:                          Warning Options.    (line 2381)
@@ -74879,7 +74896,7 @@ look up both forms.
 * Wvariadic-macros:                      Warning Options.    (line 3706)
 * Wvector-operation-performance:         Warning Options.    (line 3717)
 * Wvexing-parse:                         C++ Dialect Options.
-                                                             (line 1369)
+                                                             (line 1382)
 * Wvirtual-inheritance:                  C++ Dialect Options.
                                                              (line 1342)
 * Wvirtual-move-assign:                  C++ Dialect Options.
@@ -74887,12 +74904,12 @@ look up both forms.
 * Wvla:                                  Warning Options.    (line 3727)
 * Wvla-larger-than=:                     Warning Options.    (line 3733)
 * Wvolatile:                             C++ Dialect Options.
-                                                             (line 1400)
+                                                             (line 1413)
 * Wvolatile-register-var:                Warning Options.    (line 3793)
 * Wwrite-strings:                        Warning Options.    (line 2871)
 * Wxor-used-as-pow:                      Warning Options.    (line 3799)
 * Wzero-as-null-pointer-constant:        C++ Dialect Options.
-                                                             (line 1413)
+                                                             (line 1426)
 * Wzero-length-bounds:                   Warning Options.    (line 2328)
 * Wzero-length-bounds <1>:               Warning Options.    (line 2328)
 * x:                                     Overall Options.    (line  137)
@@ -78476,458 +78493,458 @@ Node: G++ and GCC4214
 Node: Standards6296
 Node: Invoking GCC20674
 Node: Option Summary26014
-Node: Overall Options87911
-Node: Invoking G++117251
-Node: C Dialect Options118862
-Node: C++ Dialect Options145852
-Node: Objective-C and Objective-C++ Dialect Options216672
-Node: Diagnostic Message Formatting Options228869
-Node: Warning Options263226
-Ref: Wtrigraphs386947
-Node: Static Analyzer Options439020
-Node: Debugging Options484291
-Node: Optimize Options504997
-Ref: Type-punning582554
-Node: Instrumentation Options713449
-Node: Preprocessor Options775958
-Ref: dashMF780991
-Ref: fdollars-in-identifiers785925
-Node: Assembler Options799711
-Node: Link Options800414
-Ref: Link Options-Footnote-1818158
-Node: Directory Options818696
-Node: Code Gen Options827541
-Node: Developer Options858056
-Node: Submodel Options903312
-Node: AArch64 Options905037
-Ref: aarch64-feature-modifiers923641
-Node: Adapteva Epiphany Options930179
-Node: AMD GCN Options936333
-Node: ARC Options938495
-Node: ARM Options960688
-Node: AVR Options1008186
-Ref: avr21008584
-Ref: avr251008907
-Ref: avr31009619
-Ref: avr311009763
-Ref: avr351009896
-Ref: avr41010243
-Ref: avr51010812
-Ref: avr511013124
-Ref: avr61013481
-Ref: avrxmega21013709
-Ref: avrxmega31014451
-Ref: avrxmega41016053
-Ref: avrxmega51016528
-Ref: avrxmega61016732
-Ref: avrxmega71017288
-Ref: avrtiny1017498
-Ref: avr11017808
-Ref: eind1024284
-Ref: ramp1029221
-Ref: avr-macros1030814
-Node: Blackfin Options1040288
-Node: C6X Options1048570
-Node: CRIS Options1050213
-Node: C-SKY Options1053560
-Node: Darwin Options1059853
-Node: DEC Alpha Options1068600
-Node: eBPF Options1080662
-Node: FR30 Options1083966
-Node: FT32 Options1084538
-Node: FRV Options1085508
-Node: GNU/Linux Options1092626
-Node: H8/300 Options1094111
-Node: HPPA Options1095639
-Node: IA-64 Options1106750
-Node: LM32 Options1115226
-Node: LoongArch Options1115778
-Node: M32C Options1127923
-Node: M32R/D Options1129233
-Node: M680x0 Options1132941
-Node: MCore Options1148176
-Node: MicroBlaze Options1149777
-Node: MIPS Options1153008
-Node: MMIX Options1192428
-Node: MN10300 Options1195017
-Node: Moxie Options1197676
-Node: MSP430 Options1198187
-Node: NDS32 Options1206258
-Node: Nios II Options1208528
-Node: Nvidia PTX Options1222360
-Node: OpenRISC Options1226074
-Node: PDP-11 Options1228980
-Node: PowerPC Options1230304
-Node: PRU Options1230522
-Node: RISC-V Options1232787
-Node: RL78 Options1255797
-Node: RS/6000 and PowerPC Options1259744
-Node: RX Options1303782
-Node: S/390 and zSeries Options1312746
-Node: SH Options1324073
-Node: Solaris 2 Options1339821
-Node: SPARC Options1341115
-Node: System V Options1357569
-Node: V850 Options1358434
-Node: VAX Options1365472
-Node: Visium Options1366192
-Node: VMS Options1368580
-Node: VxWorks Options1369444
-Node: x86 Options1370913
-Node: x86 Windows Options1451846
-Node: Xstormy16 Options1455944
-Node: Xtensa Options1456242
-Node: zSeries Options1463348
-Node: Spec Files1463544
-Node: Environment Variables1490926
-Node: Precompiled Headers1500749
-Node: C++ Modules1507098
-Ref: C++ Modules-Footnote-11512844
-Node: C++ Module Mapper1513105
-Node: C++ Module Preprocessing1518370
-Node: C++ Compiled Module Interface1520243
-Ref: C++ Compiled Module Interface-Footnote-11523674
-Ref: C++ Compiled Module Interface-Footnote-21523763
-Node: C Implementation1523819
-Node: Translation implementation1525518
-Node: Environment implementation1526121
-Node: Identifiers implementation1526681
-Node: Characters implementation1527785
-Node: Integers implementation1531573
-Node: Floating point implementation1533680
-Node: Arrays and pointers implementation1536932
-Ref: Arrays and pointers implementation-Footnote-11538404
-Node: Hints implementation1538534
-Node: Structures unions enumerations and bit-fields implementation1540091
-Node: Qualifiers implementation1542443
-Node: Declarators implementation1544528
-Node: Statements implementation1544875
-Node: Preprocessing directives implementation1545215
-Node: Library functions implementation1547646
-Node: Architecture implementation1548321
-Node: Locale-specific behavior implementation1550022
-Node: C++ Implementation1550327
-Node: Conditionally-supported behavior1551619
-Node: Exception handling1552246
-Node: C Extensions1552660
-Node: Statement Exprs1558073
-Node: Local Labels1563609
-Node: Labels as Values1566598
-Ref: Labels as Values-Footnote-11569277
-Node: Nested Functions1569462
-Node: Nonlocal Gotos1573492
-Node: Constructing Calls1575822
-Node: Typeof1580562
-Node: Conditionals1584985
-Node: __int1281585882
-Node: Long Long1586427
-Node: Complex1587962
-Node: Floating Types1592935
-Node: Half-Precision1596649
-Node: Decimal Float1600241
-Node: Hex Floats1602195
-Node: Fixed-Point1603325
-Node: Named Address Spaces1607109
-Ref: AVR Named Address Spaces1607803
-Node: Zero Length1615461
-Node: Empty Structures1621414
-Node: Variable Length1621824
-Node: Variadic Macros1624589
-Node: Escaped Newlines1626987
-Node: Subscripting1627850
-Node: Pointer Arith1628579
-Node: Variadic Pointer Args1629180
-Node: Pointers to Arrays1629921
-Node: Initializers1630686
-Node: Compound Literals1631187
-Node: Designated Inits1634802
-Node: Case Ranges1638794
-Node: Cast to Union1639487
-Node: Mixed Labels and Declarations1641251
-Node: Function Attributes1641888
-Node: Common Function Attributes1646350
-Ref: Common Function Attributes-Footnote-11731230
-Node: AArch64 Function Attributes1731563
-Node: AMD GCN Function Attributes1738013
-Node: ARC Function Attributes1741220
-Node: ARM Function Attributes1744261
-Node: AVR Function Attributes1749566
-Node: Blackfin Function Attributes1754282
-Node: BPF Function Attributes1756871
-Node: C-SKY Function Attributes1758015
-Node: Epiphany Function Attributes1759339
-Node: H8/300 Function Attributes1762166
-Node: IA-64 Function Attributes1763376
-Node: M32C Function Attributes1764434
-Node: M32R/D Function Attributes1766814
-Node: m68k Function Attributes1768336
-Node: MCORE Function Attributes1769296
-Node: MicroBlaze Function Attributes1770130
-Node: Microsoft Windows Function Attributes1771683
-Node: MIPS Function Attributes1776381
-Node: MSP430 Function Attributes1782979
-Node: NDS32 Function Attributes1787198
-Node: Nios II Function Attributes1789682
-Node: Nvidia PTX Function Attributes1791015
-Node: PowerPC Function Attributes1791638
-Node: RISC-V Function Attributes1798656
-Node: RL78 Function Attributes1801857
-Node: RX Function Attributes1803140
-Node: S/390 Function Attributes1805743
-Node: SH Function Attributes1807695
-Node: Symbian OS Function Attributes1811183
-Node: V850 Function Attributes1811527
-Node: Visium Function Attributes1812080
-Node: x86 Function Attributes1812612
-Node: Xstormy16 Function Attributes1840414
-Node: Variable Attributes1840925
-Node: Common Variable Attributes1842662
-Node: ARC Variable Attributes1867210
-Node: AVR Variable Attributes1867602
-Node: Blackfin Variable Attributes1873355
-Node: H8/300 Variable Attributes1874261
-Node: IA-64 Variable Attributes1875342
-Node: LoongArch Variable Attributes1876112
-Node: M32R/D Variable Attributes1876808
-Node: Microsoft Windows Variable Attributes1877633
-Node: MSP430 Variable Attributes1880149
-Node: Nvidia PTX Variable Attributes1881399
-Node: PowerPC Variable Attributes1882024
-Node: RL78 Variable Attributes1882597
-Node: V850 Variable Attributes1883020
-Node: x86 Variable Attributes1883665
-Node: Xstormy16 Variable Attributes1884757
-Node: Type Attributes1885351
-Node: Common Type Attributes1887233
-Node: ARC Type Attributes1925561
-Node: ARM Type Attributes1926049
-Node: BPF Type Attributes1926859
-Node: PowerPC Type Attributes1927392
-Node: x86 Type Attributes1928429
-Node: Label Attributes1929457
-Node: Enumerator Attributes1931540
-Node: Statement Attributes1933100
-Node: Attribute Syntax1935440
-Node: Function Prototypes1948016
-Node: C++ Comments1949830
-Node: Dollar Signs1950365
-Node: Character Escapes1950830
-Node: Alignment1951118
-Node: Inline1952827
-Node: Const and Volatile Functions1957815
-Node: Volatiles1959057
-Node: Using Assembly Language with C1961982
-Node: Basic Asm1963259
-Node: Extended Asm1969106
-Ref: Volatile1973354
-Ref: AssemblerTemplate1977567
-Ref: OutputOperands1981895
-Ref: FlagOutputOperands1989175
-Ref: InputOperands1992534
-Ref: Clobbers and Scratch Registers1997003
-Ref: GotoLabels2005868
-Ref: GenericOperandmodifiers2009629
-Ref: aarch64Operandmodifiers2010627
-Ref: x86Operandmodifiers2011756
-Ref: x86floatingpointasmoperands2017146
-Ref: msp430Operandmodifiers2020585
-Ref: loongarchOperandmodifiers2022375
-Ref: riscvOperandmodifiers2024243
-Node: Constraints2024677
-Node: Simple Constraints2025805
-Node: Multi-Alternative2033395
-Node: Modifiers2035096
-Node: Machine Constraints2037981
-Node: Asm Labels2096637
-Node: Explicit Register Variables2098285
-Ref: Explicit Reg Vars2098499
-Node: Global Register Variables2099108
-Ref: Global Reg Vars2099316
-Node: Local Register Variables2104172
-Ref: Local Reg Vars2104392
-Node: Size of an asm2108090
-Node: Alternate Keywords2109596
-Node: Incomplete Enums2111682
-Node: Function Names2112463
-Node: Return Address2114411
-Node: Stack Scrubbing2120338
-Node: Vector Extensions2122654
-Node: Offsetof2134237
-Node: __sync Builtins2135082
-Node: __atomic Builtins2142185
-Node: Integer Overflow Builtins2156020
-Node: x86 specific memory model extensions for transactional memory2165001
-Node: Object Size Checking2166287
-Node: Other Builtins2173938
-Node: Target Builtins2239790
-Node: AArch64 Built-in Functions2241673
-Node: Alpha Built-in Functions2242369
-Node: Altera Nios II Built-in Functions2245507
-Node: ARC Built-in Functions2249990
-Node: ARC SIMD Built-in Functions2255616
-Node: ARM iWMMXt Built-in Functions2266122
-Node: ARM C Language Extensions (ACLE)2273262
-Node: ARM Floating Point Status and Control Intrinsics2274547
-Node: ARM ARMv8-M Security Extensions2275034
-Node: AVR Built-in Functions2276334
-Node: Blackfin Built-in Functions2280238
-Node: BPF Built-in Functions2280866
-Node: FR-V Built-in Functions2287394
-Node: Argument Types2288279
-Node: Directly-mapped Integer Functions2290214
-Node: Directly-mapped Media Functions2291494
-Node: Raw read/write Functions2300832
-Node: Other Built-in Functions2301778
-Node: LoongArch Base Built-in Functions2302996
-Node: LoongArch SX Vector Intrinsics2309796
-Node: LoongArch ASX Vector Intrinsics2348736
-Node: MIPS DSP Built-in Functions2390086
-Node: MIPS Paired-Single Support2403055
-Node: MIPS Loongson Built-in Functions2404588
-Node: Paired-Single Arithmetic2411150
-Node: Paired-Single Built-in Functions2412277
-Node: MIPS-3D Built-in Functions2415140
-Node: MIPS SIMD Architecture (MSA) Support2420914
-Node: MIPS SIMD Architecture Built-in Functions2423918
-Node: Other MIPS Built-in Functions2450772
-Node: MSP430 Built-in Functions2451805
-Node: NDS32 Built-in Functions2453218
-Node: Nvidia PTX Built-in Functions2454513
-Node: Basic PowerPC Built-in Functions2455107
-Node: Basic PowerPC Built-in Functions Available on all Configurations2455967
-Node: Basic PowerPC Built-in Functions Available on ISA 2.052465340
-Node: Basic PowerPC Built-in Functions Available on ISA 2.062471500
-Node: Basic PowerPC Built-in Functions Available on ISA 2.072473616
-Node: Basic PowerPC Built-in Functions Available on ISA 3.02474502
-Node: Basic PowerPC Built-in Functions Available on ISA 3.12482037
-Node: PowerPC AltiVec/VSX Built-in Functions2486018
-Node: PowerPC AltiVec Built-in Functions on ISA 2.052494973
-Node: PowerPC AltiVec Built-in Functions Available on ISA 2.062520377
-Node: PowerPC AltiVec Built-in Functions Available on ISA 2.072527491
-Node: PowerPC AltiVec Built-in Functions Available on ISA 3.02537625
-Node: PowerPC AltiVec Built-in Functions Available on ISA 3.12554657
-Node: PowerPC Hardware Transactional Memory Built-in Functions2588355
-Node: PowerPC Atomic Memory Operation Functions2596969
-Node: PowerPC Matrix-Multiply Assist Built-in Functions2599536
-Node: PRU Built-in Functions2605665
-Node: RISC-V Built-in Functions2606945
-Node: RISC-V Vector Intrinsics2607623
-Node: CORE-V Built-in Functions2608126
-Node: RX Built-in Functions2648005
-Node: S/390 System z Built-in Functions2652107
-Node: SH Built-in Functions2657468
-Node: SPARC VIS Built-in Functions2659232
-Node: TI C6X Built-in Functions2667783
-Node: x86 Built-in Functions2668834
-Node: x86 transactional memory intrinsics2736313
-Node: x86 control-flow protection intrinsics2739667
-Node: Target Format Checks2741454
-Node: Solaris Format Checks2741886
-Node: Darwin Format Checks2742336
-Node: Pragmas2743343
-Node: AArch64 Pragmas2744268
-Node: ARM Pragmas2744733
-Node: M32C Pragmas2745396
-Node: PRU Pragmas2746490
-Node: RS/6000 and PowerPC Pragmas2747073
-Node: S/390 Pragmas2747845
-Node: Darwin Pragmas2748423
-Node: Solaris Pragmas2749509
-Node: Symbol-Renaming Pragmas2750711
-Node: Structure-Layout Pragmas2752378
-Node: Weak Pragmas2754742
-Node: Diagnostic Pragmas2755489
-Node: Visibility Pragmas2760351
-Node: Push/Pop Macro Pragmas2761048
-Node: Function Specific Option Pragmas2762045
-Node: Loop-Specific Pragmas2764075
-Node: Unnamed Fields2766208
-Node: Thread-Local2768481
-Node: C99 Thread-Local Edits2770637
-Node: C++98 Thread-Local Edits2772711
-Node: Binary constants2776256
-Node: C++ Extensions2776955
-Node: C++ Volatiles2778601
-Node: Restricted Pointers2780952
-Node: Vague Linkage2782597
-Node: C++ Interface2786260
-Ref: C++ Interface-Footnote-12790152
-Node: Template Instantiation2790308
-Node: Bound member functions2796434
-Node: C++ Attributes2797978
-Node: Function Multiversioning2803302
-Node: Type Traits2805110
-Node: C++ Concepts2813184
-Node: Deprecated Features2814762
-Node: Backwards Compatibility2816599
-Node: Objective-C2817683
-Node: GNU Objective-C runtime API2818290
-Node: Modern GNU Objective-C runtime API2819301
-Node: Traditional GNU Objective-C runtime API2821817
-Node: Executing code before main2822560
-Node: What you can and what you cannot do in +load2825396
-Node: Type encoding2827884
-Node: Legacy type encoding2833650
-Node: @encode2834782
-Node: Method signatures2835363
-Node: Garbage Collection2837447
-Node: Constant string objects2840173
-Node: compatibility_alias2842740
-Node: Exceptions2843502
-Node: Synchronization2846304
-Node: Fast enumeration2847524
-Node: Using fast enumeration2847836
-Node: c99-like fast enumeration syntax2849079
-Node: Fast enumeration details2849786
-Node: Fast enumeration protocol2852216
-Node: Messaging with the GNU Objective-C runtime2855462
-Node: Dynamically registering methods2856854
-Node: Forwarding hook2858601
-Node: Compatibility2861729
-Node: Gcov2868383
-Node: Gcov Intro2869059
-Node: Invoking Gcov2871858
-Node: Gcov and Optimization2896114
-Node: Gcov Data Files2899949
-Node: Cross-profiling2901418
-Node: Freestanding Environments2903354
-Node: Gcov-tool2918485
-Node: Gcov-tool Intro2918918
-Node: Invoking Gcov-tool2921308
-Node: Gcov-dump2924905
-Node: Gcov-dump Intro2925232
-Node: Invoking Gcov-dump2925507
-Node: lto-dump2926304
-Node: lto-dump Intro2926607
-Node: Invoking lto-dump2926865
-Node: Trouble2928033
-Node: Actual Bugs2929455
-Node: Interoperation2929916
-Node: Incompatibilities2936981
-Node: Fixed Headers2945407
-Node: Standard Libraries2947091
-Node: Disappointments2948499
-Node: C++ Misunderstandings2952917
-Node: Static Definitions2953728
-Node: Name lookup2954813
-Ref: Name lookup-Footnote-12959722
-Node: Temporaries2959915
-Node: Copy Assignment2961944
-Node: Non-bugs2963815
-Node: Warnings and Errors2974537
-Node: Bugs2976327
-Node: Bug Criteria2976796
-Node: Bug Reporting2979052
-Node: Service2979270
-Node: Contributing2980095
-Node: Funding2980841
-Node: GNU Project2983350
-Node: Copying2984012
-Node: GNU Free Documentation License3021745
-Node: Contributors3047071
-Node: Indices3089662
-Node: Option Index3089908
-Node: Concept and Symbol Index3406321
+Node: Overall Options87935
+Node: Invoking G++117275
+Node: C Dialect Options118886
+Node: C++ Dialect Options145876
+Node: Objective-C and Objective-C++ Dialect Options217197
+Node: Diagnostic Message Formatting Options229394
+Node: Warning Options263751
+Ref: Wtrigraphs387472
+Node: Static Analyzer Options439545
+Node: Debugging Options484816
+Node: Optimize Options505522
+Ref: Type-punning583079
+Node: Instrumentation Options713974
+Node: Preprocessor Options776483
+Ref: dashMF781516
+Ref: fdollars-in-identifiers786450
+Node: Assembler Options800236
+Node: Link Options800939
+Ref: Link Options-Footnote-1818683
+Node: Directory Options819221
+Node: Code Gen Options828066
+Node: Developer Options858581
+Node: Submodel Options903837
+Node: AArch64 Options905562
+Ref: aarch64-feature-modifiers924166
+Node: Adapteva Epiphany Options930704
+Node: AMD GCN Options936858
+Node: ARC Options939020
+Node: ARM Options961213
+Node: AVR Options1008711
+Ref: avr21009109
+Ref: avr251009432
+Ref: avr31010144
+Ref: avr311010288
+Ref: avr351010421
+Ref: avr41010768
+Ref: avr51011352
+Ref: avr511013649
+Ref: avr61014006
+Ref: avrxmega21014234
+Ref: avrxmega31014976
+Ref: avrxmega41016578
+Ref: avrxmega51017053
+Ref: avrxmega61017257
+Ref: avrxmega71017813
+Ref: avrtiny1018023
+Ref: avr11018333
+Ref: eind1024809
+Ref: ramp1029746
+Ref: avr-macros1031339
+Node: Blackfin Options1040813
+Node: C6X Options1049095
+Node: CRIS Options1050738
+Node: C-SKY Options1054085
+Node: Darwin Options1060378
+Node: DEC Alpha Options1069125
+Node: eBPF Options1081187
+Node: FR30 Options1084491
+Node: FT32 Options1085063
+Node: FRV Options1086033
+Node: GNU/Linux Options1093151
+Node: H8/300 Options1094636
+Node: HPPA Options1096164
+Node: IA-64 Options1107275
+Node: LM32 Options1115751
+Node: LoongArch Options1116303
+Node: M32C Options1128448
+Node: M32R/D Options1129758
+Node: M680x0 Options1133466
+Node: MCore Options1148701
+Node: MicroBlaze Options1150302
+Node: MIPS Options1153533
+Node: MMIX Options1192953
+Node: MN10300 Options1195542
+Node: Moxie Options1198201
+Node: MSP430 Options1198712
+Node: NDS32 Options1206783
+Node: Nios II Options1209053
+Node: Nvidia PTX Options1222885
+Node: OpenRISC Options1226599
+Node: PDP-11 Options1229505
+Node: PowerPC Options1230829
+Node: PRU Options1231047
+Node: RISC-V Options1233312
+Node: RL78 Options1256322
+Node: RS/6000 and PowerPC Options1260269
+Node: RX Options1304307
+Node: S/390 and zSeries Options1313271
+Node: SH Options1324598
+Node: Solaris 2 Options1340346
+Node: SPARC Options1341640
+Node: System V Options1358094
+Node: V850 Options1358959
+Node: VAX Options1365997
+Node: Visium Options1366717
+Node: VMS Options1369105
+Node: VxWorks Options1369969
+Node: x86 Options1371438
+Node: x86 Windows Options1452371
+Node: Xstormy16 Options1456469
+Node: Xtensa Options1456767
+Node: zSeries Options1463873
+Node: Spec Files1464069
+Node: Environment Variables1491451
+Node: Precompiled Headers1501274
+Node: C++ Modules1507623
+Ref: C++ Modules-Footnote-11513369
+Node: C++ Module Mapper1513630
+Node: C++ Module Preprocessing1518895
+Node: C++ Compiled Module Interface1520768
+Ref: C++ Compiled Module Interface-Footnote-11524199
+Ref: C++ Compiled Module Interface-Footnote-21524288
+Node: C Implementation1524344
+Node: Translation implementation1526043
+Node: Environment implementation1526646
+Node: Identifiers implementation1527206
+Node: Characters implementation1528310
+Node: Integers implementation1532098
+Node: Floating point implementation1534205
+Node: Arrays and pointers implementation1537457
+Ref: Arrays and pointers implementation-Footnote-11538929
+Node: Hints implementation1539059
+Node: Structures unions enumerations and bit-fields implementation1540616
+Node: Qualifiers implementation1542968
+Node: Declarators implementation1545053
+Node: Statements implementation1545400
+Node: Preprocessing directives implementation1545740
+Node: Library functions implementation1548171
+Node: Architecture implementation1548846
+Node: Locale-specific behavior implementation1550547
+Node: C++ Implementation1550852
+Node: Conditionally-supported behavior1552144
+Node: Exception handling1552771
+Node: C Extensions1553185
+Node: Statement Exprs1558598
+Node: Local Labels1564134
+Node: Labels as Values1567123
+Ref: Labels as Values-Footnote-11569802
+Node: Nested Functions1569987
+Node: Nonlocal Gotos1574017
+Node: Constructing Calls1576347
+Node: Typeof1581087
+Node: Conditionals1585510
+Node: __int1281586407
+Node: Long Long1586952
+Node: Complex1588487
+Node: Floating Types1593460
+Node: Half-Precision1597174
+Node: Decimal Float1600766
+Node: Hex Floats1602720
+Node: Fixed-Point1603850
+Node: Named Address Spaces1607634
+Ref: AVR Named Address Spaces1608328
+Node: Zero Length1615986
+Node: Empty Structures1621939
+Node: Variable Length1622349
+Node: Variadic Macros1625114
+Node: Escaped Newlines1627512
+Node: Subscripting1628375
+Node: Pointer Arith1629104
+Node: Variadic Pointer Args1629705
+Node: Pointers to Arrays1630446
+Node: Initializers1631211
+Node: Compound Literals1631712
+Node: Designated Inits1635327
+Node: Case Ranges1639319
+Node: Cast to Union1640012
+Node: Mixed Labels and Declarations1641776
+Node: Function Attributes1642413
+Node: Common Function Attributes1646875
+Ref: Common Function Attributes-Footnote-11731755
+Node: AArch64 Function Attributes1732088
+Node: AMD GCN Function Attributes1738538
+Node: ARC Function Attributes1741745
+Node: ARM Function Attributes1744786
+Node: AVR Function Attributes1750091
+Node: Blackfin Function Attributes1754807
+Node: BPF Function Attributes1757396
+Node: C-SKY Function Attributes1758540
+Node: Epiphany Function Attributes1759864
+Node: H8/300 Function Attributes1762691
+Node: IA-64 Function Attributes1763901
+Node: M32C Function Attributes1764959
+Node: M32R/D Function Attributes1767339
+Node: m68k Function Attributes1768861
+Node: MCORE Function Attributes1769821
+Node: MicroBlaze Function Attributes1770655
+Node: Microsoft Windows Function Attributes1772208
+Node: MIPS Function Attributes1776906
+Node: MSP430 Function Attributes1783504
+Node: NDS32 Function Attributes1787723
+Node: Nios II Function Attributes1790207
+Node: Nvidia PTX Function Attributes1791540
+Node: PowerPC Function Attributes1792163
+Node: RISC-V Function Attributes1799181
+Node: RL78 Function Attributes1802382
+Node: RX Function Attributes1803665
+Node: S/390 Function Attributes1806268
+Node: SH Function Attributes1808220
+Node: Symbian OS Function Attributes1811708
+Node: V850 Function Attributes1812052
+Node: Visium Function Attributes1812605
+Node: x86 Function Attributes1813137
+Node: Xstormy16 Function Attributes1840939
+Node: Variable Attributes1841450
+Node: Common Variable Attributes1843187
+Node: ARC Variable Attributes1867735
+Node: AVR Variable Attributes1868127
+Node: Blackfin Variable Attributes1873880
+Node: H8/300 Variable Attributes1874786
+Node: IA-64 Variable Attributes1875867
+Node: LoongArch Variable Attributes1876637
+Node: M32R/D Variable Attributes1877333
+Node: Microsoft Windows Variable Attributes1878158
+Node: MSP430 Variable Attributes1880674
+Node: Nvidia PTX Variable Attributes1881924
+Node: PowerPC Variable Attributes1882549
+Node: RL78 Variable Attributes1883122
+Node: V850 Variable Attributes1883545
+Node: x86 Variable Attributes1884190
+Node: Xstormy16 Variable Attributes1885282
+Node: Type Attributes1885876
+Node: Common Type Attributes1887758
+Node: ARC Type Attributes1926086
+Node: ARM Type Attributes1926574
+Node: BPF Type Attributes1927384
+Node: PowerPC Type Attributes1927917
+Node: x86 Type Attributes1928954
+Node: Label Attributes1929982
+Node: Enumerator Attributes1932065
+Node: Statement Attributes1933625
+Node: Attribute Syntax1935965
+Node: Function Prototypes1948541
+Node: C++ Comments1950355
+Node: Dollar Signs1950890
+Node: Character Escapes1951355
+Node: Alignment1951643
+Node: Inline1953352
+Node: Const and Volatile Functions1958340
+Node: Volatiles1959582
+Node: Using Assembly Language with C1962507
+Node: Basic Asm1963784
+Node: Extended Asm1969631
+Ref: Volatile1973879
+Ref: AssemblerTemplate1978092
+Ref: OutputOperands1982420
+Ref: FlagOutputOperands1989700
+Ref: InputOperands1993059
+Ref: Clobbers and Scratch Registers1997528
+Ref: GotoLabels2006393
+Ref: GenericOperandmodifiers2010154
+Ref: aarch64Operandmodifiers2011152
+Ref: x86Operandmodifiers2012281
+Ref: x86floatingpointasmoperands2017671
+Ref: msp430Operandmodifiers2021110
+Ref: loongarchOperandmodifiers2022900
+Ref: riscvOperandmodifiers2024768
+Node: Constraints2025202
+Node: Simple Constraints2026330
+Node: Multi-Alternative2033920
+Node: Modifiers2035621
+Node: Machine Constraints2038506
+Node: Asm Labels2097162
+Node: Explicit Register Variables2098810
+Ref: Explicit Reg Vars2099024
+Node: Global Register Variables2099633
+Ref: Global Reg Vars2099841
+Node: Local Register Variables2104697
+Ref: Local Reg Vars2104917
+Node: Size of an asm2108615
+Node: Alternate Keywords2110121
+Node: Incomplete Enums2112207
+Node: Function Names2112988
+Node: Return Address2114936
+Node: Stack Scrubbing2120863
+Node: Vector Extensions2123179
+Node: Offsetof2134762
+Node: __sync Builtins2135607
+Node: __atomic Builtins2142710
+Node: Integer Overflow Builtins2156545
+Node: x86 specific memory model extensions for transactional memory2165526
+Node: Object Size Checking2166812
+Node: Other Builtins2174463
+Node: Target Builtins2240315
+Node: AArch64 Built-in Functions2242198
+Node: Alpha Built-in Functions2242894
+Node: Altera Nios II Built-in Functions2246032
+Node: ARC Built-in Functions2250515
+Node: ARC SIMD Built-in Functions2256141
+Node: ARM iWMMXt Built-in Functions2266647
+Node: ARM C Language Extensions (ACLE)2273787
+Node: ARM Floating Point Status and Control Intrinsics2275072
+Node: ARM ARMv8-M Security Extensions2275559
+Node: AVR Built-in Functions2276859
+Node: Blackfin Built-in Functions2280763
+Node: BPF Built-in Functions2281391
+Node: FR-V Built-in Functions2287919
+Node: Argument Types2288804
+Node: Directly-mapped Integer Functions2290739
+Node: Directly-mapped Media Functions2292019
+Node: Raw read/write Functions2301357
+Node: Other Built-in Functions2302303
+Node: LoongArch Base Built-in Functions2303521
+Node: LoongArch SX Vector Intrinsics2310321
+Node: LoongArch ASX Vector Intrinsics2349261
+Node: MIPS DSP Built-in Functions2390611
+Node: MIPS Paired-Single Support2403580
+Node: MIPS Loongson Built-in Functions2405113
+Node: Paired-Single Arithmetic2411675
+Node: Paired-Single Built-in Functions2412802
+Node: MIPS-3D Built-in Functions2415665
+Node: MIPS SIMD Architecture (MSA) Support2421439
+Node: MIPS SIMD Architecture Built-in Functions2424443
+Node: Other MIPS Built-in Functions2451297
+Node: MSP430 Built-in Functions2452330
+Node: NDS32 Built-in Functions2453743
+Node: Nvidia PTX Built-in Functions2455038
+Node: Basic PowerPC Built-in Functions2455632
+Node: Basic PowerPC Built-in Functions Available on all Configurations2456492
+Node: Basic PowerPC Built-in Functions Available on ISA 2.052465865
+Node: Basic PowerPC Built-in Functions Available on ISA 2.062472025
+Node: Basic PowerPC Built-in Functions Available on ISA 2.072474141
+Node: Basic PowerPC Built-in Functions Available on ISA 3.02475027
+Node: Basic PowerPC Built-in Functions Available on ISA 3.12482562
+Node: PowerPC AltiVec/VSX Built-in Functions2486543
+Node: PowerPC AltiVec Built-in Functions on ISA 2.052495498
+Node: PowerPC AltiVec Built-in Functions Available on ISA 2.062520902
+Node: PowerPC AltiVec Built-in Functions Available on ISA 2.072528016
+Node: PowerPC AltiVec Built-in Functions Available on ISA 3.02538150
+Node: PowerPC AltiVec Built-in Functions Available on ISA 3.12555182
+Node: PowerPC Hardware Transactional Memory Built-in Functions2588880
+Node: PowerPC Atomic Memory Operation Functions2597494
+Node: PowerPC Matrix-Multiply Assist Built-in Functions2600061
+Node: PRU Built-in Functions2606190
+Node: RISC-V Built-in Functions2607470
+Node: RISC-V Vector Intrinsics2608148
+Node: CORE-V Built-in Functions2608651
+Node: RX Built-in Functions2648530
+Node: S/390 System z Built-in Functions2652632
+Node: SH Built-in Functions2657993
+Node: SPARC VIS Built-in Functions2659757
+Node: TI C6X Built-in Functions2668308
+Node: x86 Built-in Functions2669359
+Node: x86 transactional memory intrinsics2736838
+Node: x86 control-flow protection intrinsics2740192
+Node: Target Format Checks2741979
+Node: Solaris Format Checks2742411
+Node: Darwin Format Checks2742861
+Node: Pragmas2743868
+Node: AArch64 Pragmas2744793
+Node: ARM Pragmas2745258
+Node: M32C Pragmas2745921
+Node: PRU Pragmas2747015
+Node: RS/6000 and PowerPC Pragmas2747598
+Node: S/390 Pragmas2748370
+Node: Darwin Pragmas2748948
+Node: Solaris Pragmas2750034
+Node: Symbol-Renaming Pragmas2751236
+Node: Structure-Layout Pragmas2752903
+Node: Weak Pragmas2755267
+Node: Diagnostic Pragmas2756014
+Node: Visibility Pragmas2760876
+Node: Push/Pop Macro Pragmas2761573
+Node: Function Specific Option Pragmas2762570
+Node: Loop-Specific Pragmas2764600
+Node: Unnamed Fields2766733
+Node: Thread-Local2769006
+Node: C99 Thread-Local Edits2771162
+Node: C++98 Thread-Local Edits2773236
+Node: Binary constants2776781
+Node: C++ Extensions2777480
+Node: C++ Volatiles2779126
+Node: Restricted Pointers2781477
+Node: Vague Linkage2783122
+Node: C++ Interface2786785
+Ref: C++ Interface-Footnote-12790677
+Node: Template Instantiation2790833
+Node: Bound member functions2796959
+Node: C++ Attributes2798503
+Node: Function Multiversioning2803827
+Node: Type Traits2805635
+Node: C++ Concepts2813709
+Node: Deprecated Features2815287
+Node: Backwards Compatibility2817124
+Node: Objective-C2818208
+Node: GNU Objective-C runtime API2818815
+Node: Modern GNU Objective-C runtime API2819826
+Node: Traditional GNU Objective-C runtime API2822342
+Node: Executing code before main2823085
+Node: What you can and what you cannot do in +load2825921
+Node: Type encoding2828409
+Node: Legacy type encoding2834175
+Node: @encode2835307
+Node: Method signatures2835888
+Node: Garbage Collection2837972
+Node: Constant string objects2840698
+Node: compatibility_alias2843265
+Node: Exceptions2844027
+Node: Synchronization2846829
+Node: Fast enumeration2848049
+Node: Using fast enumeration2848361
+Node: c99-like fast enumeration syntax2849604
+Node: Fast enumeration details2850311
+Node: Fast enumeration protocol2852741
+Node: Messaging with the GNU Objective-C runtime2855987
+Node: Dynamically registering methods2857379
+Node: Forwarding hook2859126
+Node: Compatibility2862254
+Node: Gcov2868908
+Node: Gcov Intro2869584
+Node: Invoking Gcov2872383
+Node: Gcov and Optimization2896639
+Node: Gcov Data Files2900474
+Node: Cross-profiling2901943
+Node: Freestanding Environments2903879
+Node: Gcov-tool2919010
+Node: Gcov-tool Intro2919443
+Node: Invoking Gcov-tool2921833
+Node: Gcov-dump2925430
+Node: Gcov-dump Intro2925757
+Node: Invoking Gcov-dump2926032
+Node: lto-dump2926829
+Node: lto-dump Intro2927132
+Node: Invoking lto-dump2927390
+Node: Trouble2928558
+Node: Actual Bugs2929980
+Node: Interoperation2930441
+Node: Incompatibilities2937506
+Node: Fixed Headers2945932
+Node: Standard Libraries2947616
+Node: Disappointments2949024
+Node: C++ Misunderstandings2953442
+Node: Static Definitions2954253
+Node: Name lookup2955338
+Ref: Name lookup-Footnote-12960247
+Node: Temporaries2960440
+Node: Copy Assignment2962469
+Node: Non-bugs2964340
+Node: Warnings and Errors2975062
+Node: Bugs2976852
+Node: Bug Criteria2977321
+Node: Bug Reporting2979577
+Node: Service2979795
+Node: Contributing2980620
+Node: Funding2981366
+Node: GNU Project2983875
+Node: Copying2984537
+Node: GNU Free Documentation License3022270
+Node: Contributors3047596
+Node: Indices3090187
+Node: Option Index3090433
+Node: Concept and Symbol Index3407116
 
 End Tag Table
 
