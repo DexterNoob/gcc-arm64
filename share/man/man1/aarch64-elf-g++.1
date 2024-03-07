@@ -55,7 +55,7 @@
 .\" ========================================================================
 .\"
 .IX Title "GCC 1"
-.TH GCC 1 2024-02-11 gcc-14.0.1 GNU
+.TH GCC 1 2024-03-07 gcc-14.0.1 GNU
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -206,7 +206,7 @@ in the following sections.
 \&\-Wdeprecated\-copy \-Wdeprecated\-copy\-dtor
 \&\-Wno\-deprecated\-enum\-enum\-conversion \-Wno\-deprecated\-enum\-float\-conversion
 \&\-Weffc++ \-Wno\-elaborated\-enum\-base
-\&\-Wno\-exceptions \-Wextra\-semi  \-Wno\-inaccessible\-base
+\&\-Wno\-exceptions \-Wextra\-semi \-Wno\-global\-module \-Wno\-inaccessible\-base
 \&\-Wno\-inherited\-variadic\-ctor  \-Wno\-init\-list\-lifetime
 \&\-Winvalid\-constexpr \-Winvalid\-imported\-macros
 \&\-Wno\-invalid\-offsetof  \-Wno\-literal\-suffix
@@ -814,7 +814,7 @@ in the following sections.
 .Sp
 \&\fIAVR Options\fR
 \&\fB\-mmcu=\fR\fImcu\fR  \fB\-mabsdata  \-maccumulate\-args
-\&\-mbranch\-cost=\fR\fIcost\fR
+\&\-mbranch\-cost=\fR\fIcost\fR  \fB\-mfuse\-add=\fR\fIlevel\fR
 \&\fB\-mcall\-prologues  \-mgas\-isr\-prologues  \-mint8  \-mflmap
 \&\-mdouble=\fR\fIbits\fR  \fB\-mlong\-double=\fR\fIbits\fR
 \&\fB\-mn_flash=\fR\fIsize\fR  \fB\-mno\-interrupts
@@ -1247,7 +1247,7 @@ See RS/6000 and PowerPC Options.
 \&\-mveclibabi=\fR\fItype\fR  \fB\-mfriz  \-mno\-friz
 \&\-mpointers\-to\-nested\-functions  \-mno\-pointers\-to\-nested\-functions
 \&\-msave\-toc\-indirect  \-mno\-save\-toc\-indirect
-\&\-mpower8\-fusion  \-mno\-mpower8\-fusion  \-mpower8\-vector  \-mno\-power8\-vector
+\&\-mpower8\-fusion  \-mno\-mpower8\-fusion
 \&\-mcrypto  \-mno\-crypto  \-mhtm  \-mno\-htm
 \&\-mquad\-memory  \-mno\-quad\-memory
 \&\-mquad\-memory\-atomic  \-mno\-quad\-memory\-atomic
@@ -3799,6 +3799,9 @@ by wrapping them in a \f(CW\*(C`#pragma\*(C'\fR:
 \&        #pragma GCC diagnostic pop
 .Ve
 .Sp
+The \f(CW\*(C`#pragma\*(C'\fR can also surround the class; in that case, the warning
+will be disabled for all the member functions.
+.Sp
 \&\fB\-Wdangling\-reference\fR also warns about code like
 .Sp
 .Vb 1
@@ -3822,6 +3825,8 @@ classes of the form:
 .Sp
 as \f(CW\*(C`std::span\*(C'\fR\-like; that is, the class is a non-union class
 that has a pointer data member and a trivial destructor.
+.Sp
+The warning can be disabled by using the \f(CW\*(C`gnu::no_dangling\*(C'\fR attribute.
 .Sp
 This warning is enabled by \fB\-Wall\fR.
 .IP "\fB\-Wdelete\-non\-virtual\-dtor\fR (C++ and Objective\-C++ only)" 4
@@ -4563,6 +4568,10 @@ undefined behavior at runtime.  This warning is enabled by default.
 .IP "\fB\-Wextra\-semi\fR (C++, Objective\-C++ only)" 4
 .IX Item "-Wextra-semi (C++, Objective-C++ only)"
 Warn about redundant semicolons after in-class function definitions.
+.IP "\fB\-Wno\-global\-module\fR (C++ and Objective\-C++ only)" 4
+.IX Item "-Wno-global-module (C++ and Objective-C++ only)"
+Disable the diagnostic for when the global module fragment of a module
+unit does not consist only of preprocessor directives.
 .IP "\fB\-Wno\-inaccessible\-base\fR (C++, Objective\-C++ only)" 4
 .IX Item "-Wno-inaccessible-base (C++, Objective-C++ only)"
 This option controls warnings
@@ -6845,7 +6854,7 @@ when non-existent profile data is justified.
 .IP \fB\-Wmismatched\-dealloc\fR 4
 .IX Item "-Wmismatched-dealloc"
 Warn for calls to deallocation functions with pointer arguments returned
-from from allocations functions for which the former isn't a suitable
+from allocation functions for which the former isn't a suitable
 deallocator.  A pair of functions can be associated as matching allocators
 and deallocators by use of attribute \f(CW\*(C`malloc\*(C'\fR.  Unless disabled by
 the \fB\-fno\-builtin\fR option the standard functions \f(CW\*(C`calloc\*(C'\fR,
@@ -22885,11 +22894,19 @@ address signing.
 These options are defined for AVR implementations:
 .IP \fB\-mmcu=\fR\fImcu\fR 4
 .IX Item "-mmcu=mcu"
-Specify Atmel AVR instruction set architectures (ISA) or MCU type.
+Specify the AVR instruction set architecture (ISA) or device type.
+The default for this option is \f(CW\*(C`avr2\*(C'\fR.
 .Sp
-The default for this option is \fBavr2\fR.
-.Sp
-GCC supports the following AVR devices and ISAs:
+The following AVR devices and ISAs are supported.
+\&\fINote:\fR A complete device support consists of
+startup code \f(CW\*(C`crt\fR\f(CImcu\fR\f(CW.o\*(C'\fR, a device header \f(CW\*(C`avr/io*.h\*(C'\fR,
+a device library \f(CW\*(C`lib\fR\f(CImcu\fR\f(CW.a\*(C'\fR and a
+device-specs (\f(CW\*(C`https://gcc.gnu.org/wiki/avr\-gcc#spec\-files\*(C'\fR) file
+\&\f(CW\*(C`specs\-\fR\f(CImcu\fR\f(CW\*(C'\fR. Only the latter is provided by the compiler
+according the supported \f(CW\*(C`\fR\f(CImcu\fR\f(CW\*(C'\fRs below.  The rest is supported
+by AVR-LibC (\f(CW\*(C`https://www.nongnu.org/avr\-libc/\*(C'\fR), or by means of
+\&\f(CW\*(C`atpack\*(C'\fR (\f(CW\*(C`https://gcc.gnu.org/wiki/avr\-gcc#atpack\*(C'\fR) files
+from the hardware manufacturer.
 .RS 4
 .ie n .IP """avr2""" 4
 .el .IP \f(CWavr2\fR 4
@@ -23009,6 +23026,18 @@ integers. The default branch cost is 0.
 .IX Item "-mcall-prologues"
 Functions prologues/epilogues are expanded as calls to appropriate
 subroutines.  Code size is smaller.
+.IP \fB\-mfuse\-add\fR 4
+.IX Item "-mfuse-add"
+.PD 0
+.IP \fB\-mno\-fuse\-add\fR 4
+.IX Item "-mno-fuse-add"
+.IP \fB\-mfuse\-add=\fR\fIlevel\fR 4
+.IX Item "-mfuse-add=level"
+.PD
+Optimize indirect memory accesses on reduced Tiny devices.
+The default uses \f(CW\*(C`\fR\f(CIlevel\fR\f(CW=1\*(C'\fR for optimizations \fB\-Og\fR
+and \fB\-O1\fR, and \f(CW\*(C`\fR\f(CIlevel\fR\f(CW=2\*(C'\fR for higher optimizations.
+Valid values for \fIlevel\fR are \f(CW0\fR, \f(CW1\fR and \f(CW2\fR.
 .IP \fB\-mdouble=\fR\fIbits\fR 4
 .IX Item "-mdouble=bits"
 .PD 0
@@ -23363,6 +23392,10 @@ If \fIdevice\fR is not a device but only a core architecture like
 .el .IP \f(CW_\|_AVR_XMEGA_\|_\fR 4
 .IX Item "__AVR_XMEGA__"
 The device / architecture belongs to the XMEGA family of devices.
+.ie n .IP """_\|_AVR_HAVE_ADIW_\|_""" 4
+.el .IP \f(CW_\|_AVR_HAVE_ADIW_\|_\fR 4
+.IX Item "__AVR_HAVE_ADIW__"
+The device has the \f(CW\*(C`ADIW\*(C'\fR and \f(CW\*(C`SBIW\*(C'\fR instructions.
 .ie n .IP """_\|_AVR_HAVE_ELPM_\|_""" 4
 .el .IP \f(CW_\|_AVR_HAVE_ELPM_\|_\fR 4
 .IX Item "__AVR_HAVE_ELPM__"
@@ -23372,16 +23405,16 @@ The device has the \f(CW\*(C`ELPM\*(C'\fR instruction.
 .IX Item "__AVR_HAVE_ELPMX__"
 The device has the \f(CW\*(C`ELPM R\fR\f(CIn\fR\f(CW,Z\*(C'\fR and \f(CW\*(C`ELPM
 R\fR\f(CIn\fR\f(CW,Z+\*(C'\fR instructions.
-.ie n .IP """_\|_AVR_HAVE_MOVW_\|_""" 4
-.el .IP \f(CW_\|_AVR_HAVE_MOVW_\|_\fR 4
-.IX Item "__AVR_HAVE_MOVW__"
-The device has the \f(CW\*(C`MOVW\*(C'\fR instruction to perform 16\-bit
-register-register moves.
 .ie n .IP """_\|_AVR_HAVE_LPMX_\|_""" 4
 .el .IP \f(CW_\|_AVR_HAVE_LPMX_\|_\fR 4
 .IX Item "__AVR_HAVE_LPMX__"
 The device has the \f(CW\*(C`LPM R\fR\f(CIn\fR\f(CW,Z\*(C'\fR and
 \&\f(CW\*(C`LPM R\fR\f(CIn\fR\f(CW,Z+\*(C'\fR instructions.
+.ie n .IP """_\|_AVR_HAVE_MOVW_\|_""" 4
+.el .IP \f(CW_\|_AVR_HAVE_MOVW_\|_\fR 4
+.IX Item "__AVR_HAVE_MOVW__"
+The device has the \f(CW\*(C`MOVW\*(C'\fR instruction to perform 16\-bit
+register-register moves.
 .ie n .IP """_\|_AVR_HAVE_MUL_\|_""" 4
 .el .IP \f(CW_\|_AVR_HAVE_MUL_\|_\fR 4
 .IX Item "__AVR_HAVE_MUL__"
@@ -27872,8 +27905,8 @@ memory range for which the cache is being flushed, the size of the
 memory range, and the number 3 (to flush both caches).  The default
 depends on the target GCC was configured for, but commonly is either
 \&\f(CW\*(C`_flush_func\*(C'\fR or \f(CW\*(C`_\|_cpu_flush\*(C'\fR.
-.IP \fBmbranch\-cost=\fR\fInum\fR 4
-.IX Item "mbranch-cost=num"
+.IP \fB\-mbranch\-cost=\fR\fInum\fR 4
+.IX Item "-mbranch-cost=num"
 Set the cost of branches to roughly \fInum\fR "simple" instructions.
 This cost is only a heuristic and is not guaranteed to produce
 consistent results across releases.  A zero cost redundantly selects
@@ -29088,15 +29121,28 @@ These are listed under
 These command-line options are defined for PRU target:
 .IP \fB\-minrt\fR 4
 .IX Item "-minrt"
-Link with a minimum runtime environment, with no support for static
-initializers and constructors.  Using this option can significantly reduce
-the size of the final ELF binary.  Beware that the compiler could still
-generate code with static initializers and constructors.  It is up to the
-programmer to ensure that the source program will not use those features.
+Link with a minimum runtime environment.  This can significantly reduce
+the size of the final ELF binary, but some standard C runtime features
+are removed.
+.Sp
+This option disables support for static initializers and constructors.
+Beware that the compiler could still generate code with static initializers
+and constructors.  It is up to the programmer to ensure that the source
+program will not use those features.
+.Sp
+The minimal startup code would not pass \f(CW\*(C`argc\*(C'\fR and \f(CW\*(C`argv\*(C'\fR arguments
+to \f(CW\*(C`main\*(C'\fR, so the latter must be declared as \f(CW\*(C`int main (void)\*(C'\fR.
+This is already the norm for most firmware projects.
 .IP \fB\-mmcu=\fR\fImcu\fR 4
 .IX Item "-mmcu=mcu"
-Specify the PRU MCU variant to use.  Check Newlib for the exact list of
-supported MCUs.
+Specify the PRU hardware variant to use.  A correspondingly named
+spec file would be loaded, passing the memory region sizes to
+the linker and defining hardware-specific C macros.
+.Sp
+Newlib provides only the \f(CW\*(C`sim\*(C'\fR spec, intended for running
+regression tests using a simulator.  Specs for real hardware can be
+obtained by installing the
+GnuPruMcu (\f(CW\*(C`https://github.com/dinuxbg/gnuprumcu/\*(C'\fR) package.
 .IP \fB\-mno\-relax\fR 4
 .IX Item "-mno-relax"
 Make GCC pass the \fB\-\-no\-relax\fR command-line option to the linker
@@ -29218,7 +29264,8 @@ with \fB\-\-with\-isa\-spec=\fR specifying a different default version.
 .IX Item "-march=ISA-string"
 Generate code for given RISC-V ISA (e.g. \fBrv64im\fR).  ISA strings must be
 lower-case.  Examples include \fBrv64i\fR, \fBrv32g\fR, \fBrv32e\fR, and
-\&\fBrv32imaf\fR.
+\&\fBrv32imaf\fR. Additionally, a special value \fBhelp\fR
+(\fB\-march=help\fR) is accepted to list all supported extensions.
 .Sp
 The syntax of the ISA string is defined as follows:
 .RS 4
@@ -29751,6 +29798,8 @@ Permissible values for this option are: \fBsifive\-e20\fR, \fBsifive\-e21\fR,
 \&\fBsifive\-s21\fR, \fBsifive\-s51\fR, \fBsifive\-s54\fR, \fBsifive\-s76\fR,
 \&\fBsifive\-u54\fR, \fBsifive\-u74\fR, \fBsifive\-x280\fR, \fBsifive\-xp450\fR,
 \&\fBsifive\-x670\fR.
+.Sp
+Note that \fB\-mcpu\fR does not override \fB\-march\fR or \fB\-mtune\fR.
 .IP \fB\-mtune=\fR\fIprocessor-string\fR 4
 .IX Item "-mtune=processor-string"
 Optimize the output for the given processor, specified by microarchitecture or
@@ -30176,7 +30225,7 @@ following options:
 \&\-mpopcntb  \-mpopcntd  \-mpowerpc64
 \&\-mpowerpc\-gpopt  \-mpowerpc\-gfxopt
 \&\-mmulhw  \-mdlmzb  \-mmfpgpr  \-mvsx
-\&\-mcrypto  \-mhtm  \-mpower8\-fusion  \-mpower8\-vector
+\&\-mcrypto  \-mhtm  \-mpower8\-fusion
 \&\-mquad\-memory  \-mquad\-memory\-atomic  \-mfloat128
 \&\-mfloat128\-hardware \-mprefixed \-mpcrel \-mmma
 \&\-mrop\-protect\fR
@@ -30299,16 +30348,6 @@ were added in version 2.07 of the PowerPC ISA.
 Generate code that keeps (does not keeps) some integer operations
 adjacent so that the instructions can be fused together on power8 and
 later processors.
-.IP \fB\-mpower8\-vector\fR 4
-.IX Item "-mpower8-vector"
-.PD 0
-.IP \fB\-mno\-power8\-vector\fR 4
-.IX Item "-mno-power8-vector"
-.PD
-Generate code that uses (does not use) the vector and scalar
-instructions that were added in version 2.07 of the PowerPC ISA.  Also
-enable the use of built-in functions that allow more direct access to
-the vector instructions.
 .IP \fB\-mquad\-memory\fR 4
 .IX Item "-mquad-memory"
 .PD 0
@@ -30344,13 +30383,12 @@ supported on Linux.
 The default for \fB\-mfloat128\fR is enabled on PowerPC Linux
 systems using the VSX instruction set, and disabled on other systems.
 .Sp
-If you use the ISA 3.0 instruction set (\fB\-mpower9\-vector\fR or
-\&\fB\-mcpu=power9\fR) on a 64\-bit system, the IEEE 128\-bit floating
-point support will also enable the generation of ISA 3.0 IEEE 128\-bit
-floating point instructions.  Otherwise, if you do not specify to
-generate ISA 3.0 instructions or you are targeting a 32\-bit big endian
-system, IEEE 128\-bit floating point will be done with software
-emulation.
+If you use the ISA 3.0 instruction set (\fB\-mcpu=power9\fR) on a
+64\-bit system, the IEEE 128\-bit floating point support will also enable
+the generation of ISA 3.0 IEEE 128\-bit floating point instructions.
+Otherwise, if you do not specify to generate ISA 3.0 instructions or you
+are targeting a 32\-bit big endian system, IEEE 128\-bit floating point
+will be done with software emulation.
 .IP \fB\-mfloat128\-hardware\fR 4
 .IX Item "-mfloat128-hardware"
 .PD 0

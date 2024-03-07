@@ -574,6 +574,24 @@ gen_aarch64_rbit (machine_mode arg0, rtx x0, rtx x1)
   return res;
 }
 
+extern insn_code maybe_code_for_aarch64_and3nr_compare0 (machine_mode);
+inline insn_code
+code_for_aarch64_and3nr_compare0 (machine_mode arg0)
+{
+  insn_code code = maybe_code_for_aarch64_and3nr_compare0 (arg0);
+  gcc_assert (code != CODE_FOR_nothing);
+  return code;
+}
+
+extern rtx maybe_gen_aarch64_and3nr_compare0 (machine_mode, rtx, rtx);
+inline rtx
+gen_aarch64_and3nr_compare0 (machine_mode arg0, rtx x0, rtx x1)
+{
+  rtx res = maybe_gen_aarch64_and3nr_compare0 (arg0, x0, x1);
+  gcc_assert (res);
+  return res;
+}
+
 extern insn_code maybe_code_for_aarch64_rev16 (machine_mode);
 inline insn_code
 code_for_aarch64_rev16 (machine_mode arg0)
@@ -3810,42 +3828,6 @@ inline rtx
 gen_aarch64_sme_lut (int arg0, machine_mode arg1, rtx x0, rtx x1, rtx x2)
 {
   rtx res = maybe_gen_aarch64_sme_lut (arg0, arg1, x0, x1, x2);
-  gcc_assert (res);
-  return res;
-}
-
-extern insn_code maybe_code_for_aarch64_sme_lut_strided2 (int, machine_mode);
-inline insn_code
-code_for_aarch64_sme_lut_strided2 (int arg0, machine_mode arg1)
-{
-  insn_code code = maybe_code_for_aarch64_sme_lut_strided2 (arg0, arg1);
-  gcc_assert (code != CODE_FOR_nothing);
-  return code;
-}
-
-extern rtx maybe_gen_aarch64_sme_lut_strided2 (int, machine_mode, rtx, rtx, rtx, rtx);
-inline rtx
-gen_aarch64_sme_lut_strided2 (int arg0, machine_mode arg1, rtx x0, rtx x1, rtx x2, rtx x3)
-{
-  rtx res = maybe_gen_aarch64_sme_lut_strided2 (arg0, arg1, x0, x1, x2, x3);
-  gcc_assert (res);
-  return res;
-}
-
-extern insn_code maybe_code_for_aarch64_sme_lut_strided4 (int, machine_mode);
-inline insn_code
-code_for_aarch64_sme_lut_strided4 (int arg0, machine_mode arg1)
-{
-  insn_code code = maybe_code_for_aarch64_sme_lut_strided4 (arg0, arg1);
-  gcc_assert (code != CODE_FOR_nothing);
-  return code;
-}
-
-extern rtx maybe_gen_aarch64_sme_lut_strided4 (int, machine_mode, rtx, rtx, rtx, rtx, rtx, rtx);
-inline rtx
-gen_aarch64_sme_lut_strided4 (int arg0, machine_mode arg1, rtx x0, rtx x1, rtx x2, rtx x3, rtx x4, rtx x5)
-{
-  rtx res = maybe_gen_aarch64_sme_lut_strided4 (arg0, arg1, x0, x1, x2, x3, x4, x5);
   gcc_assert (res);
   return res;
 }
