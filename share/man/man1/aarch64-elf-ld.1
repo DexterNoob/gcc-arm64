@@ -55,7 +55,7 @@
 .\" ========================================================================
 .\"
 .IX Title "LD 1"
-.TH LD 1 2024-03-17 binutils-2.42.50 "GNU Development Tools"
+.TH LD 1 2024-03-21 binutils-2.42.50 "GNU Development Tools"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -2181,11 +2181,11 @@ of the input files.
 When the linker encounters such a dependency when doing a non-shared,
 non-relocatable link, it will automatically try to locate the required
 shared library and include it in the link, if it is not included
-explicitly.  In such a case, the \fB\-rpath\-link\fR option
-specifies the first set of directories to search.  The
-\&\fB\-rpath\-link\fR option may specify a sequence of directory names
-either by specifying a list of names separated by colons, or by
-appearing multiple times.
+explicitly.  In such a case, several directories are searched as
+described below.  The \fB\-rpath\-link\fR option specifies the first
+set of directories to search.  This option may specify a sequence of
+directory names either by providing a list of names separated by
+colons, or by appearing multiple times.
 .Sp
 The tokens \fR\f(CI$ORIGIN\fR\fI\fR and \fI\fR\f(CI$LIB\fR\fI\fR can appear in these search
 directories.  They will be replaced by the full path to the directory
@@ -2197,13 +2197,18 @@ The alternative form of these tokens \- \fI${ORIGIN}\fR and
 \&\fI${LIB}\fR can also be used.  The token \fR\f(CI$PLATFORM\fR\fI\fR is not
 supported.
 .Sp
-This option should be used with caution as it overrides the search path
-that may have been hard compiled into a shared library. In such a case it
-is possible to use unintentionally a different search path than the
-runtime linker would do.
+The \fB\-\-rpath\-link\fR option should be used with caution as it
+overrides the search path that may have been hard compiled into a
+shared library.  In such a case it is possible to unintentionally use
+a different search path than the runtime linker would have used.
 .Sp
-The linker uses the following search paths to locate required shared
-libraries:
+When additional shared libraries are required, the linker will search
+directories in the order listed below in order to find them.  Note
+however that this only applies to additional libraries needed to
+satisfy already included shared libraries.  It does \fInot\fR
+apply to libraries that are included via the \fB\-l\fR command line
+option.  Searches for \fB\-l\fR libraries are only conducted in
+directories specified by the \fB\-L\fR option
 .RS 4
 .IP 1. 4
 Any directories specified by \fB\-rpath\-link\fR options.

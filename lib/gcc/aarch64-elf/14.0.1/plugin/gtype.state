@@ -4,7 +4,7 @@
 ;;; Don't parse this file wihout knowing GCC gengtype internals.
 ;;; This file should be parsed by the same gengtype which wrote it.
 
-(!version  "14.0.1 20240317 (Dexter)")
+(!version  "14.0.1 20240321 (Dexter)")
 (!srcdir  "../../gcc/gcc")
 (!languages 12 ada c cp d fortran go jit lto m2 objc objcp rust)
 (!fileslist 249 0
@@ -26933,15 +26933,15 @@
   nil 0 nil nil )
  
  (!type struct 1705 nil  gc_unused "numbered_tree"
-  (!srcfileloc  "tree-dfa.cc" 959)
+  (!srcfileloc  "tree-dfa.cc" 961)
   (!fields 2 
    (!pair  "t"
     (!type already_seen 23)
-    (!srcfileloc  "tree-dfa.cc" 957)
+    (!srcfileloc  "tree-dfa.cc" 959)
     nil )
    (!pair  "num"
     (!type already_seen 2)
-    (!srcfileloc  "tree-dfa.cc" 958)
+    (!srcfileloc  "tree-dfa.cc" 960)
     nil )
   )
   nil 4095 nil nil )
@@ -30572,19 +30572,19 @@
   (!fields 4 
    (!pair  "decl"
     (!type already_seen 23)
-    (!srcfileloc  "cp/cp-tree.h" 8642)
+    (!srcfileloc  "cp/cp-tree.h" 8648)
     nil )
    (!pair  "body"
     (!type already_seen 23)
-    (!srcfileloc  "cp/cp-tree.h" 8643)
+    (!srcfileloc  "cp/cp-tree.h" 8649)
     nil )
    (!pair  "parms"
     (!type already_seen 23)
-    (!srcfileloc  "cp/cp-tree.h" 8644)
+    (!srcfileloc  "cp/cp-tree.h" 8650)
     nil )
    (!pair  "result"
     (!type already_seen 23)
-    (!srcfileloc  "cp/cp-tree.h" 8645)
+    (!srcfileloc  "cp/cp-tree.h" 8651)
     nil )
   )
   (!options 
@@ -39416,7 +39416,7 @@
   nil )
  (!pair  "deleted_copy_types"
   (!type already_seen 459)
-  (!srcfileloc  "cp/tree.cc" 4492)
+  (!srcfileloc  "cp/tree.cc" 4503)
   nil )
  (!pair  "list_hash_table"
   (!type already_seen 2405)
@@ -39991,7 +39991,7 @@
   nil )
  (!pair  "unemitted_tinfo_decls"
   (!type already_seen 85)
-  (!srcfileloc  "cp/cp-tree.h" 7656)
+  (!srcfileloc  "cp/cp-tree.h" 7662)
   nil )
  (!pair  "ovl_op_alternate"
   (!type array 2572 nil  gc_used "OVL_OP_MAX" 
