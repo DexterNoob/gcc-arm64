@@ -530,12 +530,12 @@ major data about the file and pointers to the rest of the data.
        /* Set if this is a plugin output file.  */
        unsigned int lto_output : 1;
 
-       /* Set if this is a slim LTO object not loaded with a compiler plugin.  */
-       unsigned int lto_slim_object : 1;
-
        /* Do not attempt to modify this file.  Set when detecting errors
           that BFD is not prepared to handle for objcopy/strip.  */
        unsigned int read_only : 1;
+
+       /* LTO object type.  */
+       ENUM_BITFIELD (bfd_lto_object_type) lto_type : 2;
 
        /* Set to dummy BFD created when claimed by a compiler plug-in
           library.  */
@@ -2242,10 +2242,10 @@ These are the functions exported by the section handling part of BFD.
           *group);
      Remove all members of GROUP from the output.
 
-2.6.5.24 ‘_bfd_section_size_insane’
-...................................
+2.6.5.24 ‘bfd_section_size_insane’
+..................................
 
- -- Function: bool _bfd_section_size_insane (bfd *abfd, asection *sec);
+ -- Function: bool bfd_section_size_insane (bfd *abfd, asection *sec);
      Returns true if the given section has a size that indicates it
      cannot be read from file.  Return false if the size is OK or* this
      function can’t say one way or the other.
@@ -11650,8 +11650,6 @@ BFD Index
 * _bfd_per_xvec_warn:                    bfd_target.         (line  539)
 * _bfd_relocate_contents:                Relocating the section contents.
                                                              (line   22)
-* _bfd_section_size_insane:              section prototypes. (line  283)
-* _bfd_section_size_insane <1>:          section prototypes. (line  287)
 * _bfd_set_error_handler_caching:        Error reporting.    (line  157)
 * _bfd_set_error_handler_caching <1>:    Error reporting.    (line  161)
 * _bfd_stringtab_add:                    Write Other Derived Routines.
@@ -14640,6 +14638,8 @@ BFD Index
                                                              (line   57)
 * bfd_section_list_clear:                section prototypes. (line    7)
 * bfd_section_list_clear <1>:            section prototypes. (line   11)
+* bfd_section_size_insane:               section prototypes. (line  283)
+* bfd_section_size_insane <1>:           section prototypes. (line  287)
 * bfd_seek:                              Miscellaneous.      (line  402)
 * bfd_seek <1>:                          Miscellaneous.      (line  406)
 * bfd_set_archive_head:                  Archives.           (line   72)
@@ -14771,63 +14771,63 @@ Node: BFD information loss6333
 Node: Canonical format8902
 Node: BFD front end13262
 Node: typedef bfd13700
-Node: Error reporting27112
-Node: Initialization34266
-Node: Threading34801
-Node: Miscellaneous36696
-Node: Memory Usage56191
-Node: Sections57436
-Node: Section Input57921
-Node: Section Output59154
-Node: typedef asection61681
-Node: section prototypes78962
-Node: Symbols90537
-Node: Reading Symbols92158
-Node: Writing Symbols93266
-Node: Mini Symbols95034
-Node: typedef asymbol96036
-Node: symbol handling functions102246
-Node: Archives107558
-Node: Formats111778
-Node: Relocations114925
-Node: typedef arelent115660
-Node: howto manager129663
-Node: Core Files270621
-Node: Targets272654
-Node: bfd_target274701
-Node: Architectures301574
-Node: Opening and Closing334158
-Node: Internal350181
-Node: File Caching361625
-Node: Linker Functions363868
-Node: Creating a Linker Hash Table365566
-Node: Adding Symbols to the Hash Table367329
-Node: Differing file formats368237
-Node: Adding symbols from an object file369998
-Node: Adding symbols from an archive372232
-Node: Performing the Final Link374644
-Node: Information provided by the linker375901
-Node: Relocating the section contents377091
-Node: Writing the symbol table378911
-Node: Hash Tables386154
-Node: Creating and Freeing a Hash Table387356
-Node: Looking Up or Entering a String388658
-Node: Traversing a Hash Table389959
-Node: Deriving a New Hash Table Type390780
-Node: Define the Derived Structures391854
-Node: Write the Derived Creation Routine392975
-Node: Write Other Derived Routines395626
-Node: BFD back ends401155
-Node: What to Put Where401425
-Node: aout401605
-Node: coff407830
-Node: elf429339
-Node: mmo429742
-Node: File layout430622
-Node: Symbol-table436747
-Node: mmo section mapping440566
-Node: GNU Free Documentation License444264
-Node: BFD Index469531
+Node: Error reporting27077
+Node: Initialization34231
+Node: Threading34766
+Node: Miscellaneous36661
+Node: Memory Usage56156
+Node: Sections57401
+Node: Section Input57886
+Node: Section Output59119
+Node: typedef asection61646
+Node: section prototypes78927
+Node: Symbols90499
+Node: Reading Symbols92120
+Node: Writing Symbols93228
+Node: Mini Symbols94996
+Node: typedef asymbol95998
+Node: symbol handling functions102208
+Node: Archives107520
+Node: Formats111740
+Node: Relocations114887
+Node: typedef arelent115622
+Node: howto manager129625
+Node: Core Files270583
+Node: Targets272616
+Node: bfd_target274663
+Node: Architectures301536
+Node: Opening and Closing334120
+Node: Internal350143
+Node: File Caching361587
+Node: Linker Functions363830
+Node: Creating a Linker Hash Table365528
+Node: Adding Symbols to the Hash Table367291
+Node: Differing file formats368199
+Node: Adding symbols from an object file369960
+Node: Adding symbols from an archive372194
+Node: Performing the Final Link374606
+Node: Information provided by the linker375863
+Node: Relocating the section contents377053
+Node: Writing the symbol table378873
+Node: Hash Tables386116
+Node: Creating and Freeing a Hash Table387318
+Node: Looking Up or Entering a String388620
+Node: Traversing a Hash Table389921
+Node: Deriving a New Hash Table Type390742
+Node: Define the Derived Structures391816
+Node: Write the Derived Creation Routine392937
+Node: Write Other Derived Routines395588
+Node: BFD back ends401117
+Node: What to Put Where401387
+Node: aout401567
+Node: coff407792
+Node: elf429301
+Node: mmo429704
+Node: File layout430584
+Node: Symbol-table436709
+Node: mmo section mapping440528
+Node: GNU Free Documentation License444226
+Node: BFD Index469493
 
 End Tag Table
 
